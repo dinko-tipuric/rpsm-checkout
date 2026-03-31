@@ -2,13 +2,28 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Module: Fields — shipping phone field on checkout.
+ * Module: Fields — shipping phone + email as username.
  */
 final class RPSM_Checkout_Module_Fields {
 
 	public static function init(): void {
-		add_filter( 'woocommerce_checkout_fields', [ __CLASS__, 'add_shipping_phone' ] );
-		add_action( 'woocommerce_admin_order_data_after_shipping_address', [ __CLASS__, 'display_admin_shipping_phone' ] );
+		/* Shipping phone */
+		if ( '1' === RPSM_Checkout_Options::get( RPSM_Checkout_Options::SHIPPING_PHONE_ENABLED ) ) {
+			add_filter( 'woocommerce_checkout_fields', [ __CLASS__, 'add_shipping_phone' ] );
+			add_action( 'woocommerce_admin_order_data_after_shipping_address', [ __CLASS__, 'display_admin_shipping_phone' ] );
+		}
+
+		/* Email as username */
+		if ( '1' === RPSM_Checkout_Options::get( RPSM_Checkout_Options::EMAIL_AS_USERNAME_ENABLED ) ) {
+			add_filter( 'woocommerce_new_customer_username', [ __CLASS__, 'use_email_as_username' ], 10, 4 );
+		}
+	}
+
+	/**
+	 * Use full email as WooCommerce username (consistent with MemberPress).
+	 */
+	public static function use_email_as_username( string $username, string $email, array $new_user_args, string $suffix ): string {
+		return $email;
 	}
 
 	/**

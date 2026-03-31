@@ -82,12 +82,7 @@ final class RPSM_Checkout_Admin {
 
 		echo '<div class="wrap"><h1>RPSM Checkout</h1>';
 
-		/* Tab notices */
-		$notice = get_transient( 'rpsm_checkout_notice' );
-		if ( $notice ) {
-			echo '<div class="notice notice-success is-dismissible"><p>' . esc_html( $notice ) . '</p></div>';
-			delete_transient( 'rpsm_checkout_notice' );
-		}
+		/* Notice is shown inline next to save button, not here */
 
 		/* Nav tabs */
 		echo '<nav class="nav-tab-wrapper">';
@@ -110,7 +105,15 @@ final class RPSM_Checkout_Admin {
 			echo '</table>';
 		}
 
-		submit_button( 'Spremi postavke' );
+		echo '<p class="submit">';
+		echo '<button type="submit" class="button button-primary">Spremi postavke</button>';
+		$just_saved = get_transient( 'rpsm_checkout_notice' );
+		$show_class = $just_saved ? ' show' : '';
+		echo '<span class="rpsm-save-confirm' . $show_class . '">&#x2713; Spremljeno</span>';
+		echo '</p>';
+		if ( $just_saved ) {
+			delete_transient( 'rpsm_checkout_notice' );
+		}
 		echo '</form></div>';
 	}
 
@@ -158,6 +161,7 @@ final class RPSM_Checkout_Admin {
 	private static function tab_polja(): void {
 		$o = RPSM_Checkout_Options::class;
 		self::row_toggle( 'Shipping telefon', $o::SHIPPING_PHONE_ENABLED, 'Dodaje obavezno polje za telefon u shipping sekciju checkouta.' );
+		self::row_toggle( 'Email kao username', $o::EMAIL_AS_USERNAME_ENABLED, 'Koristi puni email kao korisničko ime (umjesto dijela prije @). Konzistentno s MemberPressom.' );
 	}
 
 	private static function tab_email(): void {
@@ -337,7 +341,8 @@ final class RPSM_Checkout_Admin {
 				$o::SCROLL_BLOCK_ENABLED => 'toggle',
 			],
 			'polja' => [
-				$o::SHIPPING_PHONE_ENABLED => 'toggle',
+				$o::SHIPPING_PHONE_ENABLED    => 'toggle',
+				$o::EMAIL_AS_USERNAME_ENABLED => 'toggle',
 			],
 			'email' => [
 				$o::EMAIL_VAL_ENABLED     => 'toggle',

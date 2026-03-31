@@ -20,7 +20,7 @@ final class RPSM_Checkout_Public {
 		'email-validation' => RPSM_Checkout_Options::EMAIL_VAL_ENABLED,
 		'thankyou'         => RPSM_Checkout_Options::THANKYOU_ENABLED,
 		'translations'     => RPSM_Checkout_Options::TRANSLATIONS_ENABLED,
-		'fields'           => RPSM_Checkout_Options::SHIPPING_PHONE_ENABLED,
+		'fields'           => [ RPSM_Checkout_Options::SHIPPING_PHONE_ENABLED, RPSM_Checkout_Options::EMAIL_AS_USERNAME_ENABLED ],
 	];
 
 	public static function init(): void {

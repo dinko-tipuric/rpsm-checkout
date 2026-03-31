@@ -61,7 +61,8 @@ final class RPSM_Checkout_Options {
 	const TRANSLATIONS_PAIRS    = 'rpsm_checkout_translations_pairs';
 
 	/* ── Fields ────────────────────────────────────────────────────── */
-	const SHIPPING_PHONE_ENABLED = 'rpsm_checkout_shipping_phone_enabled';
+	const SHIPPING_PHONE_ENABLED    = 'rpsm_checkout_shipping_phone_enabled';
+	const EMAIL_AS_USERNAME_ENABLED = 'rpsm_checkout_email_as_username_enabled';
 
 	/* ── Debug ─────────────────────────────────────────────────────── */
 	const DEBUG_MODE             = 'rpsm_checkout_debug_mode';
@@ -123,7 +124,8 @@ final class RPSM_Checkout_Options {
 		self::TRANSLATIONS_PAIRS    => '', // populated by activator
 
 		/* Fields */
-		self::SHIPPING_PHONE_ENABLED => '1',
+		self::SHIPPING_PHONE_ENABLED    => '1',
+		self::EMAIL_AS_USERNAME_ENABLED => '1',
 
 		/* Debug */
 		self::DEBUG_MODE             => '0',
