@@ -15,7 +15,7 @@ final class RPSM_Checkout_Module_Translations {
 	/**
 	 * Override specific strings based on stored translation pairs.
 	 */
-	public static function translate( string $translated, string $text, string $domain ): string {
+	public static function translate( string $translated, string $text, ?string $domain ): string {
 
 		if ( null === self::$pairs ) {
 			self::load_pairs();
@@ -25,8 +25,8 @@ final class RPSM_Checkout_Module_Translations {
 			return $translated;
 		}
 
-		/* Quick domain check — skip irrelevant domains */
-		if ( 'woocommerce' !== $domain && 'elementor-pro' !== $domain ) {
+		/* Quick domain check — skip irrelevant or null domains */
+		if ( null === $domain || ( 'woocommerce' !== $domain && 'elementor-pro' !== $domain ) ) {
 			return $translated;
 		}
 
