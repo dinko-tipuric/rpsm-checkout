@@ -1,0 +1,27 @@
+/* RPSM Checkout — Admin styles */
+
+.rpsm-checkout-settings .form-table th {
+	width: 220px;
+}
+
+.rpsm-checkout-settings textarea.large-text {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Translations table */
+.rpsm-translations-table {
+	margin-top: 12px;
+}
+.rpsm-translations-table th {
+	text-align: left;
+	padding: 8px 10px;
+}
+.rpsm-translations-table td {
+	padding: 6px 10px;
+}
+.rpsm-translations-table input.large-text {
+	width: 100%;
+}
+.rpsm-translations-table select {
+	min-width: 140px;
+}

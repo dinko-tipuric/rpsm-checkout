@@ -1,0 +1,132 @@
+/**
+ * RPSM Checkout — Frontend CSS
+ * Preuzeto iz portal CSS-a + novi stilovi za sub notice.
+ */
+
+/* ── Legal: TnC checkbox ──────────────────────────────────────────── */
+.extra_privacy {
+	font-size: 0.75rem !important;
+	line-height: 1.4 !important;
+	font-weight: 400;
+	top: 0px !important;
+}
+.extra_privacy label.checkbox,
+.extra_privacy .woocommerce-form__label-for-checkbox {
+	display: flex !important;
+	align-items: flex-start !important;
+	gap: 8px !important;
+	flex-wrap: nowrap !important;
+}
+.extra_privacy label.checkbox input[type="checkbox"],
+.extra_privacy .woocommerce-form__label-for-checkbox input[type="checkbox"] {
+	flex-shrink: 0 !important;
+	margin-top: 3px !important;
+	margin-right: 0 !important;
+}
+.extra_privacy .woocommerce-terms-and-conditions-checkbox-text {
+	flex: 1 !important;
+}
+
+/* ── Legal: Subscription notice (info box, copper border-left) ───── */
+.rpsm-checkout-sub-notice {
+	background: #f8f9fa;
+	border-left: 3px solid #d17954;
+	padding: 10px 14px;
+	font-size: 12px;
+	color: #333;
+	margin-top: 10px;
+	margin-bottom: 20px;
+	border-radius: 0 4px 4px 0;
+	line-height: 1.4;
+}
+
+/* ── Editable cart on checkout ────────────────────────────────────── */
+.mv-checkout-cart {
+	max-width: 1140px;
+	margin: 0 auto 24px;
+	background: #fafafa;
+	padding: 16px;
+	border-radius: 8px;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+.mv-checkout-cart table.shop_table {
+	width: 100%;
+	border: none;
+}
+.mv-checkout-cart table.shop_table th,
+.mv-checkout-cart table.shop_table td {
+	padding: 6px 8px;
+	font-size: 14px;
+	vertical-align: middle;
+}
+.mv-checkout-cart .product-quantity input.qty {
+	max-width: 60px;
+	text-align: center;
+	padding: 4px;
+	font-size: 13px;
+}
+.mv-checkout-cart .product-remove a.remove {
+	font-size: 16px;
+	line-height: 1;
+	text-decoration: none;
+}
+.mv-checkout-cart .wc-proceed-to-checkout,
+.mv-checkout-cart .coupon {
+	display: none !important;
+}
+.mv-checkout-cart .actions .button {
+	float: right;
+	padding: 6px 12px;
+	font-size: 13px;
+}
+
+/* ── Payment: Stripe card logos ───────────────────────────────────── */
+.card_notice {
+	padding: 10px 0;
+	display: block;
+}
+.img_center {
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+	width: 50%;
+}
+
+/* ── Tax display ──────────────────────────────────────────────────── */
+.includes_tax {
+	display: block;
+}
+
+/* ── Email Validation: typo hint ──────────────────────────────────── */
+.rpsm-email-hint {
+	background: #fff3cd;
+	border: 1px solid #ffc107;
+	border-radius: 4px;
+	padding: 8px 12px;
+	margin-top: 6px;
+	font-size: 13px;
+	line-height: 1.4;
+}
+.rpsm-email-hint__suggestion {
+	font-weight: 600;
+	color: #333;
+}
+.rpsm-email-hint__btn {
+	display: inline-block;
+	padding: 2px 8px;
+	margin: 4px 4px 0 0;
+	font-size: 12px;
+	border-radius: 3px;
+	cursor: pointer;
+	border: 1px solid #ccc;
+	background: #fff;
+}
+.rpsm-email-hint__btn--fix {
+	background: #d17954;
+	color: #fff;
+	border-color: #d17954;
+}
+.rpsm-email-hint__btn--fix:hover {
+	background: #993a25;
+	border-color: #993a25;
+}
