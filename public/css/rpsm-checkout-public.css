@@ -9,6 +9,7 @@
 	line-height: 1.4 !important;
 	font-weight: 400;
 	top: 0px !important;
+	margin-bottom: 20px !important;
 }
 .extra_privacy label.checkbox,
 .extra_privacy .woocommerce-form__label-for-checkbox {
