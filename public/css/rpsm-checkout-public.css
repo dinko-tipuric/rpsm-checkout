@@ -11,6 +11,13 @@
 	top: 0px !important;
 	margin-bottom: 20px !important;
 }
+/* Ako notice slijedi odmah iza checkboxa, checkbox ne treba margin-bottom */
+.extra_privacy + .rpsm-checkout-sub-notice {
+	margin-top: 0;
+}
+.extra_privacy:has(+ .rpsm-checkout-sub-notice) {
+	margin-bottom: 8px !important;
+}
 .extra_privacy label.checkbox,
 .extra_privacy .woocommerce-form__label-for-checkbox {
 	display: flex !important;
