@@ -199,6 +199,30 @@ class RPSM_GitHub_Updater_v2 {
 		return ltrim( $tag, 'vV' );
 	}
 
+	/**
+	 * Build icon URLs for the WordPress plugin list.
+	 *
+	 * Looks for assets/icon-128x128.png and assets/icon-256x256.png in the
+	 * plugin directory. Returns raw GitHub URLs so WP can display them.
+	 *
+	 * @return array Icon URLs keyed by '1x' and '2x', or empty array.
+	 */
+	private function get_icon_urls(): array {
+		$base = "https://raw.githubusercontent.com/{$this->github_repo}/main/assets";
+		$icons = [];
+
+		$plugin_dir = dirname( $this->plugin_file );
+
+		if ( file_exists( $plugin_dir . '/assets/icon-128x128.png' ) ) {
+			$icons['1x'] = "{$base}/icon-128x128.png";
+		}
+		if ( file_exists( $plugin_dir . '/assets/icon-256x256.png' ) ) {
+			$icons['2x'] = "{$base}/icon-256x256.png";
+		}
+
+		return $icons;
+	}
+
 	// =========================================================================
 	// WordPress hooks
 	// =========================================================================
@@ -256,7 +280,7 @@ class RPSM_GitHub_Updater_v2 {
 			'new_version'   => $remote_version,
 			'package'       => $download_url,
 			'url'           => "https://github.com/{$this->github_repo}",
-			'icons'         => [],
+			'icons'         => $this->get_icon_urls(),
 			'banners'       => [],
 			'tested'        => '',
 			'requires_php'  => '7.4',
