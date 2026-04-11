@@ -88,6 +88,11 @@
 	font-size: 13px;
 }
 
+/* ── Buy Now button spacing ──────────────────────────────────────── */
+.mv-buy-now {
+	margin-left: 10px !important;
+}
+
 /* ── Payment: Stripe card logos ───────────────────────────────────── */
 .card_notice {
 	padding: 10px 0;
