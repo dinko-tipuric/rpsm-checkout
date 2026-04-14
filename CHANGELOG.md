@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.0.0.9 — 2026-04-14
+
+### Bugfixevi
+
+- **SVG ikona** — dodan `assets/icon.svg`; GitHub updater sada vraća `icons['svg']` što sprječava distorziju prikaza na WordPress stranici za ažuriranja.
+
+---
+
+
 ## [1.0.0.0] — 2026-03-31
 
 ### Nova funkcionalnost — inicijalni release

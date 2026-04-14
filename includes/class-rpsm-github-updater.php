@@ -217,6 +217,9 @@ class RPSM_GitHub_Updater_v2 {
 		if ( file_exists( $plugin_dir . '/assets/icon-256x256.png' ) ) {
 			$icons['2x'] = plugins_url( 'assets/icon-256x256.png', $this->plugin_file );
 		}
+		if ( file_exists( $plugin_dir . '/assets/icon.svg' ) ) {
+			$icons['svg'] = plugins_url( 'assets/icon.svg', $this->plugin_file );
+		}
 
 		return $icons;
 	}
