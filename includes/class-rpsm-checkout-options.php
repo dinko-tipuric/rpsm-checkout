@@ -26,6 +26,13 @@ final class RPSM_Checkout_Options {
 	const COUPON_HIDE_ENABLED   = 'rpsm_checkout_coupon_hide_enabled';
 	const COUPON_URL_ENABLED    = 'rpsm_checkout_coupon_url_enabled';
 
+	/* ── Coupons: Switch (promjena pretplate) ──────────────────────── */
+	const COUPON_SWITCH_ENABLED    = 'rpsm_checkout_coupon_switch_enabled';
+	const COUPON_SWITCH_PRODUCTS   = 'rpsm_checkout_coupon_switch_products';
+	const COUPON_SWITCH_CODE_ONCE  = 'rpsm_checkout_coupon_switch_code_once';
+	const COUPON_SWITCH_CODE_RECUR = 'rpsm_checkout_coupon_switch_code_recur';
+	const COUPON_SWITCH_SHOW_FIELD = 'rpsm_checkout_coupon_switch_show_field';
+
 	/* ── Editable Cart ─────────────────────────────────────────────── */
 	const EDITABLE_CART_ENABLED = 'rpsm_checkout_editable_cart_enabled';
 
@@ -88,6 +95,13 @@ final class RPSM_Checkout_Options {
 		/* Coupons */
 		self::COUPON_HIDE_ENABLED   => '1',
 		self::COUPON_URL_ENABLED    => '1',
+
+		/* Coupons: Switch */
+		self::COUPON_SWITCH_ENABLED    => '0',
+		self::COUPON_SWITCH_PRODUCTS   => '',
+		self::COUPON_SWITCH_CODE_ONCE  => '',
+		self::COUPON_SWITCH_CODE_RECUR => '',
+		self::COUPON_SWITCH_SHOW_FIELD => '0',
 
 		/* Editable Cart */
 		self::EDITABLE_CART_ENABLED => '1',

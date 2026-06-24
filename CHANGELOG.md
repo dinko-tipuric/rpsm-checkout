@@ -1,5 +1,23 @@
 # Changelog
 
+## 1.1.0.0 - 2026-06-22
+
+### Nova funkcionalnost - kuponi kod promjene pretplate (switch)
+
+Rješava problem da kod prelaska s mjesečne na polugodišnju pretplatu (WooCommerce Subscriptions switch) nije bilo načina za unos kupona, pa se popust nije mogao ponuditi.
+
+Sve opcije su u admin tabu **Kuponi**, sve opt-in (default isključeno):
+
+- **Auto-primijeni kupon na switch** - kad cart sadrži switch na ciljani proizvod, plugin sam primijeni konfigurirane kupone. Nula ručnog unosa, kupac ne može zaboraviti kupon.
+- **Ciljani proizvodi** - WooCommerce product-search dropdown (Select2) za odabir proizvoda/varijanti na koje se prelazi (npr. polugodišnji). Auto-apply se okida samo ako switch sadrži neki od ovih. U bazi se sprema kao comma-separated lista ID-eva.
+- **Jednokratni kupon** - kod kupona za jednokratni popust na sam prelazak (WooCommerce tip "Fiksni popust na košaricu"). Primjenjuje se samo na upfront iznos switcha.
+- **Kupon za sve obnove** - kod kupona za popust na sve buduće obnove (WooCommerce Subscriptions tip "Recurring Product Discount" / "% Discount"). Oba kupona mogu biti primijenjena istovremeno.
+- **Prikaži kupon polje na switchu** - prisilno renderira standardno WooCommerce kupon polje na checkoutu dok traje switch (zaobilazi Elementorov Coupon toggle). Skip ako je WC-ova kupon forma već hookana (bez duplikata) i ako je kupon već primijenjen (poštuje "Sakrij kupon ako je primijenjen").
+
+**Napomena:** ako jednokratni popust spusti iznos switcha na 0€, primjenjuje se postojeći mehanizam za očuvanje Stripe payment methoda kod 0€ switcha (snippet `fix_switch_preserve_payment_method`).
+
+---
+
 ## 1.0.0.9 — 2026-04-14
 
 ### Bugfixevi

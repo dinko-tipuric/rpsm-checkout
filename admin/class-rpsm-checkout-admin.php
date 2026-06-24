@@ -53,6 +53,14 @@ final class RPSM_Checkout_Admin {
 			[],
 			RPSM_CHECKOUT_VERSION
 		);
+
+		/* WooCommerce product-search (Select2) for the switch target picker.
+		 * wc-enhanced-select wires up select.wc-product-search and is localized
+		 * (wc_enhanced_select_params + search nonce) by WC on all admin pages. */
+		if ( function_exists( 'WC' ) ) {
+			wp_enqueue_script( 'wc-enhanced-select' );
+			wp_enqueue_style( 'woocommerce_admin_styles' );
+		}
 	}
 
 	/* ── Render ────────────────────────────────────────────────────── */
@@ -146,6 +154,13 @@ final class RPSM_Checkout_Admin {
 		$o = RPSM_Checkout_Options::class;
 		self::row_toggle( 'Sakrij kupon ako je primijenjen', $o::COUPON_HIDE_ENABLED, 'Skriva kupon formu na checkoutu kad je kupon već primijenjen.' );
 		self::row_toggle( 'Kupon iz URL-a', $o::COUPON_URL_ENABLED, 'Omogućava primjenu kupona putem ?coupon=KOD u URL-u.' );
+
+		echo '<tr><td colspan="2"><h3>Kupon kod promjene pretplate (switch)</h3></td></tr>';
+		self::row_toggle( 'Auto-primijeni kupon na switch', $o::COUPON_SWITCH_ENABLED, 'Automatski primijeni kupon(e) kad korisnik mijenja pretplatu na ciljani proizvod (npr. mjesečna → polugodišnja).' );
+		self::row_product_select( 'Ciljani proizvodi', $o::COUPON_SWITCH_PRODUCTS, 'Odaberi proizvode ILI varijante na koje se prelazi (npr. polugodišnji). Obavezno - kupon se primjenjuje samo ako switch sadrži neki od ovih.' );
+		self::row_text( 'Jednokratni kupon', $o::COUPON_SWITCH_CODE_ONCE, 'Kod kupona za JEDNOKRATNI popust na sam prelazak. U WooCommerce > Kuponi napravi tip "Fiksni popust na košaricu" (Fixed cart discount). Primjenjuje se samo na iznos switcha, ne na obnove.' );
+		self::row_text( 'Kupon za sve obnove', $o::COUPON_SWITCH_CODE_RECUR, 'Kod kupona za popust na SVE buduće obnove. U WooCommerce > Kuponi napravi tip "Recurring Product Discount" ili "Recurring Product % Discount" (dolazi s WooCommerce Subscriptions).' );
+		self::row_toggle( 'Prikaži kupon polje na switchu', $o::COUPON_SWITCH_SHOW_FIELD, 'Prisilno prikaže polje za ručni unos kupona na checkoutu dok traje switch (zaobilazi Elementorov Coupon toggle). Nestaje čim je kupon primijenjen.' );
 
 		echo '<tr><td colspan="2"><h3>Košarica i gumbi</h3></td></tr>';
 		self::row_toggle( 'Uređiva košarica na checkoutu', $o::EDITABLE_CART_ENABLED, 'Prikazuje mini košaricu s mogućnošću promjene količine i uklanjanja stavki.' );
@@ -285,6 +300,9 @@ final class RPSM_Checkout_Admin {
 				$val = isset( $_POST[ $key ] ) ? '1' : '0';
 			} elseif ( $type === 'textarea' ) {
 				$val = sanitize_textarea_field( $_POST[ $key ] ?? '' );
+			} elseif ( $type === 'product_ids' ) {
+				$raw = isset( $_POST[ $key ] ) ? (array) wp_unslash( $_POST[ $key ] ) : [];
+				$val = implode( ',', array_filter( array_map( 'absint', $raw ) ) );
 			} else {
 				$val = sanitize_text_field( $_POST[ $key ] ?? '' );
 			}
@@ -333,6 +351,11 @@ final class RPSM_Checkout_Admin {
 			'kuponi' => [
 				$o::COUPON_HIDE_ENABLED   => 'toggle',
 				$o::COUPON_URL_ENABLED    => 'toggle',
+				$o::COUPON_SWITCH_ENABLED    => 'toggle',
+				$o::COUPON_SWITCH_PRODUCTS   => 'product_ids',
+				$o::COUPON_SWITCH_CODE_ONCE  => 'text',
+				$o::COUPON_SWITCH_CODE_RECUR => 'text',
+				$o::COUPON_SWITCH_SHOW_FIELD => 'toggle',
 				$o::EDITABLE_CART_ENABLED => 'toggle',
 				$o::BUY_NOW_ENABLED       => 'toggle',
 				$o::BUY_NOW_TEXT          => 'text',
@@ -397,6 +420,41 @@ final class RPSM_Checkout_Admin {
 		echo '<th scope="row">' . esc_html( $label ) . '</th>';
 		echo '<td>';
 		echo '<input type="text" name="' . esc_attr( $key ) . '" value="' . esc_attr( $val ) . '" class="large-text">';
+		if ( $hint ) {
+			echo '<p class="description">' . esc_html( $hint ) . '</p>';
+		}
+		echo '</td></tr>';
+	}
+
+	/**
+	 * WooCommerce product/variation search (Select2 multiselect).
+	 * Stores selected IDs as a comma-separated string (compatible with
+	 * RPSM_Checkout_Options::get_product_ids()).
+	 */
+	private static function row_product_select( string $label, string $key, string $hint = '' ): void {
+		$raw = RPSM_Checkout_Options::get( $key );
+		$ids = array_filter( array_map( 'intval', explode( ',', (string) $raw ) ) );
+
+		echo '<tr>';
+		echo '<th scope="row">' . esc_html( $label ) . '</th>';
+		echo '<td>';
+		echo '<select name="' . esc_attr( $key ) . '[]" multiple="multiple" class="wc-product-search" style="width:100%;max-width:600px;"'
+			. ' data-placeholder="Pretraži proizvode..."'
+			. ' data-action="woocommerce_json_search_products_and_variations"'
+			. ' data-allow_clear="true">';
+
+		foreach ( $ids as $id ) {
+			$product = function_exists( 'wc_get_product' ) ? wc_get_product( $id ) : null;
+			if ( ! $product ) {
+				/* Keep unknown IDs selectable so a stale/deleted product isn't silently dropped on save. */
+				echo '<option value="' . esc_attr( $id ) . '" selected="selected">#' . esc_html( $id ) . ' (nepoznat proizvod)</option>';
+				continue;
+			}
+			echo '<option value="' . esc_attr( $id ) . '" selected="selected">'
+				. esc_html( wp_strip_all_tags( $product->get_formatted_name() ) ) . '</option>';
+		}
+
+		echo '</select>';
 		if ( $hint ) {
 			echo '<p class="description">' . esc_html( $hint ) . '</p>';
 		}
