@@ -186,15 +186,26 @@ final class RPSM_Checkout_Module_Coupons {
 			return;
 		}
 
-		/* Skip applying the discount when the target product is already on sale, so a
-		 * NEW switch doesn't stack on top of an existing reduced price. This ONLY
-		 * prevents a fresh application on the current switch cart - it never removes
-		 * a coupon, and it never touches existing subscriptions (grandfathered
-		 * recurring coupons live on the subscription and persist across renewals). */
+		/* When the target product is already on sale, the switch grandfathers that
+		 * reduced price by itself - so our coupon must NOT apply (would double-discount).
+		 * We also remove our codes from the CART if a previous request applied them
+		 * before the sale started. This is cart-only (pre-purchase) and is SAFE for
+		 * grandfathering: existing subscriptions store their coupon on the subscription,
+		 * not the cart, and are never touched here. */
 		if ( '1' === RPSM_Checkout_Options::get( RPSM_Checkout_Options::COUPON_SWITCH_SKIP_ON_SALE )
 			&& self::cart_item_is_on_sale( $matched ) ) {
+			foreach ( $codes as $code ) {
+				if ( WC()->cart->has_discount( $code ) ) {
+					WC()->cart->remove_coupon( $code );
+					RPSM_Checkout_Debug::info(
+						'Switch kupon maknut iz KOŠARICE jer je proizvod na popustu (postojeće pretplate netaknute).',
+						[ 'code' => $code ],
+						$src
+					);
+				}
+			}
 			RPSM_Checkout_Debug::info(
-				'Ciljani proizvod je na popustu - switch kupon se NE primjenjuje na ovu novu narudžbu (skip-on-sale). Postojeće pretplate nisu dirane.',
+				'Ciljani proizvod je na popustu - switch kupon se NE primjenjuje (sale price već grandfathera cijenu).',
 				[ 'product' => self::describe_item( $matched ) ],
 				$src
 			);
@@ -258,14 +269,16 @@ final class RPSM_Checkout_Module_Coupons {
 	}
 
 	/**
-	 * Whether the product/variation in a cart item is currently on sale.
+	 * Whether the target product/variation is currently on sale.
+	 *
+	 * Uses a FRESH product loaded by ID (not the cart item's `data` object), because
+	 * during a switch WCS overrides the cart product's price for proration, which can
+	 * make is_on_sale() on the cart object return false even when the admin set a sale
+	 * price. The fresh product reflects the actual configured sale price.
 	 */
 	private static function cart_item_is_on_sale( array $cart_item ): bool {
-		$product = $cart_item['data'] ?? null;
-		if ( ! $product instanceof WC_Product ) {
-			$id      = (int) ( $cart_item['variation_id'] ?? 0 ) ?: (int) ( $cart_item['product_id'] ?? 0 );
-			$product = $id ? wc_get_product( $id ) : null;
-		}
+		$id = (int) ( $cart_item['variation_id'] ?? 0 ) ?: (int) ( $cart_item['product_id'] ?? 0 );
+		$product = $id ? wc_get_product( $id ) : ( $cart_item['data'] ?? null );
 		return $product instanceof WC_Product ? $product->is_on_sale() : false;
 	}
 

@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.1.0.6 - 2026-06-25
+
+### Bugfixevi
+
+- **Skip-on-sale sada stvarno spriječi dvostruki popust.** Kad je proizvod na sniženju, kupon se ne samo preskače nego se i **makne iz košarice** ako je ostao iz ranijeg koraka (npr. primijenjen prije nego je proizvod stavljen na sale). Bez ovoga se događalo: proizvod na sale 299 + zaostali kupon -100 = 199. Brisanje je **cart-only** (prije kupnje) i ne dira postojeće pretplate - grandfather kupon živi na pretplati, ne u košarici.
+- **Pouzdanija on-sale detekcija.** `is_on_sale()` se sada provjerava na svježem proizvodu po ID-u, a ne na cart item `data` objektu kojem WCS kod switcha override-a cijenu (zbog proracije), što je znalo vraćati `on_sale: false` iako je proizvod stvarno na sniženju.
+
+---
+
 ## 1.1.0.5 - 2026-06-25
 
 ### Bugfixevi
