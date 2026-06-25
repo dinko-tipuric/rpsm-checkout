@@ -118,21 +118,18 @@ final class RPSM_Checkout_Module_Coupons {
 			return;
 		}
 
-		/* Skip the discount when the target product is already on sale (so it doesn't
-		 * stack on top of an existing reduced price). */
+		/* Skip applying the discount when the target product is already on sale, so a
+		 * NEW switch doesn't stack on top of an existing reduced price. This ONLY
+		 * prevents a fresh application on the current switch cart - it never removes
+		 * a coupon, and it never touches existing subscriptions (grandfathered
+		 * recurring coupons live on the subscription and persist across renewals). */
 		if ( '1' === RPSM_Checkout_Options::get( RPSM_Checkout_Options::COUPON_SWITCH_SKIP_ON_SALE )
 			&& self::cart_item_is_on_sale( $matched ) ) {
 			RPSM_Checkout_Debug::info(
-				'Ciljani proizvod je na popustu - switch kupon preskočen (skip-on-sale).',
+				'Ciljani proizvod je na popustu - switch kupon se NE primjenjuje na ovu novu narudžbu (skip-on-sale). Postojeće pretplate nisu dirane.',
 				[ 'product' => self::describe_item( $matched ) ],
 				$src
 			);
-			/* Remove our codes if a previous request applied them before the sale started. */
-			foreach ( $codes as $code ) {
-				if ( WC()->cart->has_discount( $code ) ) {
-					WC()->cart->remove_coupon( $code );
-				}
-			}
 			return;
 		}
 

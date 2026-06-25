@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.1.0.2 - 2026-06-25
+
+### Bugfixevi
+
+- **Skip-on-sale više NE briše kupon** - uklonjena `remove_coupon` logika koja je mogla maknuti kupon iz switch košarice. Skip-on-sale sada samo sprječava NOVU primjenu kad je proizvod na sniženju; nikad ne briše već primijenjeni kupon i nikad ne dira postojeće pretplate (grandfatherane cijene su sigurne).
+
+### Dokumentacija / točnost (prema službenom WCS ponašanju)
+
+- Help tekstovi ispravljeni prema tome kako WooCommerce Subscriptions stvarno radi:
+  - **"Kupon za sve obnove (grandfather)"** je glavno polje za trajni popust - tip "Recurring Product Discount" skida iznos sa svake obnove i grandfathera cijenu (399 → 299 trajno).
+  - **"Jednokratni kupon"** (Fiksni popust na košaricu) skida SAMO upfront iznos switcha, NE obnove - ne grandfathera. Opcionalan sweetener.
+  - Skip-on-sale: kad je proizvod na sniženju, switch sam grandfathera sniženu cijenu na pretplatu, pa kupon nije potreban (izbjegava dvostruki popust).
+- Napomena: za grandfathering 299 koristi recurring kupon ili sale price; fiksni/postotni kupon NE mijenja recurring iznos pretplate.
+
+---
+
 ## 1.1.0.1 - 2026-06-25
 
 ### Bugfixevi
