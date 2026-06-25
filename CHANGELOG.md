@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.1.0.4 - 2026-06-25
+
+### Dijagnostika
+
+- **Robusnija switch dijagnostika.** Prošla verzija je logirala samo ako je switch detektiran na `wp_loaded`, što je moglo promašiti zbog timinga učitavanja košarice i Elementor checkout widgeta. Sada se snapshot košarice loga **bezuvjetno** (kad je Debug uključen i košarica učitana), na više pouzdanih hookova (`woocommerce_checkout_init`, `woocommerce_before_checkout_form`, `woocommerce_check_cart_items`, `woocommerce_add_to_cart`, te `wp_loaded` prio 99 kao zadnji safety net). Loga sve stavke košarice s `product_id`/`variation_id`/`is_switch` flagom + `current_hook` + postoji li `wcs_*` funkcija. Jedan unos po requestu.
+- Time se razdvaja "pipeline logiranja ne radi" od "switch nije detektiran": `wp_loaded` safety net se okida na bilo kojoj frontend stranici kad je košarica učitana.
+
+---
+
 ## 1.1.0.3 - 2026-06-25
 
 ### Bugfixevi / dijagnostika

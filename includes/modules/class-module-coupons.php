@@ -30,45 +30,66 @@ final class RPSM_Checkout_Module_Coupons {
 			add_action( 'woocommerce_before_checkout_form', [ __CLASS__, 'render_switch_coupon_form' ], 9 );
 		}
 
-		/* Diagnostics: whenever Debug is ON and a switch is in the cart, log the real
-		 * cart item IDs - independent of the auto-apply toggle / coupon codes, so the
-		 * correct target product/variation can be identified (e.g. grouped products). */
+		/* Diagnostics: when Debug is ON, log a full cart snapshot at checkout so the
+		 * real cart item IDs and the subscription_switch flag are visible (independent
+		 * of the auto-apply toggle / coupon codes). Hooked on several reliable points
+		 * because some builders (e.g. Elementor checkout widget) and cart-load timing
+		 * can skip individual hooks; a static guard keeps it to one entry per request. */
 		if ( RPSM_Checkout_Debug::is_enabled() ) {
-			add_action( 'wp_loaded', [ __CLASS__, 'log_switch_diagnostics' ], 36 );
-			add_action( 'woocommerce_add_to_cart', [ __CLASS__, 'log_switch_diagnostics' ] );
+			add_action( 'woocommerce_checkout_init',        [ __CLASS__, 'log_switch_diagnostics' ], 1 );
+			add_action( 'woocommerce_before_checkout_form', [ __CLASS__, 'log_switch_diagnostics' ], 1 );
+			add_action( 'woocommerce_check_cart_items',     [ __CLASS__, 'log_switch_diagnostics' ] );
+			add_action( 'woocommerce_add_to_cart',          [ __CLASS__, 'log_switch_diagnostics' ] );
+			add_action( 'wp_loaded',                        [ __CLASS__, 'log_switch_diagnostics' ], 99 );
 		}
 	}
 
 	/**
-	 * Log a snapshot of any subscription switch in the cart, so the real
-	 * product/variation IDs are visible in the debug log. Runs only when Debug
-	 * mode is enabled. Logged once per request (guarded by a static flag).
+	 * Log a full cart snapshot (once per request) when Debug mode is on, so the real
+	 * product/variation IDs and the subscription_switch flag are visible - even if the
+	 * switch isn't detected by wcs_cart_contains_subscription_switch(). Skips (without
+	 * consuming the guard) until WC()->cart is actually loaded.
 	 */
 	public static function log_switch_diagnostics(): void {
 		static $logged = false;
 		if ( $logged ) {
 			return;
 		}
-		if ( ! function_exists( 'wcs_cart_contains_subscription_switch' ) || ! WC()->cart ) {
-			return;
-		}
 		if ( is_admin() && ! wp_doing_ajax() ) {
 			return;
 		}
-		if ( ! wcs_cart_contains_subscription_switch() ) {
-			return;
+		if ( ! WC()->cart ) {
+			return; // cart not loaded yet on this hook - let a later hook capture it
 		}
 		$logged = true;
 
+		$has_fn = function_exists( 'wcs_cart_contains_subscription_switch' );
+
+		$items = [];
+		foreach ( WC()->cart->get_cart() as $key => $ci ) {
+			$product = $ci['data'] ?? null;
+			$items[] = [
+				'product_id'   => (int) ( $ci['product_id'] ?? 0 ),
+				'variation_id' => (int) ( $ci['variation_id'] ?? 0 ),
+				'is_switch'    => ! empty( $ci['subscription_switch'] ),
+				'name'         => $product instanceof WC_Product ? $product->get_name() : '',
+				'on_sale'      => $product instanceof WC_Product ? $product->is_on_sale() : null,
+			];
+		}
+
 		RPSM_Checkout_Debug::info(
-			'DIJAGNOSTIKA: switch detektiran u košarici.',
+			'DIJAGNOSTIKA: snapshot košarice na checkoutu.',
 			[
-				'switch_items'        => self::describe_switch_items(),
-				'configured_targets'  => RPSM_Checkout_Options::get_product_ids( RPSM_Checkout_Options::COUPON_SWITCH_PRODUCTS ),
-				'auto_apply_enabled'  => RPSM_Checkout_Options::get( RPSM_Checkout_Options::COUPON_SWITCH_ENABLED ),
-				'code_once_set'       => '' !== trim( (string) RPSM_Checkout_Options::get( RPSM_Checkout_Options::COUPON_SWITCH_CODE_ONCE ) ),
-				'code_recur_set'      => '' !== trim( (string) RPSM_Checkout_Options::get( RPSM_Checkout_Options::COUPON_SWITCH_CODE_RECUR ) ),
-				'applied_coupons'     => WC()->cart->get_applied_coupons(),
+				'current_hook'         => current_action(),
+				'wcs_switch_fn_exists' => $has_fn,
+				'cart_contains_switch' => $has_fn ? wcs_cart_contains_subscription_switch() : null,
+				'cart_item_count'      => count( $items ),
+				'cart_items'           => $items,
+				'configured_targets'   => RPSM_Checkout_Options::get_product_ids( RPSM_Checkout_Options::COUPON_SWITCH_PRODUCTS ),
+				'auto_apply_enabled'   => RPSM_Checkout_Options::get( RPSM_Checkout_Options::COUPON_SWITCH_ENABLED ),
+				'code_once_set'        => '' !== trim( (string) RPSM_Checkout_Options::get( RPSM_Checkout_Options::COUPON_SWITCH_CODE_ONCE ) ),
+				'code_recur_set'       => '' !== trim( (string) RPSM_Checkout_Options::get( RPSM_Checkout_Options::COUPON_SWITCH_CODE_RECUR ) ),
+				'applied_coupons'      => WC()->cart->get_applied_coupons(),
 			],
 			'Coupons::log_switch_diagnostics'
 		);
