@@ -19,9 +19,14 @@ final class RPSM_Checkout_Module_Coupons {
 			add_action( 'woocommerce_add_to_cart', [ __CLASS__, 'apply_coupon_from_url' ] );
 		}
 
-		/* Auto-apply switch coupon(s) when changing a subscription to a target product */
+		/* Auto-apply switch coupon(s) when changing a subscription to a target product.
+		 * Hooked on several points because WCS switch helper functions are not loaded at
+		 * early wp_loaded and the cart load timing varies; switch is detected directly
+		 * from the cart item's subscription_switch flag (no dependency on wcs_* funcs). */
 		if ( '1' === RPSM_Checkout_Options::get( RPSM_Checkout_Options::COUPON_SWITCH_ENABLED ) ) {
-			add_action( 'wp_loaded', [ __CLASS__, 'auto_apply_switch_coupons' ], 35 );
+			add_action( 'wp_loaded', [ __CLASS__, 'auto_apply_switch_coupons' ], 99 );
+			add_action( 'woocommerce_before_checkout_form', [ __CLASS__, 'auto_apply_switch_coupons' ], 5 );
+			add_action( 'woocommerce_check_cart_items', [ __CLASS__, 'auto_apply_switch_coupons' ] );
 			add_action( 'woocommerce_add_to_cart', [ __CLASS__, 'auto_apply_switch_coupons' ] );
 		}
 
@@ -140,16 +145,15 @@ final class RPSM_Checkout_Module_Coupons {
 	 * WooCommerce allows both to be applied to the same cart simultaneously.
 	 */
 	public static function auto_apply_switch_coupons(): void {
-		if ( ! function_exists( 'wcs_cart_contains_subscription_switch' ) ) {
-			return;
-		}
 		if ( ! WC()->cart ) {
 			return;
 		}
 		if ( is_admin() && ! wp_doing_ajax() ) {
 			return;
 		}
-		if ( ! wcs_cart_contains_subscription_switch() ) {
+		/* Detect the switch directly from the cart item flag - do NOT depend on
+		 * wcs_cart_contains_subscription_switch() which isn't loaded on early hooks. */
+		if ( ! self::cart_contains_switch() ) {
 			return;
 		}
 
@@ -218,6 +222,24 @@ final class RPSM_Checkout_Module_Coupons {
 	}
 
 	/**
+	 * True if any cart item is a subscription switch. Detected directly from the
+	 * cart item's subscription_switch flag (set by WooCommerce Subscriptions when
+	 * a switch is added to the cart) - no dependency on wcs_* helper functions,
+	 * which are not loaded on early hooks like wp_loaded.
+	 */
+	private static function cart_contains_switch(): bool {
+		if ( ! WC()->cart ) {
+			return false;
+		}
+		foreach ( WC()->cart->get_cart() as $cart_item ) {
+			if ( ! empty( $cart_item['subscription_switch'] ) ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * Return the first subscription-switch cart item whose product OR variation ID
 	 * matches one of the target IDs, or null.
 	 */
@@ -277,10 +299,7 @@ final class RPSM_Checkout_Module_Coupons {
 	 * or if coupons are disabled (e.g. one already applied via COUPON_HIDE_ENABLED).
 	 */
 	public static function render_switch_coupon_form(): void {
-		if ( ! function_exists( 'wcs_cart_contains_subscription_switch' ) ) {
-			return;
-		}
-		if ( ! WC()->cart || ! wcs_cart_contains_subscription_switch() ) {
+		if ( ! self::cart_contains_switch() ) {
 			return;
 		}
 		if ( ! wc_coupons_enabled() ) {

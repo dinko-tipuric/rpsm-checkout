@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.1.0.5 - 2026-06-25
+
+### Bugfixevi
+
+- **Auto-apply na switch sada stvarno radi.** Glavni uzrok zašto se kupon nije primjenjivao: kod je ovisio o `wcs_cart_contains_subscription_switch()`, a ta WooCommerce Subscriptions funkcija NIJE učitana na `wp_loaded` hooku (dijagnostika pokazala `wcs_switch_fn_exists: false`), pa je funkcija odmah izlazila. Sada se switch detektira **direktno iz cart itema** (`subscription_switch` flag), bez ovisnosti o `wcs_*` funkcijama. Isto popravljeno i u "Prikaži kupon polje na switchu".
+- **Auto-apply vješan na više hookova** (`wp_loaded` prio 99, `woocommerce_before_checkout_form`, `woocommerce_check_cart_items`, `woocommerce_add_to_cart`) da uhvati učitanu košaricu neovisno o timingu i Elementor checkoutu.
+
+---
+
 ## 1.1.0.4 - 2026-06-25
 
 ### Dijagnostika
