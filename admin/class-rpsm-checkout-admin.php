@@ -160,6 +160,7 @@ final class RPSM_Checkout_Admin {
 		self::row_product_select( 'Ciljani proizvodi', $o::COUPON_SWITCH_PRODUCTS, 'Odaberi proizvode ILI varijante na koje se prelazi (npr. polugodišnji). Obavezno - kupon se primjenjuje samo ako switch sadrži neki od ovih.' );
 		self::row_text( 'Jednokratni kupon', $o::COUPON_SWITCH_CODE_ONCE, 'Kod kupona za JEDNOKRATNI popust na sam prelazak. U WooCommerce > Kuponi napravi tip "Fiksni popust na košaricu" (Fixed cart discount). Primjenjuje se samo na iznos switcha, ne na obnove.' );
 		self::row_text( 'Kupon za sve obnove', $o::COUPON_SWITCH_CODE_RECUR, 'Kod kupona za popust na SVE buduće obnove. U WooCommerce > Kuponi napravi tip "Recurring Product Discount" ili "Recurring Product % Discount" (dolazi s WooCommerce Subscriptions).' );
+		self::row_toggle( 'Preskoči kupon ako je proizvod na popustu', $o::COUPON_SWITCH_SKIP_ON_SALE, 'Ako ciljani proizvod već ima sniženu cijenu (sale price), switch kupon se NE primjenjuje (da se popust ne zbroji). Kupon vrijedi samo kad proizvod nije na popustu.' );
 		self::row_toggle( 'Prikaži kupon polje na switchu', $o::COUPON_SWITCH_SHOW_FIELD, 'Prisilno prikaže polje za ručni unos kupona na checkoutu dok traje switch (zaobilazi Elementorov Coupon toggle). Nestaje čim je kupon primijenjen.' );
 
 		echo '<tr><td colspan="2"><h3>Košarica i gumbi</h3></td></tr>';
@@ -355,6 +356,7 @@ final class RPSM_Checkout_Admin {
 				$o::COUPON_SWITCH_PRODUCTS   => 'product_ids',
 				$o::COUPON_SWITCH_CODE_ONCE  => 'text',
 				$o::COUPON_SWITCH_CODE_RECUR => 'text',
+				$o::COUPON_SWITCH_SKIP_ON_SALE => 'toggle',
 				$o::COUPON_SWITCH_SHOW_FIELD => 'toggle',
 				$o::EDITABLE_CART_ENABLED => 'toggle',
 				$o::BUY_NOW_ENABLED       => 'toggle',

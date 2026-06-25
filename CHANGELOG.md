@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.1.0.1 - 2026-06-25
+
+### Bugfixevi
+
+- **Auto-apply na switch nije okidao kod grouped proizvoda** - kod switcha cart item nosi ID DJETETA (mjesečna/polugodišnja pretplata unutar grupe), a ne ID grouped wrappera, pa se nije poklapalo s ciljanim proizvodom. Dodana detaljna dijagnostika kroz Debug klasu: kad switch ne odgovara ciljevima, u log se zapišu stvarni `product_id`/`variation_id`/naziv svake switch stavke, pa se točan cilj može odabrati u adminu. Uključi Debug mod (tab Debug) za dijagnozu.
+
+### Nova funkcionalnost
+
+- **Preskoči kupon ako je proizvod na popustu** (novi toggle, default uključeno) - ako ciljani proizvod već ima sniženu cijenu (sale price), switch kupon se ne primjenjuje da se popust ne zbroji. Primjer: redovna 399, sniženo na 299 - kupon se preskače; ako nije na popustu (399), kupon odobrava popust na 299. Ako je kupon ranije primijenjen pa proizvod naknadno ode na popust, kupon se automatski makne.
+
+---
+
 ## 1.1.0.0 - 2026-06-22
 
 ### Nova funkcionalnost - kuponi kod promjene pretplate (switch)

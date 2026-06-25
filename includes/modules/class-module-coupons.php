@@ -89,9 +89,50 @@ final class RPSM_Checkout_Module_Coupons {
 			return;
 		}
 
+		$src = 'Coupons::auto_apply_switch_coupons';
+
+		$codes = array_values( array_filter( array_map( 'trim', [
+			(string) RPSM_Checkout_Options::get( RPSM_Checkout_Options::COUPON_SWITCH_CODE_ONCE ),
+			(string) RPSM_Checkout_Options::get( RPSM_Checkout_Options::COUPON_SWITCH_CODE_RECUR ),
+		] ) ) );
+		if ( empty( $codes ) ) {
+			RPSM_Checkout_Debug::debug( 'Switch detektiran, ali nijedan kupon kod nije konfiguriran.', [], $src );
+			return;
+		}
+
 		/* Restrict to switches that target a configured product/variation. */
 		$targets = RPSM_Checkout_Options::get_product_ids( RPSM_Checkout_Options::COUPON_SWITCH_PRODUCTS );
-		if ( empty( $targets ) || ! self::switch_cart_has_target( $targets ) ) {
+		$matched = $targets ? self::get_matched_switch_item( $targets ) : null;
+
+		if ( empty( $targets ) || null === $matched ) {
+			/* Log every switch item's IDs so the correct target can be picked in admin
+			 * (with grouped products the cart carries the CHILD product/variation ID). */
+			RPSM_Checkout_Debug::debug(
+				'Switch ne odgovara ciljanim proizvodima - kupon NIJE primijenjen.',
+				[
+					'configured_targets' => $targets,
+					'switch_cart_items'  => self::describe_switch_items(),
+				],
+				$src
+			);
+			return;
+		}
+
+		/* Skip the discount when the target product is already on sale (so it doesn't
+		 * stack on top of an existing reduced price). */
+		if ( '1' === RPSM_Checkout_Options::get( RPSM_Checkout_Options::COUPON_SWITCH_SKIP_ON_SALE )
+			&& self::cart_item_is_on_sale( $matched ) ) {
+			RPSM_Checkout_Debug::info(
+				'Ciljani proizvod je na popustu - switch kupon preskočen (skip-on-sale).',
+				[ 'product' => self::describe_item( $matched ) ],
+				$src
+			);
+			/* Remove our codes if a previous request applied them before the sale started. */
+			foreach ( $codes as $code ) {
+				if ( WC()->cart->has_discount( $code ) ) {
+					WC()->cart->remove_coupon( $code );
+				}
+			}
 			return;
 		}
 
@@ -102,28 +143,24 @@ final class RPSM_Checkout_Module_Coupons {
 
 		$applied = array_map( 'strtolower', WC()->cart->get_applied_coupons() );
 
-		$codes = [
-			RPSM_Checkout_Options::get( RPSM_Checkout_Options::COUPON_SWITCH_CODE_ONCE ),
-			RPSM_Checkout_Options::get( RPSM_Checkout_Options::COUPON_SWITCH_CODE_RECUR ),
-		];
-
 		foreach ( $codes as $code ) {
-			$code = trim( (string) $code );
-			if ( '' === $code ) {
-				continue;
-			}
 			if ( in_array( strtolower( $code ), $applied, true ) ) {
 				continue;
 			}
-			WC()->cart->apply_coupon( $code );
+			$ok = WC()->cart->apply_coupon( $code );
+			RPSM_Checkout_Debug::info(
+				'Switch kupon primijenjen.',
+				[ 'code' => $code, 'result' => $ok ? 'ok' : 'odbijen', 'product' => self::describe_item( $matched ) ],
+				$src
+			);
 		}
 	}
 
 	/**
-	 * True if any subscription-switch cart item matches one of the target IDs
-	 * (product or variation).
+	 * Return the first subscription-switch cart item whose product OR variation ID
+	 * matches one of the target IDs, or null.
 	 */
-	private static function switch_cart_has_target( array $targets ): bool {
+	private static function get_matched_switch_item( array $targets ): ?array {
 		foreach ( WC()->cart->get_cart() as $cart_item ) {
 			if ( empty( $cart_item['subscription_switch'] ) ) {
 				continue;
@@ -131,10 +168,46 @@ final class RPSM_Checkout_Module_Coupons {
 			$product_id   = isset( $cart_item['product_id'] ) ? (int) $cart_item['product_id'] : 0;
 			$variation_id = isset( $cart_item['variation_id'] ) ? (int) $cart_item['variation_id'] : 0;
 			if ( in_array( $product_id, $targets, true ) || in_array( $variation_id, $targets, true ) ) {
-				return true;
+				return $cart_item;
 			}
 		}
-		return false;
+		return null;
+	}
+
+	/**
+	 * Whether the product/variation in a cart item is currently on sale.
+	 */
+	private static function cart_item_is_on_sale( array $cart_item ): bool {
+		$product = $cart_item['data'] ?? null;
+		if ( ! $product instanceof WC_Product ) {
+			$id      = (int) ( $cart_item['variation_id'] ?? 0 ) ?: (int) ( $cart_item['product_id'] ?? 0 );
+			$product = $id ? wc_get_product( $id ) : null;
+		}
+		return $product instanceof WC_Product ? $product->is_on_sale() : false;
+	}
+
+	/* ── Debug helpers ─────────────────────────────────────────────── */
+
+	private static function describe_item( array $cart_item ): array {
+		$product = $cart_item['data'] ?? null;
+		$id      = (int) ( $cart_item['variation_id'] ?? 0 ) ?: (int) ( $cart_item['product_id'] ?? 0 );
+		return [
+			'product_id'   => (int) ( $cart_item['product_id'] ?? 0 ),
+			'variation_id' => (int) ( $cart_item['variation_id'] ?? 0 ),
+			'name'         => $product instanceof WC_Product ? $product->get_name() : ( $id ? "#{$id}" : 'n/a' ),
+			'on_sale'      => self::cart_item_is_on_sale( $cart_item ),
+		];
+	}
+
+	private static function describe_switch_items(): array {
+		$out = [];
+		foreach ( WC()->cart->get_cart() as $cart_item ) {
+			if ( empty( $cart_item['subscription_switch'] ) ) {
+				continue;
+			}
+			$out[] = self::describe_item( $cart_item );
+		}
+		return $out;
 	}
 
 	/**
