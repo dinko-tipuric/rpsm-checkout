@@ -29,6 +29,49 @@ final class RPSM_Checkout_Module_Coupons {
 		if ( '1' === RPSM_Checkout_Options::get( RPSM_Checkout_Options::COUPON_SWITCH_SHOW_FIELD ) ) {
 			add_action( 'woocommerce_before_checkout_form', [ __CLASS__, 'render_switch_coupon_form' ], 9 );
 		}
+
+		/* Diagnostics: whenever Debug is ON and a switch is in the cart, log the real
+		 * cart item IDs - independent of the auto-apply toggle / coupon codes, so the
+		 * correct target product/variation can be identified (e.g. grouped products). */
+		if ( RPSM_Checkout_Debug::is_enabled() ) {
+			add_action( 'wp_loaded', [ __CLASS__, 'log_switch_diagnostics' ], 36 );
+			add_action( 'woocommerce_add_to_cart', [ __CLASS__, 'log_switch_diagnostics' ] );
+		}
+	}
+
+	/**
+	 * Log a snapshot of any subscription switch in the cart, so the real
+	 * product/variation IDs are visible in the debug log. Runs only when Debug
+	 * mode is enabled. Logged once per request (guarded by a static flag).
+	 */
+	public static function log_switch_diagnostics(): void {
+		static $logged = false;
+		if ( $logged ) {
+			return;
+		}
+		if ( ! function_exists( 'wcs_cart_contains_subscription_switch' ) || ! WC()->cart ) {
+			return;
+		}
+		if ( is_admin() && ! wp_doing_ajax() ) {
+			return;
+		}
+		if ( ! wcs_cart_contains_subscription_switch() ) {
+			return;
+		}
+		$logged = true;
+
+		RPSM_Checkout_Debug::info(
+			'DIJAGNOSTIKA: switch detektiran u košarici.',
+			[
+				'switch_items'        => self::describe_switch_items(),
+				'configured_targets'  => RPSM_Checkout_Options::get_product_ids( RPSM_Checkout_Options::COUPON_SWITCH_PRODUCTS ),
+				'auto_apply_enabled'  => RPSM_Checkout_Options::get( RPSM_Checkout_Options::COUPON_SWITCH_ENABLED ),
+				'code_once_set'       => '' !== trim( (string) RPSM_Checkout_Options::get( RPSM_Checkout_Options::COUPON_SWITCH_CODE_ONCE ) ),
+				'code_recur_set'      => '' !== trim( (string) RPSM_Checkout_Options::get( RPSM_Checkout_Options::COUPON_SWITCH_CODE_RECUR ) ),
+				'applied_coupons'     => WC()->cart->get_applied_coupons(),
+			],
+			'Coupons::log_switch_diagnostics'
+		);
 	}
 
 	/**

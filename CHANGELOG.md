@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.1.0.3 - 2026-06-25
+
+### Bugfixevi / dijagnostika
+
+- **Debug zapisi za switch sada rade neovisno o auto-apply toggle-u.** Ranije je sva switch dijagnostika živjela unutar `auto_apply_switch_coupons()`, koji se pokreće samo ako je uključen toggle "Auto-primijeni kupon na switch" - pa ako je bio isključen, log je ostajao prazan. Dodana zasebna `log_switch_diagnostics()` koja se okida čim je Debug mod uključen i switch je u košarici, neovisno o toggle-u i kuponima. Zapisuje stvarne `product_id`/`variation_id`/naziv svake switch stavke + konfigurirane ciljeve + primijenjene kupone (jednom po requestu).
+- Podsjetnik: log se piše u `wp-content/uploads/rpsm-checkout/debug-YYYY-MM.log` i čita u adminu (RPSM Checkout > Debug > Zadnjih 100 unosa).
+
+---
+
 ## 1.1.0.2 - 2026-06-25
 
 ### Bugfixevi
