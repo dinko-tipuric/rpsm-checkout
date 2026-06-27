@@ -212,13 +212,13 @@ class RPSM_GitHub_Updater_v2 {
 		$plugin_dir = dirname( $this->plugin_file );
 
 		if ( file_exists( $plugin_dir . '/assets/icon-128x128.png' ) ) {
-			$icons['1x'] = plugins_url( 'assets/icon-128x128.png', $this->plugin_file );
+			$icons['1x'] = plugins_url( 'assets/icon-128x128.png', $this->plugin_file ) . '?v=' . $this->version;
 		}
 		if ( file_exists( $plugin_dir . '/assets/icon-256x256.png' ) ) {
-			$icons['2x'] = plugins_url( 'assets/icon-256x256.png', $this->plugin_file );
+			$icons['2x'] = plugins_url( 'assets/icon-256x256.png', $this->plugin_file ) . '?v=' . $this->version;
 		}
 		if ( file_exists( $plugin_dir . '/assets/icon.svg' ) ) {
-			$icons['svg'] = plugins_url( 'assets/icon.svg', $this->plugin_file );
+			$icons['svg'] = plugins_url( 'assets/icon.svg', $this->plugin_file ) . '?v=' . $this->version;
 		}
 
 		return $icons;
@@ -235,10 +235,10 @@ class RPSM_GitHub_Updater_v2 {
 		$banners = [];
 		$dir     = dirname( $this->plugin_file );
 		if ( file_exists( $dir . '/assets/banner-772x250.png' ) ) {
-			$banners['low'] = plugins_url( 'assets/banner-772x250.png', $this->plugin_file );
+			$banners['low'] = plugins_url( 'assets/banner-772x250.png', $this->plugin_file ) . '?v=' . $this->version;
 		}
 		if ( file_exists( $dir . '/assets/banner-1544x500.png' ) ) {
-			$banners['high'] = plugins_url( 'assets/banner-1544x500.png', $this->plugin_file );
+			$banners['high'] = plugins_url( 'assets/banner-1544x500.png', $this->plugin_file ) . '?v=' . $this->version;
 		}
 		return $banners;
 	}

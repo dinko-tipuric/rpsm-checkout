@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.0.9 - 2026-06-27
+
+Ispravak prikaza ikona:
+
+- Ikone i banneri sada nose verzijski parametar u URL-u (?v=verzija), pa preglednik i WordPress povlace svjezu ikonu pri svakoj novoj verziji umjesto stare iz cachea.
+
+---
+
 ## 1.1.0.8 - 2026-06-27
 
 Dokumentacija:
