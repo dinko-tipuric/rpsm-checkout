@@ -2,7 +2,7 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Module: Buy Now — "Idi na plaćanje" button on product page (simple products only).
+ * Module: Buy Now - "Idi na plaćanje" button on product page (simple products only).
  */
 final class RPSM_Checkout_Module_Buy_Now {
 

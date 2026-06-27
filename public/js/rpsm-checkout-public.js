@@ -1,5 +1,5 @@
 /**
- * RPSM Checkout — Frontend JS
+ * RPSM Checkout - Frontend JS
  *
  * Consolidated from Code Snippets:
  * - Email typo check (blur + submit)
@@ -167,7 +167,7 @@
 	}
 
 	/* ══════════════════════════════════════════════════════════════ */
-	/*  3. PAYMENT LOGOS — trigger checkout update on gateway change */
+	/*  3. PAYMENT LOGOS - trigger checkout update on gateway change */
 	/* ══════════════════════════════════════════════════════════════ */
 
 	if (rpsmCheckout.paymentLogos) {
@@ -184,7 +184,7 @@
 	}
 
 	/* ══════════════════════════════════════════════════════════════ */
-	/*  4. EDITABLE CART — auto-update on quantity change           */
+	/*  4. EDITABLE CART - auto-update on quantity change           */
 	/* ══════════════════════════════════════════════════════════════ */
 
 	if (rpsmCheckout.editableCart) {

@@ -2,7 +2,7 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Centralised options — constants + defaults + get/set.
+ * Centralised options - constants + defaults + get/set.
  */
 final class RPSM_Checkout_Options {
 

@@ -2,7 +2,7 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Module: Editable Cart — display mini cart on checkout with qty change + remove.
+ * Module: Editable Cart - display mini cart on checkout with qty change + remove.
  *
  * 4 parts: A) cart template, B) URL filters, C) auto-update JS (via localized data), D) redirect on empty.
  */

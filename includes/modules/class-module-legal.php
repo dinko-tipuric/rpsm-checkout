@@ -2,7 +2,7 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Module: Legal — TnC checkbox + subscription notice.
+ * Module: Legal - TnC checkbox + subscription notice.
  *
  * Hooks:
  * - woocommerce_checkout_after_terms_and_conditions (display)
@@ -56,7 +56,7 @@ final class RPSM_Checkout_Module_Legal {
 	}
 
 	/**
-	 * Server-side validation — block checkout if not checked.
+	 * Server-side validation - block checkout if not checked.
 	 */
 	public static function validate_checkbox(): void {
 		/* Only validate if checkbox text is configured (i.e. checkbox is actually rendered) */

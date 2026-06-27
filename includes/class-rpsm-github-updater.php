@@ -103,7 +103,7 @@ class RPSM_GitHub_Updater_v2 {
 		$this->plugin_name = $headers['PluginName'] ?? $this->slug;
 
 		if ( empty( $this->github_repo ) ) {
-			return; // No GitHub repo configured — do nothing.
+			return; // No GitHub repo configured - do nothing.
 		}
 
 		add_filter( 'site_transient_update_plugins', [ $this, 'check_update' ] );
@@ -224,6 +224,26 @@ class RPSM_GitHub_Updater_v2 {
 		return $icons;
 	}
 
+	/**
+	 * Build banner URLs for the WordPress update screen.
+	 *
+	 * Served from the local plugin installation via plugins_url().
+	 *
+	 * @return array Banner URLs keyed by 'low' and 'high', or empty array.
+	 */
+	private function get_banner_urls(): array {
+		$banners = [];
+		$dir     = dirname( $this->plugin_file );
+		if ( file_exists( $dir . '/assets/banner-772x250.png' ) ) {
+			$banners['low'] = plugins_url( 'assets/banner-772x250.png', $this->plugin_file );
+		}
+		if ( file_exists( $dir . '/assets/banner-1544x500.png' ) ) {
+			$banners['high'] = plugins_url( 'assets/banner-1544x500.png', $this->plugin_file );
+		}
+		return $banners;
+	}
+
+
 	// =========================================================================
 	// WordPress hooks
 	// =========================================================================
@@ -247,7 +267,7 @@ class RPSM_GitHub_Updater_v2 {
 		$remote_version = $this->tag_to_version( $release->tag_name );
 
 		if ( ! version_compare( $remote_version, $this->version, '>' ) ) {
-			// No update available — report as "no_update" so WP knows we checked.
+			// No update available - report as "no_update" so WP knows we checked.
 			$transient->no_update[ $this->basename ] = (object) [
 				'id'            => $this->basename,
 				'slug'          => $this->slug,
@@ -259,14 +279,14 @@ class RPSM_GitHub_Updater_v2 {
 		}
 
 		// Prefer the uploaded ZIP asset over the git zipball.
-		// The git zipball reflects whatever is currently in the repo — if files were not
+		// The git zipball reflects whatever is currently in the repo - if files were not
 		// pushed to GitHub, the downloaded archive still contains the old version number.
 		// Our manually built and uploaded ZIP always has the correct version.
 		$download_url = "https://api.github.com/repos/{$this->github_repo}/zipball/{$release->tag_name}";
 		if ( ! empty( $release->assets ) ) {
 			foreach ( $release->assets as $asset ) {
 				if ( '.zip' === substr( $asset->name ?? '', -4 ) ) {
-					// Route through the API assets endpoint — works for both public and private repos.
+					// Route through the API assets endpoint - works for both public and private repos.
 					// add_auth_header() injects Bearer + Accept: application/octet-stream for this URL.
 					$download_url = "https://api.github.com/repos/{$this->github_repo}/releases/assets/{$asset->id}";
 					break;
@@ -282,7 +302,7 @@ class RPSM_GitHub_Updater_v2 {
 			'package'       => $download_url,
 			'url'           => "https://github.com/{$this->github_repo}",
 			'icons'         => $this->get_icon_urls(),
-			'banners'       => [],
+			'banners'       => $this->get_banner_urls(),
 			'tested'        => '',
 			'requires_php'  => '7.4',
 		];
@@ -318,6 +338,8 @@ class RPSM_GitHub_Updater_v2 {
 			'homepage'        => "https://github.com/{$this->github_repo}",
 			'requires_php'    => '7.4',
 			'download_link'   => "https://api.github.com/repos/{$this->github_repo}/zipball/{$release->tag_name}",
+			'icons'         => $this->get_icon_urls(),
+			'banners'       => $this->get_banner_urls(),
 			'sections'        => [
 				'description' => $this->plugin_name,
 				'changelog'   => $this->build_changelog(),
@@ -328,7 +350,7 @@ class RPSM_GitHub_Updater_v2 {
 	/**
 	 * Fetch all releases from GitHub and build an HTML changelog.
 	 *
-	 * Shows each release with its version, publish date and release notes —
+	 * Shows each release with its version, publish date and release notes -
 	 * newest first. Useful when a site skips multiple versions.
 	 *
 	 * @return string HTML changelog.
@@ -348,11 +370,11 @@ class RPSM_GitHub_Updater_v2 {
 				: '';
 			$body    = ! empty( $rel->body )
 				? nl2br( esc_html( $rel->body ) )
-				: '<em>—</em>';
+				: '<em>-</em>';
 
 			$html .= '<h4 style="margin:14px 0 4px;padding:0;">'
 				. $version
-				. ( $date ? ' &mdash; <span style="font-weight:400;color:#666;">' . esc_html( $date ) . '</span>' : '' )
+				. ( $date ? ' - <span style="font-weight:400;color:#666;">' . esc_html( $date ) . '</span>' : '' )
 				. '</h4>';
 			$html .= '<div style="margin-bottom:10px;line-height:1.6;">' . $body . '</div>';
 			$html .= '<hr style="border:0;border-top:1px solid #eee;margin:0 0 10px;">';
@@ -442,7 +464,7 @@ class RPSM_GitHub_Updater_v2 {
 	/**
 	 * Fix directory name after WP extracts the GitHub zipball.
 	 *
-	 * GitHub zipball extracts to "owner-repo-hash/" — we rename it
+	 * GitHub zipball extracts to "owner-repo-hash/" - we rename it
 	 * to the expected plugin slug directory.
 	 *
 	 * @param bool  $response   Install response.

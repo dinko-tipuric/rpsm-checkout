@@ -2,7 +2,7 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Runs on plugin activation — creates upload dir + seeds defaults.
+ * Runs on plugin activation - creates upload dir + seeds defaults.
  */
 final class RPSM_Checkout_Activator {
 

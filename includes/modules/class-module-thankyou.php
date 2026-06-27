@@ -2,7 +2,7 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Module: Thank-you — Stripe redirect to custom page with GTM dataLayer waiting.
+ * Module: Thank-you - Stripe redirect to custom page with GTM dataLayer waiting.
  */
 final class RPSM_Checkout_Module_Thankyou {
 

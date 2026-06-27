@@ -2,7 +2,7 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Module: Translations — gettext overrides for WooCommerce + Elementor Pro.
+ * Module: Translations - gettext overrides for WooCommerce + Elementor Pro.
  */
 final class RPSM_Checkout_Module_Translations {
 
@@ -30,7 +30,7 @@ final class RPSM_Checkout_Module_Translations {
 			return $translated;
 		}
 
-		/* Quick domain check — skip irrelevant domains */
+		/* Quick domain check - skip irrelevant domains */
 		if ( 'woocommerce' !== $domain && 'elementor-pro' !== $domain ) {
 			return $translated;
 		}

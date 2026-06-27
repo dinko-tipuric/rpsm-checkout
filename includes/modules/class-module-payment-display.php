@@ -2,7 +2,7 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Module: Payment Display — card logos below checkout button for Stripe.
+ * Module: Payment Display - card logos below checkout button for Stripe.
  *
  * - Triggers checkout update on payment method change (JS)
  * - Renders card image after submit button

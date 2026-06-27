@@ -2,7 +2,7 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Module: Coupons — hide coupon form if applied + apply coupon from URL.
+ * Module: Coupons - hide coupon form if applied + apply coupon from URL.
  */
 final class RPSM_Checkout_Module_Coupons {
 

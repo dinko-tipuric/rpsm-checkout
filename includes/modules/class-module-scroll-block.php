@@ -2,7 +2,7 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Module: Scroll Block — prevent WooCommerce auto-scroll to top, allow scroll only to error/notice.
+ * Module: Scroll Block - prevent WooCommerce auto-scroll to top, allow scroll only to error/notice.
  *
  * Injects JS via wp_footer (all logic is client-side).
  */
@@ -20,6 +20,6 @@ final class RPSM_Checkout_Module_Scroll_Block {
 			return;
 		}
 		// JS logic handled in rpsm-checkout-public.js via rpsmCheckout.scrollBlock flag
-		// No inline script needed — the public JS reads the localized data
+		// No inline script needed - the public JS reads the localized data
 	}
 }

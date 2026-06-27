@@ -2,7 +2,7 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Module: Email Validation — JS inline suggestion + PHP hard stop for typos.
+ * Module: Email Validation - JS inline suggestion + PHP hard stop for typos.
  *
  * JS part is in rpsm-checkout-public.js (reads rpsmCheckout.emailVal data).
  * PHP part validates on woocommerce_after_checkout_validation.
@@ -14,7 +14,7 @@ final class RPSM_Checkout_Module_Email_Validation {
 	}
 
 	/**
-	 * Server-side validation — hard stop for known bad patterns.
+	 * Server-side validation - hard stop for known bad patterns.
 	 */
 	public static function validate_email( array $data, \WP_Error $errors ): void {
 

@@ -2,7 +2,7 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Centralni debug logger — standardni RPSM pattern.
+ * Centralni debug logger - standardni RPSM pattern.
  *
  * Format: [RPSM Checkout | YYYY-MM-DD HH:MM:SS | LEVEL | Klasa::metoda] Poruka | {"key":"value"}
  * Log:    wp-content/uploads/rpsm-checkout/debug-YYYY-MM.log

@@ -2,7 +2,7 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Public orchestrator — loads enabled modules + enqueues assets.
+ * Public orchestrator - loads enabled modules + enqueues assets.
  */
 final class RPSM_Checkout_Public {
 
@@ -74,7 +74,7 @@ final class RPSM_Checkout_Public {
 
 	public static function enqueue_assets(): void {
 
-		/* CSS — load on checkout + product pages */
+		/* CSS - load on checkout + product pages */
 		if ( is_checkout() || is_product() || is_cart() ) {
 			wp_enqueue_style(
 				'rpsm-checkout-public',
@@ -84,7 +84,7 @@ final class RPSM_Checkout_Public {
 			);
 		}
 
-		/* JS — load on checkout (most modules need it) */
+		/* JS - load on checkout (most modules need it) */
 		if ( is_checkout() ) {
 			wp_enqueue_script(
 				'rpsm-checkout-public',
@@ -99,7 +99,7 @@ final class RPSM_Checkout_Public {
 	}
 
 	/**
-	 * Build data object for wp_localize_script — only active modules' data.
+	 * Build data object for wp_localize_script - only active modules' data.
 	 */
 	private static function get_js_data(): array {
 		$data = [
@@ -127,7 +127,7 @@ final class RPSM_Checkout_Public {
 			$data['editableCart'] = true;
 		}
 
-		/* Payment Display — trigger checkout update on gateway change */
+		/* Payment Display - trigger checkout update on gateway change */
 		if ( '1' === RPSM_Checkout_Options::get( RPSM_Checkout_Options::PAYMENT_LOGOS_ENABLED ) ) {
 			$data['paymentLogos'] = [
 				'gateway' => RPSM_Checkout_Options::get( RPSM_Checkout_Options::PAYMENT_LOGOS_GATEWAY ),

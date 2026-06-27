@@ -2,7 +2,7 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Admin settings page — tabbed interface.
+ * Admin settings page - tabbed interface.
  */
 final class RPSM_Checkout_Admin {
 

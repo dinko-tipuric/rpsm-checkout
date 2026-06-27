@@ -2,7 +2,7 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Module: Fields — shipping phone + email as username.
+ * Module: Fields - shipping phone + email as username.
  */
 final class RPSM_Checkout_Module_Fields {
 

@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.1.0.7 - 2026-06-27
+
+Brending (bez promjene ponasanja):
+
+- Nove plugin ikone i banner (jedinstveni cross-brand identitet "solid glyph + dubina").
+- Ikona + banner sada izlozeni i u update transientu i u "Prikazi detalje" (icons + banners u check_update i plugin_info).
+- Uklonjeni svi em/en-dash znakovi iz koda i tekstova.
+
+---
+
 ## 1.1.0.6 - 2026-06-25
 
 ### Bugfixevi
@@ -82,37 +92,37 @@ Sve opcije su u admin tabu **Kuponi**, sve opt-in (default isključeno):
 
 ---
 
-## 1.0.0.9 — 2026-04-14
+## 1.0.0.9 - 2026-04-14
 
 ### Bugfixevi
 
-- **SVG ikona** — dodan `assets/icon.svg`; GitHub updater sada vraća `icons['svg']` što sprječava distorziju prikaza na WordPress stranici za ažuriranja.
+- **SVG ikona** - dodan `assets/icon.svg`; GitHub updater sada vraća `icons['svg']` što sprječava distorziju prikaza na WordPress stranici za ažuriranja.
 
 ---
 
 
-## [1.0.0.0] — 2026-03-31
+## [1.0.0.0] - 2026-03-31
 
-### Nova funkcionalnost — inicijalni release
+### Nova funkcionalnost - inicijalni release
 
 Konsolidacija 11 Code Snippets snippeta u jedan plugin s admin UI-om i editabilnim tekstovima.
 
 **Moduli:**
 
-1. **Suglasnost (Legal)** — obavezni TnC checkbox + info box napomena za pretplatne proizvode
-2. **Prijevodi** — gettext override za WooCommerce i Elementor Pro stringove (key-value editor)
-3. **Payment prikaz** — slike podržanih kartica ispod Stripe gumba
-4. **BACS kontrola** — skrivanje BACS gatewaya za pretplatne proizvode, unlock kuponom
-5. **Kuponi** — sakrivanje kupon forme nakon primjene + primjena kupona iz URL-a
-6. **Email validacija** — JS prijedlog ispravke + PHP hard stop za krive email adrese
-7. **Uređiva košarica** — mini košarica s qty/remove na checkout stranici
-8. **Blokada scrolla** — sprječava WC auto-scroll, dozvoljava scroll samo na error/notice
-9. **Buy Now** — "Idi na plaćanje" gumb na product page (simple products)
-10. **Thank-you (Stripe)** — redirect na /hq s GTM dataLayer čekanjem
-11. **Polja** — shipping telefon na checkoutu
+1. **Suglasnost (Legal)** - obavezni TnC checkbox + info box napomena za pretplatne proizvode
+2. **Prijevodi** - gettext override za WooCommerce i Elementor Pro stringove (key-value editor)
+3. **Payment prikaz** - slike podržanih kartica ispod Stripe gumba
+4. **BACS kontrola** - skrivanje BACS gatewaya za pretplatne proizvode, unlock kuponom
+5. **Kuponi** - sakrivanje kupon forme nakon primjene + primjena kupona iz URL-a
+6. **Email validacija** - JS prijedlog ispravke + PHP hard stop za krive email adrese
+7. **Uređiva košarica** - mini košarica s qty/remove na checkout stranici
+8. **Blokada scrolla** - sprječava WC auto-scroll, dozvoljava scroll samo na error/notice
+9. **Buy Now** - "Idi na plaćanje" gumb na product page (simple products)
+10. **Thank-you (Stripe)** - redirect na /hq s GTM dataLayer čekanjem
+11. **Polja** - shipping telefon na checkoutu
 
 **Infrastruktura:**
-- Modularni sustav — isključen modul = nula overhead
+- Modularni sustav - isključen modul = nula overhead
 - Admin UI s 9 tabova i editabilnim tekstovima
 - Debug klasa po globalnom RPSM standardu
 - GitHub auto-updater v2

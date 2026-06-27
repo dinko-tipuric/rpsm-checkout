@@ -2,7 +2,7 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Module: BACS Control — hide BACS gateway for subscription products unless unlock coupon is applied.
+ * Module: BACS Control - hide BACS gateway for subscription products unless unlock coupon is applied.
  */
 final class RPSM_Checkout_Module_Bacs_Control {
 
