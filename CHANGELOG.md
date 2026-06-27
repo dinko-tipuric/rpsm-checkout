@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.1.0.8 - 2026-06-27
+
+Dokumentacija:
+
+- Dodan opis plugina koji se prikazuje u "Prikazi detalje" (View details) modalu.
+- Uskladjen pravopis e-maila u tekstovima.
+
+---
+
 ## 1.1.0.7 - 2026-06-27
 
 Brending (bez promjene ponasanja):

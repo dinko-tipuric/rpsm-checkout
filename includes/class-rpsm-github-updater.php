@@ -243,6 +243,22 @@ class RPSM_GitHub_Updater_v2 {
 		return $banners;
 	}
 
+	/**
+	 * Build the long description for the "View details" modal.
+	 *
+	 * Reads DESCRIPTION.html from the plugin root; falls back to the plugin name.
+	 *
+	 * @return string
+	 */
+	private function get_description(): string {
+		$file = dirname( $this->plugin_file ) . '/DESCRIPTION.html';
+		if ( is_readable( $file ) ) {
+			return wp_kses_post( (string) file_get_contents( $file ) );
+		}
+		return esc_html( $this->plugin_name );
+	}
+
+
 
 	// =========================================================================
 	// WordPress hooks
@@ -341,7 +357,7 @@ class RPSM_GitHub_Updater_v2 {
 			'icons'         => $this->get_icon_urls(),
 			'banners'       => $this->get_banner_urls(),
 			'sections'        => [
-				'description' => $this->plugin_name,
+				'description' => $this->get_description(),
 				'changelog'   => $this->build_changelog(),
 			],
 		];
