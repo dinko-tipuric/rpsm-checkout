@@ -30,6 +30,8 @@ final class RPSM_Checkout_Module_Editable_Cart {
 			add_action( 'woocommerce_review_order_after_cart_contents', [ __CLASS__, 'review_flag_off' ] );
 			add_filter( 'woocommerce_cart_item_name', [ __CLASS__, 'add_remove_x' ], 20, 3 );
 			add_action( 'wc_ajax_rpsm_checkout_remove_item', [ __CLASS__, 'ajax_remove_item' ] );
+			/* Inline CSS fallback - imun na CSS agregat/cache (Autoptimize) */
+			add_action( 'wp_enqueue_scripts', [ __CLASS__, 'inline_x_css' ], 20 );
 			return;
 		}
 
@@ -40,6 +42,24 @@ final class RPSM_Checkout_Module_Editable_Cart {
 	}
 
 	/* ══════════ Mod: summary_x ══════════ */
+
+	/**
+	 * Inline kopija X stilova na checkout stranici - i ako je vanjski CSS
+	 * zaostao u agregatu/cacheu, gumb je ispravno stiliziran.
+	 */
+	public static function inline_x_css(): void {
+		if ( ! is_checkout() || is_wc_endpoint_url( 'order-received' ) ) {
+			return;
+		}
+		$css = 'button.rpsm-review-remove{display:inline-grid!important;place-items:center;width:21px!important;height:21px!important;min-height:0!important;margin:0 6px 0 0!important;padding:0!important;border:1.5px solid #d17954!important;border-radius:50%!important;background:#fff!important;color:#d17954!important;font-size:15px!important;line-height:1!important;font-weight:700!important;cursor:pointer;vertical-align:-3px;box-shadow:none!important;}button.rpsm-review-remove:hover{background:#993a25!important;border-color:#993a25!important;color:#fff!important;}button.rpsm-review-remove:disabled{opacity:.5;cursor:wait;}';
+		if ( wp_style_is( 'rpsm-checkout-public', 'enqueued' ) || wp_style_is( 'rpsm-checkout-public', 'registered' ) ) {
+			wp_add_inline_style( 'rpsm-checkout-public', $css );
+		} else {
+			wp_register_style( 'rpsm-checkout-inline-x', false, [], RPSM_CHECKOUT_VERSION );
+			wp_enqueue_style( 'rpsm-checkout-inline-x' );
+			wp_add_inline_style( 'rpsm-checkout-inline-x', $css );
+		}
+	}
 
 	public static function review_flag_on(): void {
 		self::$in_review = true;

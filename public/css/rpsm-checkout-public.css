@@ -145,30 +145,36 @@
 }
 
 /* ── Editable Cart (summary_x): X gumb u sazetku narudzbe ─────────── */
-.rpsm-review-remove {
-	display: inline-grid;
+/* !important na kljucnim svojstvima: Elementor kit / theme button resetovi
+   i Autoptimize agregat ne smiju razvodniti gumb (staging nalaz). */
+button.rpsm-review-remove,
+.woocommerce button.rpsm-review-remove {
+	display: inline-grid !important;
 	place-items: center;
-	width: 21px;
-	height: 21px;
-	margin-right: 6px;
-	padding: 0;
-	border: 1.5px solid #d17954;
-	border-radius: 50%;
-	background: #fff;
-	color: #d17954;
-	font-size: 15px;
-	line-height: 1;
-	font-weight: 700;
+	width: 21px !important;
+	height: 21px !important;
+	min-height: 0 !important;
+	margin: 0 6px 0 0 !important;
+	padding: 0 !important;
+	border: 1.5px solid #d17954 !important;
+	border-radius: 50% !important;
+	background: #ffffff !important;
+	color: #d17954 !important;
+	font-size: 15px !important;
+	line-height: 1 !important;
+	font-weight: 700 !important;
 	cursor: pointer;
 	vertical-align: -3px;
+	box-shadow: none !important;
 	transition: background 0.12s, color 0.12s;
 }
-.rpsm-review-remove:hover {
-	background: #993a25;
-	border-color: #993a25;
-	color: #fff;
+button.rpsm-review-remove:hover,
+.woocommerce button.rpsm-review-remove:hover {
+	background: #993a25 !important;
+	border-color: #993a25 !important;
+	color: #ffffff !important;
 }
-.rpsm-review-remove:disabled {
+button.rpsm-review-remove:disabled {
 	opacity: 0.5;
 	cursor: wait;
 }

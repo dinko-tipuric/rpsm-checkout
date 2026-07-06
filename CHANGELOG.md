@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.2.0.1 - 2026-07-06
+
+### Bugfixes
+
+- X gumb u sažetku se prikazivao kao goli sivi znak (theme/Elementor button reset + CSS agregat cache). Fix: jači selektori s !important na ključnim svojstvima + inline CSS fallback koji ide s HTML-om pa ga cache agregiranog CSS-a (Autoptimize) ne može promašiti.
+
+---
+
 ## 1.2.0.0 - 2026-07-06
 
 Uređiva košarica dobiva novi način prikaza - X gumb u sažetku narudžbe:
