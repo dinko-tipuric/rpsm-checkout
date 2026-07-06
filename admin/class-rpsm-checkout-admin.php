@@ -206,6 +206,10 @@ final class RPSM_Checkout_Admin {
 		self::row_text( 'Redirect URL', $o::THANKYOU_REDIRECT_URL, 'Relativni ili apsolutni URL (npr. /hq).' );
 		self::row_text( 'GTM timeout (ms)', $o::THANKYOU_GTM_TIMEOUT, 'Koliko ms čekati GTM purchase event prije fallbacka.' );
 		self::row_text( 'Fallback poruka', $o::THANKYOU_FALLBACK_MSG, 'Prikazano ako GTM ne pošalje purchase event.' );
+
+		echo '<tr><td colspan="2"><h3>Besplatne narudžbe (0 €)</h3></td></tr>';
+		self::row_toggle( 'Redirect za besplatne narudžbe', $o::THANKYOU_FREE_ENABLED, 'Narudžbe bez načina plaćanja (total 0 €) također se preusmjeravaju; na GTM timeout redirect ide automatski.' );
+		self::row_text( 'Naslov (besplatne)', $o::THANKYOU_FREE_TITLE, 'Naslov za besplatne narudžbe (nema "plaćanje je uspješno").' );
 	}
 
 	private static function tab_prijevodi(): void {
@@ -388,6 +392,8 @@ final class RPSM_Checkout_Admin {
 				$o::THANKYOU_REDIRECT_URL => 'text',
 				$o::THANKYOU_GTM_TIMEOUT  => 'text',
 				$o::THANKYOU_FALLBACK_MSG => 'text',
+				$o::THANKYOU_FREE_ENABLED => 'toggle',
+				$o::THANKYOU_FREE_TITLE   => 'text',
 			],
 			'prijevodi' => [
 				$o::TRANSLATIONS_ENABLED => 'toggle',

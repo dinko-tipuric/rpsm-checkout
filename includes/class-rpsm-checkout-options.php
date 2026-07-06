@@ -63,6 +63,8 @@ final class RPSM_Checkout_Options {
 	const THANKYOU_GTM_TIMEOUT  = 'rpsm_checkout_thankyou_gtm_timeout';
 	const THANKYOU_FALLBACK_MSG = 'rpsm_checkout_thankyou_fallback_msg';
 	const THANKYOU_GATEWAY      = 'rpsm_checkout_thankyou_gateway';
+	const THANKYOU_FREE_ENABLED = 'rpsm_checkout_thankyou_free_enabled';
+	const THANKYOU_FREE_TITLE   = 'rpsm_checkout_thankyou_free_title';
 
 	/* ── Translations ──────────────────────────────────────────────── */
 	const TRANSLATIONS_ENABLED  = 'rpsm_checkout_translations_enabled';
@@ -134,6 +136,8 @@ final class RPSM_Checkout_Options {
 		self::THANKYOU_GTM_TIMEOUT  => '5000',
 		self::THANKYOU_FALLBACK_MSG => 'Klikni gumb ispod za nastavak.',
 		self::THANKYOU_GATEWAY      => 'eh_stripe_checkout',
+		self::THANKYOU_FREE_ENABLED => '1',
+		self::THANKYOU_FREE_TITLE   => 'Hvala! Narudžba je uspješna.',
 
 		/* Translations */
 		self::TRANSLATIONS_ENABLED  => '1',

@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.1.1.0 - 2026-07-06
+
+Thank-you redirect za besplatne narudžbe:
+
+- Narudžbe s totalom 0 € nemaju način plaćanja (WooCommerce preskoči odabir plaćanja), pa gateway-specifični thank-you hook nikad nije okinuo i korisnik je ostajao na thank-you stranici. Novi generički hook hvata narudžbe bez payment methoda s totalom 0 € i radi isti redirect na /hq.
+- Auto-redirect na GTM timeout za besplatne narudžbe - GTM možda nema purchase event za 0 € pa korisnik ide na redirect automatski umjesto da čeka fallback gumb.
+- Nove opcije u Thank-you tabu: toggle "Redirect za besplatne narudžbe" (default uključen) + zaseban naslov za besplatne narudžbe (bez "plaćanje je uspješno").
+- Guard protiv dvostrukog rendera kad bi oba hooka okinula na istom page loadu.
+
+---
+
 ## 1.1.0.9 - 2026-06-27
 
 Ispravak prikaza ikona:
