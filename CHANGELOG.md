@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.2.0.0 - 2026-07-06
+
+Uređiva košarica dobiva novi način prikaza - X gumb u sažetku narudžbe:
+
+- Nova opcija "Način prikaza" u Kuponi i košarica tabu: **X gumb u sažetku "Tvoja narudžba"** (preporučeno) ili **zasebna tablica iznad checkouta** (staro ponašanje, default radi kompatibilnosti).
+- X mod: uz svaku stavku u sažetku stoji vidljivi copper × gumb (AJAX uklanjanje + osvježavanje checkouta). Sažetak je fragment koji WooCommerce ionako osvježava, pa nema druge košarice ni problema sa sinkronizacijom dvaju prikaza.
+- Uklanjanje zadnje stavke i dalje vodi na shop (postojeće ponašanje).
+- X se dodaje isključivo unutar review-order konteksta - mini-cart, cart stranica i emailovi se ne diraju.
+- Cilj: dugoročno se u potpunosti riješiti zasebne tablice; stari mod ostaje kao fallback.
+
+---
+
 ## 1.1.2.0 - 2026-07-06
 
 Sinkronizacija uređive košarice + čišćenje checkout URL-a (nalazi s RPSM Upsell staging testa):

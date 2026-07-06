@@ -164,7 +164,17 @@ final class RPSM_Checkout_Admin {
 		self::row_toggle( 'Prikaži kupon polje na switchu', $o::COUPON_SWITCH_SHOW_FIELD, 'Prisilno prikaže polje za ručni unos kupona na checkoutu dok traje switch (zaobilazi Elementorov Coupon toggle). Nestaje čim je kupon primijenjen.' );
 
 		echo '<tr><td colspan="2"><h3>Košarica i gumbi</h3></td></tr>';
-		self::row_toggle( 'Uređiva košarica na checkoutu', $o::EDITABLE_CART_ENABLED, 'Prikazuje mini košaricu s mogućnošću promjene količine i uklanjanja stavki.' );
+		self::row_toggle( 'Uređiva košarica na checkoutu', $o::EDITABLE_CART_ENABLED, 'Omogućava kupcu uklanjanje stavki na checkoutu (način prikaza dolje).' );
+
+		$mode = RPSM_Checkout_Options::get( $o::EDITABLE_CART_MODE );
+		echo '<tr><th scope="row">Način prikaza</th><td><select name="' . esc_attr( $o::EDITABLE_CART_MODE ) . '">';
+		foreach ( [
+			'summary_x' => 'X gumb u sažetku "Tvoja narudžba" (preporučeno - nema druge košarice ni sync problema)',
+			'table'     => 'Zasebna tablica iznad checkouta (staro)',
+		] as $val => $label ) {
+			printf( '<option value="%s" %s>%s</option>', esc_attr( $val ), selected( $mode, $val, false ), esc_html( $label ) );
+		}
+		echo '</select><p class="description">Cilj je dugoročno koristiti X u sažetku i maknuti zasebnu tablicu.</p></td></tr>';
 		self::row_toggle( 'Buy Now gumb', $o::BUY_NOW_ENABLED, 'Dodaje "Idi na plaćanje" gumb na stranici proizvoda (simple products).' );
 		self::row_text( 'Tekst Buy Now gumba', $o::BUY_NOW_TEXT );
 	}
@@ -363,6 +373,7 @@ final class RPSM_Checkout_Admin {
 				$o::COUPON_SWITCH_SKIP_ON_SALE => 'toggle',
 				$o::COUPON_SWITCH_SHOW_FIELD => 'toggle',
 				$o::EDITABLE_CART_ENABLED => 'toggle',
+				$o::EDITABLE_CART_MODE    => 'text',
 				$o::BUY_NOW_ENABLED       => 'toggle',
 				$o::BUY_NOW_TEXT          => 'text',
 			],

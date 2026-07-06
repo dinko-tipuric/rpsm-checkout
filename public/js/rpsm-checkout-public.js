@@ -198,4 +198,32 @@
 		});
 	}
 
+
+	/* ══════════════════════════════════════════════════════════════ */
+	/*  5. EDITABLE CART (summary_x) - X gumb u sazetku narudzbe      */
+	/* ══════════════════════════════════════════════════════════════ */
+
+	if (rpsmCheckout.editableCartX) {
+		$(document.body).on('click', '.rpsm-review-remove', function (e) {
+			e.preventDefault();
+			var $btn = $(this);
+			if ($btn.prop('disabled')) { return; }
+			$btn.prop('disabled', true);
+			$.post(rpsmCheckout.editableCartX.endpoint, {
+				nonce: $btn.data('nonce'),
+				cart_key: $btn.data('cart-key')
+			}).done(function (res) {
+				if (res && res.success && res.data && res.data.cart_empty) {
+					/* Zadnja stavka - reload, server redirecta na shop */
+					window.location.reload();
+					return;
+				}
+				$(document.body).trigger('update_checkout');
+			}).fail(function () {
+				$btn.prop('disabled', false);
+				$(document.body).trigger('update_checkout');
+			});
+		});
+	}
+
 })(jQuery);

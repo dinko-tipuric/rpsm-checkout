@@ -36,6 +36,7 @@ final class RPSM_Checkout_Options {
 
 	/* ── Editable Cart ─────────────────────────────────────────────── */
 	const EDITABLE_CART_ENABLED = 'rpsm_checkout_editable_cart_enabled';
+	const EDITABLE_CART_MODE    = 'rpsm_checkout_editable_cart_mode'; // 'table' | 'summary_x'
 
 	/* ── Scroll Block ──────────────────────────────────────────────── */
 	const SCROLL_BLOCK_ENABLED  = 'rpsm_checkout_scroll_block_enabled';
@@ -109,6 +110,7 @@ final class RPSM_Checkout_Options {
 
 		/* Editable Cart */
 		self::EDITABLE_CART_ENABLED => '1',
+		self::EDITABLE_CART_MODE    => 'table',
 
 		/* Scroll Block */
 		self::SCROLL_BLOCK_ENABLED  => '1',

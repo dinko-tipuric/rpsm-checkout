@@ -143,3 +143,32 @@
 	background: #993a25;
 	border-color: #993a25;
 }
+
+/* ── Editable Cart (summary_x): X gumb u sazetku narudzbe ─────────── */
+.rpsm-review-remove {
+	display: inline-grid;
+	place-items: center;
+	width: 21px;
+	height: 21px;
+	margin-right: 6px;
+	padding: 0;
+	border: 1.5px solid #d17954;
+	border-radius: 50%;
+	background: #fff;
+	color: #d17954;
+	font-size: 15px;
+	line-height: 1;
+	font-weight: 700;
+	cursor: pointer;
+	vertical-align: -3px;
+	transition: background 0.12s, color 0.12s;
+}
+.rpsm-review-remove:hover {
+	background: #993a25;
+	border-color: #993a25;
+	color: #fff;
+}
+.rpsm-review-remove:disabled {
+	opacity: 0.5;
+	cursor: wait;
+}

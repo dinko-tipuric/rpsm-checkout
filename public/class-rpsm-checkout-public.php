@@ -124,7 +124,14 @@ final class RPSM_Checkout_Public {
 
 		/* Editable Cart */
 		if ( '1' === RPSM_Checkout_Options::get( RPSM_Checkout_Options::EDITABLE_CART_ENABLED ) ) {
-			$data['editableCart'] = true;
+			$mode = RPSM_Checkout_Options::get( RPSM_Checkout_Options::EDITABLE_CART_MODE );
+			if ( 'summary_x' === $mode ) {
+				$data['editableCartX'] = [
+					'endpoint' => class_exists( 'WC_AJAX' ) ? WC_AJAX::get_endpoint( 'rpsm_checkout_remove_item' ) : '',
+				];
+			} else {
+				$data['editableCart'] = true;
+			}
 		}
 
 		/* Payment Display - trigger checkout update on gateway change */

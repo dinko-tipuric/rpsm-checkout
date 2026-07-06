@@ -2,38 +2,90 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Module: Editable Cart - display mini cart on checkout with qty change + remove.
+ * Module: Editable Cart - mogucnost uklanjanja stavki na checkoutu.
  *
- * 4 parts: A) cart template, B) URL filters, C) auto-update JS (via localized data), D) redirect on empty.
+ * Dva moda (v1.2.0.0, opcija EDITABLE_CART_MODE):
+ * - 'table':     zasebna kosarica (cart.php) iznad checkout forme + fragment sync (staro).
+ * - 'summary_x': X gumb uz svaku stavku u sazetku "Tvoja narudzba" - nema druge
+ *                kosarice, nema sync problema (sazetak JE fragment koji se osvjezava).
+ *                Cilj je dugorocno ovim modom zamijeniti tablicu.
+ *
+ * Zajednicko za oba moda: cart URL -> checkout, emptied flag + redirect na shop.
  */
 final class RPSM_Checkout_Module_Editable_Cart {
 
+	private static bool $in_review = false;
+
 	public static function init(): void {
-		add_action( 'woocommerce_before_checkout_form', [ __CLASS__, 'render_cart' ], 5 );
+		$mode = RPSM_Checkout_Options::get( RPSM_Checkout_Options::EDITABLE_CART_MODE );
+
+		/* Zajednicko */
 		add_filter( 'woocommerce_get_cart_url', [ __CLASS__, 'cart_url_to_checkout' ] );
-		add_filter( 'woocommerce_cart_item_remove_link', [ __CLASS__, 'remove_link_to_checkout' ], 10, 2 );
 		add_action( 'woocommerce_cart_item_removed', [ __CLASS__, 'set_emptied_flag' ] );
 		add_action( 'template_redirect', [ __CLASS__, 'redirect_if_empty' ] );
 
-		/* v1.1.2.0: kosarica kao checkout fragment - osvjezava se na SVAKI
-		   update_checkout (upsell blok, kuponi, promjene kolicine...), inace
-		   ostane zaledjena na stanju s inicijalnog page loada. */
+		if ( 'summary_x' === $mode ) {
+			/* X u sazetku narudzbe - samo unutar review-order konteksta */
+			add_action( 'woocommerce_review_order_before_cart_contents', [ __CLASS__, 'review_flag_on' ] );
+			add_action( 'woocommerce_review_order_after_cart_contents', [ __CLASS__, 'review_flag_off' ] );
+			add_filter( 'woocommerce_cart_item_name', [ __CLASS__, 'add_remove_x' ], 20, 3 );
+			add_action( 'wc_ajax_rpsm_checkout_remove_item', [ __CLASS__, 'ajax_remove_item' ] );
+			return;
+		}
+
+		/* 'table' mod (legacy) */
+		add_action( 'woocommerce_before_checkout_form', [ __CLASS__, 'render_cart' ], 5 );
+		add_filter( 'woocommerce_cart_item_remove_link', [ __CLASS__, 'remove_link_to_checkout' ], 10, 2 );
 		add_filter( 'woocommerce_update_order_review_fragments', [ __CLASS__, 'cart_fragment' ] );
 	}
 
-	/**
-	 * Svjezi HTML kosarice za AJAX refresh (selektor .mv-checkout-cart).
-	 */
-	public static function cart_fragment( array $fragments ): array {
-		ob_start();
-		self::render_cart();
-		$html = trim( ob_get_clean() );
-		if ( '' === $html ) {
-			$html = '<div class="mv-checkout-cart"></div>';
-		}
-		$fragments['.mv-checkout-cart'] = $html;
-		return $fragments;
+	/* ══════════ Mod: summary_x ══════════ */
+
+	public static function review_flag_on(): void {
+		self::$in_review = true;
 	}
+
+	public static function review_flag_off(): void {
+		self::$in_review = false;
+	}
+
+	/**
+	 * Dodaj vidljivi X gumb ispred naziva stavke u "Tvoja narudzba".
+	 * Flag garantira da se ne dira mini-cart, cart stranica ni emailovi.
+	 */
+	public static function add_remove_x( $name, $cart_item, $cart_item_key ) {
+		if ( ! self::$in_review || empty( $cart_item_key ) ) {
+			return $name;
+		}
+		$x = sprintf(
+			'<button type="button" class="rpsm-review-remove" data-cart-key="%s" data-nonce="%s" aria-label="%s" title="%s">&times;</button> ',
+			esc_attr( $cart_item_key ),
+			esc_attr( wp_create_nonce( 'rpsm-checkout-remove' ) ),
+			esc_attr( 'Ukloni iz narudžbe' ),
+			esc_attr( 'Ukloni iz narudžbe' )
+		);
+		return $x . $name;
+	}
+
+	/**
+	 * AJAX uklanjanje stavke iz sazetka.
+	 */
+	public static function ajax_remove_item(): void {
+		check_ajax_referer( 'rpsm-checkout-remove', 'nonce' );
+
+		$key = sanitize_text_field( wp_unslash( $_POST['cart_key'] ?? '' ) );
+		if ( '' === $key || ! WC()->cart || ! isset( WC()->cart->get_cart()[ $key ] ) ) {
+			wp_send_json_error( [ 'message' => 'Stavka nije pronađena.' ] );
+		}
+
+		WC()->cart->remove_cart_item( $key );
+
+		wp_send_json_success( [
+			'cart_empty' => 0 === WC()->cart->get_cart_contents_count(),
+		] );
+	}
+
+	/* ══════════ Mod: table (legacy) ══════════ */
 
 	/**
 	 * Render cart.php template inside a wrapper above checkout form.
@@ -53,13 +105,19 @@ final class RPSM_Checkout_Module_Editable_Cart {
 	}
 
 	/**
-	 * Cart page link → checkout (so "Update cart" stays on checkout).
+	 * v1.1.2.0: kosarica kao checkout fragment - osvjezava se na SVAKI
+	 * update_checkout (upsell blok, kuponi, promjene kolicine...), inace
+	 * ostane zaledjena na stanju s inicijalnog page loada.
 	 */
-	public static function cart_url_to_checkout( string $url ): string {
-		if ( is_checkout() ) {
-			return wc_get_checkout_url();
+	public static function cart_fragment( array $fragments ): array {
+		ob_start();
+		self::render_cart();
+		$html = trim( ob_get_clean() );
+		if ( '' === $html ) {
+			$html = '<div class="mv-checkout-cart"></div>';
 		}
-		return $url;
+		$fragments['.mv-checkout-cart'] = $html;
+		return $fragments;
 	}
 
 	/**
@@ -67,14 +125,21 @@ final class RPSM_Checkout_Module_Editable_Cart {
 	 */
 	public static function remove_link_to_checkout( string $link, string $cart_item_key ): string {
 		if ( is_checkout() ) {
-			/* Replace return-to-cart URL with checkout URL inside the link HTML */
-			$link = str_replace(
-				wc_get_cart_url(),
-				wc_get_checkout_url(),
-				$link
-			);
+			$link = str_replace( wc_get_cart_url(), wc_get_checkout_url(), $link );
 		}
 		return $link;
+	}
+
+	/* ══════════ Zajednicko ══════════ */
+
+	/**
+	 * Cart page link → checkout (so "Update cart" stays on checkout).
+	 */
+	public static function cart_url_to_checkout( string $url ): string {
+		if ( is_checkout() ) {
+			return wc_get_checkout_url();
+		}
+		return $url;
 	}
 
 	/**
