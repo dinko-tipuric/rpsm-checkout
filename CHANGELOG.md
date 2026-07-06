@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.2.0.2 - 2026-07-06
+
+### Bugfixes
+
+- X za uklanjanje premješten desno uz iznos stavke (kolona Međuzbroj), u istom redu s iznosom (nowrap) - naziv proizvoda se više ne lomi zbog gumba.
+- Krug oko X-a uklonjen: sada je čisti boldani copper × (hover rust), diskretan ali jasno vidljiv.
+
+---
+
 ## 1.2.0.1 - 2026-07-06
 
 ### Bugfixes

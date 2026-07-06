@@ -28,7 +28,7 @@ final class RPSM_Checkout_Module_Editable_Cart {
 			/* X u sazetku narudzbe - samo unutar review-order konteksta */
 			add_action( 'woocommerce_review_order_before_cart_contents', [ __CLASS__, 'review_flag_on' ] );
 			add_action( 'woocommerce_review_order_after_cart_contents', [ __CLASS__, 'review_flag_off' ] );
-			add_filter( 'woocommerce_cart_item_name', [ __CLASS__, 'add_remove_x' ], 20, 3 );
+			add_filter( 'woocommerce_cart_item_subtotal', [ __CLASS__, 'add_remove_x' ], 20, 3 );
 			add_action( 'wc_ajax_rpsm_checkout_remove_item', [ __CLASS__, 'ajax_remove_item' ] );
 			/* Inline CSS fallback - imun na CSS agregat/cache (Autoptimize) */
 			add_action( 'wp_enqueue_scripts', [ __CLASS__, 'inline_x_css' ], 20 );
@@ -51,7 +51,7 @@ final class RPSM_Checkout_Module_Editable_Cart {
 		if ( ! is_checkout() || is_wc_endpoint_url( 'order-received' ) ) {
 			return;
 		}
-		$css = 'button.rpsm-review-remove{display:inline-grid!important;place-items:center;width:21px!important;height:21px!important;min-height:0!important;margin:0 6px 0 0!important;padding:0!important;border:1.5px solid #d17954!important;border-radius:50%!important;background:#fff!important;color:#d17954!important;font-size:15px!important;line-height:1!important;font-weight:700!important;cursor:pointer;vertical-align:-3px;box-shadow:none!important;}button.rpsm-review-remove:hover{background:#993a25!important;border-color:#993a25!important;color:#fff!important;}button.rpsm-review-remove:disabled{opacity:.5;cursor:wait;}';
+		$css = '.rpsm-review-line{white-space:nowrap;}button.rpsm-review-remove{display:inline-block!important;width:auto!important;height:auto!important;min-height:0!important;margin:0 0 0 7px!important;padding:0 2px!important;border:none!important;border-radius:0!important;background:transparent!important;color:#d17954!important;font-size:18px!important;line-height:1!important;font-weight:700!important;cursor:pointer;vertical-align:-1px;box-shadow:none!important;}button.rpsm-review-remove:hover{background:transparent!important;color:#993a25!important;}button.rpsm-review-remove:disabled{opacity:.5;cursor:wait;}';
 		if ( wp_style_is( 'rpsm-checkout-public', 'enqueued' ) || wp_style_is( 'rpsm-checkout-public', 'registered' ) ) {
 			wp_add_inline_style( 'rpsm-checkout-public', $css );
 		} else {
@@ -70,21 +70,22 @@ final class RPSM_Checkout_Module_Editable_Cart {
 	}
 
 	/**
-	 * Dodaj vidljivi X gumb ispred naziva stavke u "Tvoja narudzba".
-	 * Flag garantira da se ne dira mini-cart, cart stranica ni emailovi.
+	 * Dodaj boldani X gumb desno uz iznos stavke u "Tvoja narudzba"
+	 * (kolona Medjuzbroj, u istom redu - nowrap). Flag garantira da se
+	 * ne dira mini-cart, cart stranica ni emailovi.
 	 */
-	public static function add_remove_x( $name, $cart_item, $cart_item_key ) {
+	public static function add_remove_x( $subtotal, $cart_item, $cart_item_key ) {
 		if ( ! self::$in_review || empty( $cart_item_key ) ) {
-			return $name;
+			return $subtotal;
 		}
 		$x = sprintf(
-			'<button type="button" class="rpsm-review-remove" data-cart-key="%s" data-nonce="%s" aria-label="%s" title="%s">&times;</button> ',
+			'<button type="button" class="rpsm-review-remove" data-cart-key="%s" data-nonce="%s" aria-label="%s" title="%s">&times;</button>',
 			esc_attr( $cart_item_key ),
 			esc_attr( wp_create_nonce( 'rpsm-checkout-remove' ) ),
 			esc_attr( 'Ukloni iz narudžbe' ),
 			esc_attr( 'Ukloni iz narudžbe' )
 		);
-		return $x . $name;
+		return '<span class="rpsm-review-line">' . $subtotal . $x . '</span>';
 	}
 
 	/**

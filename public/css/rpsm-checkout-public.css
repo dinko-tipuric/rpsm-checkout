@@ -144,35 +144,36 @@
 	border-color: #993a25;
 }
 
-/* ── Editable Cart (summary_x): X gumb u sazetku narudzbe ─────────── */
-/* !important na kljucnim svojstvima: Elementor kit / theme button resetovi
-   i Autoptimize agregat ne smiju razvodniti gumb (staging nalaz). */
+/* ── Editable Cart (summary_x): X gumb uz iznos u sazetku narudzbe ── */
+/* Boldani goli X (bez kruga), desno od iznosa, u istom redu (nowrap).
+   !important: Elementor kit / theme button resetovi + CSS agregat cache. */
+.rpsm-review-line {
+	white-space: nowrap;
+}
 button.rpsm-review-remove,
 .woocommerce button.rpsm-review-remove {
-	display: inline-grid !important;
-	place-items: center;
-	width: 21px !important;
-	height: 21px !important;
+	display: inline-block !important;
+	width: auto !important;
+	height: auto !important;
 	min-height: 0 !important;
-	margin: 0 6px 0 0 !important;
-	padding: 0 !important;
-	border: 1.5px solid #d17954 !important;
-	border-radius: 50% !important;
-	background: #ffffff !important;
+	margin: 0 0 0 7px !important;
+	padding: 0 2px !important;
+	border: none !important;
+	border-radius: 0 !important;
+	background: transparent !important;
 	color: #d17954 !important;
-	font-size: 15px !important;
+	font-size: 18px !important;
 	line-height: 1 !important;
 	font-weight: 700 !important;
 	cursor: pointer;
-	vertical-align: -3px;
+	vertical-align: -1px;
 	box-shadow: none !important;
-	transition: background 0.12s, color 0.12s;
+	transition: color 0.12s;
 }
 button.rpsm-review-remove:hover,
 .woocommerce button.rpsm-review-remove:hover {
-	background: #993a25 !important;
-	border-color: #993a25 !important;
-	color: #ffffff !important;
+	background: transparent !important;
+	color: #993a25 !important;
 }
 button.rpsm-review-remove:disabled {
 	opacity: 0.5;
