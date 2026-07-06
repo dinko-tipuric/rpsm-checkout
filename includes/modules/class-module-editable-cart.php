@@ -14,6 +14,25 @@ final class RPSM_Checkout_Module_Editable_Cart {
 		add_filter( 'woocommerce_cart_item_remove_link', [ __CLASS__, 'remove_link_to_checkout' ], 10, 2 );
 		add_action( 'woocommerce_cart_item_removed', [ __CLASS__, 'set_emptied_flag' ] );
 		add_action( 'template_redirect', [ __CLASS__, 'redirect_if_empty' ] );
+
+		/* v1.1.2.0: kosarica kao checkout fragment - osvjezava se na SVAKI
+		   update_checkout (upsell blok, kuponi, promjene kolicine...), inace
+		   ostane zaledjena na stanju s inicijalnog page loada. */
+		add_filter( 'woocommerce_update_order_review_fragments', [ __CLASS__, 'cart_fragment' ] );
+	}
+
+	/**
+	 * Svjezi HTML kosarice za AJAX refresh (selektor .mv-checkout-cart).
+	 */
+	public static function cart_fragment( array $fragments ): array {
+		ob_start();
+		self::render_cart();
+		$html = trim( ob_get_clean() );
+		if ( '' === $html ) {
+			$html = '<div class="mv-checkout-cart"></div>';
+		}
+		$fragments['.mv-checkout-cart'] = $html;
+		return $fragments;
 	}
 
 	/**

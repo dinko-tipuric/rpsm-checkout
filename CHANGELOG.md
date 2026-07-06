@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.1.2.0 - 2026-07-06
+
+Sinkronizacija uređive košarice + čišćenje checkout URL-a (nalazi s RPSM Upsell staging testa):
+
+- Uređiva košarica na vrhu checkouta sada je registrirana kao checkout fragment i osvježava se na SVAKI update_checkout (dodavanje/uklanjanje kroz upsell ponude, kuponi, promjene količine). Do sada je ostajala zaleđena na stanju s učitavanja stranice, pa se činilo da se checkout smrznuo.
+- Buy Now: nakon što WooCommerce obradi ?add-to-cart na checkoutu, URL se čisti redirectom. Do sada je svaki reload stranice ponovno pokušao dodati proizvod, pa su "sold individually" artikli bacali error notice.
+
+---
+
 ## 1.1.1.0 - 2026-07-06
 
 Thank-you redirect za besplatne narudžbe:

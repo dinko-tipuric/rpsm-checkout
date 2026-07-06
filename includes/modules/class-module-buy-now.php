@@ -8,6 +8,25 @@ final class RPSM_Checkout_Module_Buy_Now {
 
 	public static function init(): void {
 		add_action( 'woocommerce_after_add_to_cart_button', [ __CLASS__, 'render_button' ] );
+
+		/* v1.1.2.0: nakon sto WC obradi ?add-to-cart na checkoutu, ocisti URL.
+		   Inace svaki reload stranice ponovno pokusa dodati proizvod pa
+		   "sold individually" artikli bacaju error notice. */
+		add_action( 'template_redirect', [ __CLASS__, 'clean_checkout_url' ], 20 );
+	}
+
+	/**
+	 * Redirect na cisti checkout URL nakon add-to-cart obrade.
+	 */
+	public static function clean_checkout_url(): void {
+		if ( ! is_checkout() || is_wc_endpoint_url( 'order-pay' ) || is_wc_endpoint_url( 'order-received' ) ) {
+			return;
+		}
+		if ( ! isset( $_GET['add-to-cart'] ) ) { // phpcs:ignore
+			return;
+		}
+		wp_safe_redirect( remove_query_arg( [ 'add-to-cart', 'quantity', 'variation_id' ] ) );
+		exit;
 	}
 
 	/**
