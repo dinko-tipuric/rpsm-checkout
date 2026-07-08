@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.2.0.3 (2026-07-08)
+
+### Bugfixes
+
+- Checkout je skakao na vrh stranice pri SVAKOJ promjeni (metoda plaćanja, unos polja...) kad je postojala poruka "dodano u košaricu" od buy-now linka: Elementor tu poruku re-renderira pri svakom AJAX osvježenju pa ju je scroll-block observer svaki put tretirao kao novu i dopustio scroll. Dva sloja: success notice-i se brišu na checkoutu prije rendera (greške ostaju), a observer scrolla samo na PRVU pojavu istog teksta poruke.
+
+---
+
 ## 1.2.0.2 - 2026-07-06
 
 ### Bugfixes

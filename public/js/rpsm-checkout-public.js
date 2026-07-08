@@ -121,7 +121,10 @@
 			$.scroll_to_notices = function() {};
 		}
 
-		/* 2b: MutationObserver for error/notice nodes */
+		/* 2b: MutationObserver for error/notice nodes.
+		   Ista poruka se kod Elementora re-renderira pri svakom AJAX updateu -
+		   scrollamo samo na PRVU pojavu tog teksta, ne na svaki re-render. */
+		var seenNotices = {};
 		var observer = new MutationObserver(function(mutations) {
 			mutations.forEach(function(m) {
 				m.addedNodes.forEach(function(node) {
@@ -132,6 +135,9 @@
 						node.classList.contains('woocommerce-info') ||
 						node.classList.contains('wc-block-components-notice-banner')
 					)) {
+						var noticeKey = (node.textContent || '').replace(/\s+/g, ' ').trim();
+						if (seenNotices[noticeKey]) return;
+						seenNotices[noticeKey] = true;
 						allowScrollToNotices = true;
 						setTimeout(function() {
 							node.scrollIntoView({ behavior: 'smooth', block: 'center' });
