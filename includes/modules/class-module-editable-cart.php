@@ -155,9 +155,14 @@ final class RPSM_Checkout_Module_Editable_Cart {
 
 	/**
 	 * Cart page link → checkout (so "Update cart" stays on checkout).
+	 *
+	 * ⚠️ SAMO dok kosarica NIJE prazna: WC prazan checkout redirecta na cart
+	 * URL, pa bi filtrirani cart URL (= checkout) stvorio beskonacnu redirect
+	 * petlju (produkcijski nalaz 2026-07-12: Buy Now na vec kupljeni proizvod
+	 * -> add-to-cart blokiran -> prazan checkout -> ERR_TOO_MANY_REDIRECTS).
 	 */
 	public static function cart_url_to_checkout( string $url ): string {
-		if ( is_checkout() ) {
+		if ( is_checkout() && WC()->cart && ! WC()->cart->is_empty() ) {
 			return wc_get_checkout_url();
 		}
 		return $url;

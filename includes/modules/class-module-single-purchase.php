@@ -21,12 +21,19 @@ defined( 'ABSPATH' ) || exit;
  */
 final class RPSM_Checkout_Module_Single_Purchase {
 
+	/** Per-request memo za already_bought (katalog petlje zovu is_purchasable vise puta). */
+	private static array $bought_memo = [];
+
 	public static function init(): void {
 		add_filter( 'woocommerce_add_to_cart_validation', [ __CLASS__, 'validate_add' ], 20, 2 );
 		add_action( 'woocommerce_check_cart_items', [ __CLASS__, 'validate_cart_items' ] );
 		add_action( 'woocommerce_after_checkout_validation', [ __CLASS__, 'validate_checkout' ], 10, 2 );
 		/* Zasticeni proizvodi ni u ISTOJ kosarici ne mogu biti 2x */
 		add_filter( 'woocommerce_is_sold_individually', [ __CLASS__, 'force_sold_individually' ], 10, 2 );
+		/* Vlasniku se kupnja uopce ne nudi: nestaju add-to-cart forma i Buy Now
+		   gumb (renderiraju se unutar forme), katalog pokazuje "Saznaj vise" */
+		add_filter( 'woocommerce_is_purchasable', [ __CLASS__, 'hide_purchase_for_owner' ], 20, 2 );
+		add_action( 'woocommerce_single_product_summary', [ __CLASS__, 'render_owned_notice' ], 31 );
 	}
 
 	private static function product_ids(): array {
@@ -50,7 +57,11 @@ final class RPSM_Checkout_Module_Single_Purchase {
 		if ( $user_id <= 0 && '' === $email ) {
 			return false;
 		}
-		return wc_customer_bought_product( $email, $user_id, $product_id );
+		$memo_key = $product_id . '|' . $user_id . '|' . $email;
+		if ( ! isset( self::$bought_memo[ $memo_key ] ) ) {
+			self::$bought_memo[ $memo_key ] = (bool) wc_customer_bought_product( $email, $user_id, $product_id );
+		}
+		return self::$bought_memo[ $memo_key ];
 	}
 
 	/** Poruka kupcu ({proizvod} placeholder) + link na Moj racun. */
@@ -143,5 +154,31 @@ final class RPSM_Checkout_Module_Single_Purchase {
 			return true;
 		}
 		return $sold_individually;
+	}
+
+	/* ── Prikaz vlasniku: bez kupnje + info poruka ─────────────────── */
+
+	public static function hide_purchase_for_owner( $purchasable, $product ) {
+		if ( ! $purchasable || ! $product instanceof WC_Product ) {
+			return $purchasable;
+		}
+		$pid = (int) $product->get_id();
+		if ( self::is_protected( $pid ) && self::already_bought( $pid ) ) {
+			return false;
+		}
+		return $purchasable;
+	}
+
+	/** Na stranici proizvoda objasni ZASTO nema gumba za kupnju. */
+	public static function render_owned_notice(): void {
+		global $product;
+		if ( ! $product instanceof WC_Product ) {
+			return;
+		}
+		$pid = (int) $product->get_id();
+		if ( ! self::is_protected( $pid ) || ! self::already_bought( $pid ) ) {
+			return;
+		}
+		echo '<div class="woocommerce-info rpsm-single-purchase-owned" style="margin:12px 0;">' . wp_kses_post( self::notice_text( $pid ) ) . '</div>';
 	}
 }

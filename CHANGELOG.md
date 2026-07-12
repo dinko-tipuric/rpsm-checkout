@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.3.0.1 (2026-07-12)
+
+### Bugfixes (produkcijski nalaz: kupnja već kupljenog proizvoda)
+
+- **ERR_TOO_MANY_REDIRECTS na Buy Now za već kupljeni proizvod**: blokirani add-to-cart ostavi praznu košaricu na checkoutu, WC prazan checkout redirecta na cart URL, a editable-cart filter je cart URL vraćao natrag na checkout - beskonačna petlja. Cart URL se sada preusmjerava na checkout SAMO dok košarica nije prazna (petlja je latentno postojala za svaki dolazak na prazan checkout).
+- **Vlasniku se kupnja više ne nudi**: za zaštićene proizvode koje je kupac već platio skrivaju se add-to-cart forma i Buy Now gumb (is_purchasable), katalog pokazuje "Saznaj više", a na stranici proizvoda stoji info poruka s linkom na Moj račun. Dodan per-request memo za provjeru vlasništva.
+
+---
+
 ## 1.3.0.0 (2026-07-12)
 
 ### Novo: modul "Jednokratna kupnja"
