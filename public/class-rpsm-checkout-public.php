@@ -16,6 +16,7 @@ final class RPSM_Checkout_Public {
 		'coupons'          => [ RPSM_Checkout_Options::COUPON_HIDE_ENABLED, RPSM_Checkout_Options::COUPON_URL_ENABLED ],
 		'editable-cart'    => RPSM_Checkout_Options::EDITABLE_CART_ENABLED,
 		'scroll-block'     => RPSM_Checkout_Options::SCROLL_BLOCK_ENABLED,
+		'single-purchase'  => RPSM_Checkout_Options::SINGLE_PURCHASE_ENABLED,
 		'buy-now'          => RPSM_Checkout_Options::BUY_NOW_ENABLED,
 		'email-validation' => RPSM_Checkout_Options::EMAIL_VAL_ENABLED,
 		'thankyou'         => RPSM_Checkout_Options::THANKYOU_ENABLED,

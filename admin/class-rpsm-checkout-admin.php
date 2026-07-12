@@ -75,6 +75,7 @@ final class RPSM_Checkout_Admin {
 			'suglasnost'  => 'Suglasnost',
 			'placanje'    => 'Plaćanje',
 			'kuponi'      => 'Kuponi i košarica',
+			'kupnje'      => 'Jednokratna kupnja',
 			'ux'          => 'UX',
 			'polja'       => 'Polja',
 			'email'       => 'Email validacija',
@@ -177,6 +178,14 @@ final class RPSM_Checkout_Admin {
 		echo '</select><p class="description">Cilj je dugoročno koristiti X u sažetku i maknuti zasebnu tablicu.</p></td></tr>';
 		self::row_toggle( 'Buy Now gumb', $o::BUY_NOW_ENABLED, 'Dodaje "Idi na plaćanje" gumb na stranici proizvoda (simple products).' );
 		self::row_text( 'Tekst Buy Now gumba', $o::BUY_NOW_TEXT );
+	}
+
+	private static function tab_kupnje(): void {
+		$o = RPSM_Checkout_Options::class;
+		self::row_toggle( 'Omogući jednokratnu kupnju', $o::SINGLE_PURCHASE_ENABLED, 'Odabrani proizvodi se mogu kupiti samo JEDNOM po kupcu - blokira se dodavanje u košaricu i checkout ako ih je kupac već platio (provjera po korisniku i emailu; neplaćene narudžbe ne blokiraju).' );
+		self::row_product_select( 'Zaštićeni proizvodi', $o::SINGLE_PURCHASE_PRODUCTS, 'Samo proizvodi s ove liste se ograničavaju. Pretplate (biz ARENA) i proizvode koji se smiju kupovati više puta NE stavljati na listu.' );
+		self::row_textarea( 'Poruka kupcu', $o::SINGLE_PURCHASE_MESSAGE, 'Prikazuje se kao poruka na proizvodu/checkoutu. {proizvod} se zamjenjuje nazivom proizvoda.' );
+		self::row_text( 'Tekst linka na Moj račun', $o::SINGLE_PURCHASE_LINK_TEXT, 'Dodaje se iza poruke kao link na Moj račun. Prazno = bez linka.' );
 	}
 
 	private static function tab_ux(): void {
@@ -376,6 +385,12 @@ final class RPSM_Checkout_Admin {
 				$o::EDITABLE_CART_MODE    => 'text',
 				$o::BUY_NOW_ENABLED       => 'toggle',
 				$o::BUY_NOW_TEXT          => 'text',
+			],
+			'kupnje' => [
+				$o::SINGLE_PURCHASE_ENABLED   => 'toggle',
+				$o::SINGLE_PURCHASE_PRODUCTS  => 'product_ids',
+				$o::SINGLE_PURCHASE_MESSAGE   => 'textarea',
+				$o::SINGLE_PURCHASE_LINK_TEXT => 'text',
 			],
 			'ux' => [
 				$o::SCROLL_BLOCK_ENABLED => 'toggle',

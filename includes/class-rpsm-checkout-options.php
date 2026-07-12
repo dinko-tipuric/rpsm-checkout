@@ -41,6 +41,12 @@ final class RPSM_Checkout_Options {
 	/* ── Scroll Block ──────────────────────────────────────────────── */
 	const SCROLL_BLOCK_ENABLED  = 'rpsm_checkout_scroll_block_enabled';
 
+	/* ── Single Purchase (jednokratna kupnja) ──────────────────────── */
+	const SINGLE_PURCHASE_ENABLED   = 'rpsm_checkout_single_purchase_enabled';
+	const SINGLE_PURCHASE_PRODUCTS  = 'rpsm_checkout_single_purchase_products';
+	const SINGLE_PURCHASE_MESSAGE   = 'rpsm_checkout_single_purchase_message';
+	const SINGLE_PURCHASE_LINK_TEXT = 'rpsm_checkout_single_purchase_link_text';
+
 	/* ── Buy Now ───────────────────────────────────────────────────── */
 	const BUY_NOW_ENABLED       = 'rpsm_checkout_buy_now_enabled';
 	const BUY_NOW_TEXT          = 'rpsm_checkout_buy_now_text';
@@ -114,6 +120,13 @@ final class RPSM_Checkout_Options {
 
 		/* Scroll Block */
 		self::SCROLL_BLOCK_ENABLED  => '1',
+
+		/* Single Purchase - Dinkova lista 2026-07-12 (digitalni programi;
+		   pretplate/MASTERMIND/grupe NISU na listi) */
+		self::SINGLE_PURCHASE_ENABLED   => '1',
+		self::SINGLE_PURCHASE_PRODUCTS  => '1539,1154,8144,4798,1312,7450,1500,4806,10363,1482,425',
+		self::SINGLE_PURCHASE_MESSAGE   => 'Program "{proizvod}" već imaš - nalazi se u tvom računu i ne može se kupiti dvaput.',
+		self::SINGLE_PURCHASE_LINK_TEXT => 'Otvori Moj račun',
 
 		/* Buy Now */
 		self::BUY_NOW_ENABLED       => '1',

@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.3.0.0 (2026-07-12)
+
+### Novo: modul "Jednokratna kupnja"
+
+- Odabrani proizvodi (novi tab u postavkama, product search lista) mogu se kupiti samo JEDNOM po kupcu. Provjera pokriva tri ulaza: dodavanje u košaricu (uključivo Buy Now linkove), košaricu nakon logina (stavka se uklanja uz poruku) i checkout po billing emailu (kad račun još ne postoji). Vlasništvo se gleda po korisniku I emailu kroz plaćene narudžbe - neplaćene (pending) ne blokiraju.
+- Poruka kupcu je editabilna ({proizvod} placeholder) + link na Moj račun (tekst editabilan, prazno = bez linka).
+- Zaštićeni proizvodi su automatski i "sold individually" (ni 2 komada u istoj košarici).
+- Default lista (Dinko, 2026-07-12): Društvena prodaja, Intuicijom do CILJA, Isplaniraj nezaboravnu godinu, LIDER u nastajanju, Neodoljiva prodaja u inboxu, Odaberi pravu biz ideju, Planiraj kao CEO, Poduzetnički START, Prodajni ritam, Sljedećih tisuću, SOS: Nitko ne kupuje. Pretplate, MASTERMIND i grupe NISU na listi.
+- Nastanak: produkcijski nalaz - kupac platio isti program dvaput u dva dana; WC "sold individually" štiti samo unutar iste košarice, a upsell skip-owned samo upsell blok.
+
+---
+
 ## 1.2.0.3 (2026-07-08)
 
 ### Bugfixes
