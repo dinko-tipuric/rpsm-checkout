@@ -22,7 +22,7 @@ final class RPSM_Checkout_Admin {
 		$hook   = null;
 
 		if ( ! empty( $GLOBALS['admin_page_hooks'][ $parent ] ) ) {
-			$hook = add_submenu_page(
+			add_submenu_page(
 				$parent,
 				'RPSM Checkout',
 				'Checkout',
@@ -31,7 +31,7 @@ final class RPSM_Checkout_Admin {
 				[ __CLASS__, 'render_page' ]
 			);
 		} else {
-			$hook = add_menu_page(
+			add_menu_page(
 				'RPSM Checkout',
 				'RPSM Checkout',
 				'manage_woocommerce',
@@ -155,6 +155,7 @@ final class RPSM_Checkout_Admin {
 		$o = RPSM_Checkout_Options::class;
 		self::row_toggle( 'Sakrij kupon ako je primijenjen', $o::COUPON_HIDE_ENABLED, 'Skriva kupon formu na checkoutu kad je kupon već primijenjen.' );
 		self::row_toggle( 'Kupon iz URL-a', $o::COUPON_URL_ENABLED, 'Omogućava primjenu kupona putem ?coupon=KOD u URL-u.' );
+		self::row_toggle( 'Multiproduct link (?add-to-cart=X,Y)', $o::COUPON_MULTI_ENABLED, '⚠️ UKLJUČI TEK KAD UGASIŠ portal snippet "add multiple products" - istovremeni rad duplo puni košaricu! Više proizvoda jednim linkom, radi s &coupon=KOD bez duple primjene kupona.' );
 
 		echo '<tr><td colspan="2"><h3>Kupon kod promjene pretplate (switch)</h3></td></tr>';
 		self::row_toggle( 'Auto-primijeni kupon na switch', $o::COUPON_SWITCH_ENABLED, 'Automatski primijeni kupon(e) kad korisnik mijenja pretplatu na ciljani proizvod (npr. mjesečna → polugodišnja).' );
@@ -233,7 +234,6 @@ final class RPSM_Checkout_Admin {
 
 	private static function tab_prijevodi(): void {
 		$o    = RPSM_Checkout_Options::class;
-		$raw  = RPSM_Checkout_Options::get( $o::TRANSLATIONS_ENABLED );
 		self::row_toggle( 'Omogući prijevode', $o::TRANSLATIONS_ENABLED, 'Gettext override za WooCommerce i Elementor Pro stringove.' );
 
 		$pairs = json_decode( RPSM_Checkout_Options::get( $o::TRANSLATIONS_PAIRS ), true ) ?: [];
@@ -375,6 +375,7 @@ final class RPSM_Checkout_Admin {
 			'kuponi' => [
 				$o::COUPON_HIDE_ENABLED   => 'toggle',
 				$o::COUPON_URL_ENABLED    => 'toggle',
+			$o::COUPON_MULTI_ENABLED  => 'toggle',
 				$o::COUPON_SWITCH_ENABLED    => 'toggle',
 				$o::COUPON_SWITCH_PRODUCTS   => 'product_ids',
 				$o::COUPON_SWITCH_CODE_ONCE  => 'text',

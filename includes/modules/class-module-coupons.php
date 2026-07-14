@@ -19,6 +19,15 @@ final class RPSM_Checkout_Module_Coupons {
 			add_action( 'woocommerce_add_to_cart', [ __CLASS__, 'apply_coupon_from_url' ] );
 		}
 
+		/* Multiproduct add-to-cart (?add-to-cart=X,Y[,Z]) - prio 15, PRIJE
+		   WC_Form_Handler (20) i coupon-from-url (30). Migracija portal
+		   snippeta; ⚠️ DEFAULT OFF - ukljuciti TEK kad se snippet ugasi
+		   (istovremeni rad = dupli remove_action bezopasan, ali dvostruko
+		   dodavanje proizvoda u kosaricu NIJE). */
+		if ( '1' === RPSM_Checkout_Options::get( RPSM_Checkout_Options::COUPON_MULTI_ENABLED ) ) {
+			add_action( 'wp_loaded', [ __CLASS__, 'add_multiple_products_from_url' ], 15 );
+		}
+
 		/* Auto-apply switch coupon(s) when changing a subscription to a target product.
 		 * Hooked on several points because WCS switch helper functions are not loaded at
 		 * early wp_loaded and the cart load timing varies; switch is detected directly

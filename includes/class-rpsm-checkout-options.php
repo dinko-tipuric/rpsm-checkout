@@ -25,6 +25,7 @@ final class RPSM_Checkout_Options {
 	/* ── Coupons ───────────────────────────────────────────────────── */
 	const COUPON_HIDE_ENABLED   = 'rpsm_checkout_coupon_hide_enabled';
 	const COUPON_URL_ENABLED    = 'rpsm_checkout_coupon_url_enabled';
+	const COUPON_MULTI_ENABLED  = 'rpsm_checkout_coupon_multi_enabled'; // ?add-to-cart=X,Y - ⚠️ default OFF dok portal snippet zivi
 
 	/* ── Coupons: Switch (promjena pretplate) ──────────────────────── */
 	const COUPON_SWITCH_ENABLED    = 'rpsm_checkout_coupon_switch_enabled';
@@ -105,6 +106,7 @@ final class RPSM_Checkout_Options {
 		/* Coupons */
 		self::COUPON_HIDE_ENABLED   => '1',
 		self::COUPON_URL_ENABLED    => '1',
+		self::COUPON_MULTI_ENABLED  => '0',
 
 		/* Coupons: Switch */
 		self::COUPON_SWITCH_ENABLED    => '0',
@@ -114,9 +116,10 @@ final class RPSM_Checkout_Options {
 		self::COUPON_SWITCH_SHOW_FIELD => '0',
 		self::COUPON_SWITCH_SKIP_ON_SALE => '1',
 
-		/* Editable Cart */
+		/* Editable Cart - default summary_x od v1.4.0.0 (portal ga koristi;
+		   'table' je legacy, deprecated, brisanje u v1.5) */
 		self::EDITABLE_CART_ENABLED => '1',
-		self::EDITABLE_CART_MODE    => 'table',
+		self::EDITABLE_CART_MODE    => 'summary_x',
 
 		/* Scroll Block */
 		self::SCROLL_BLOCK_ENABLED  => '1',

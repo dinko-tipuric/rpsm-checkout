@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.4.0.0 (2026-07-14) - Sprint D
+
+- MULTIPRODUCT LINK: ?add-to-cart=X,Y (vise proizvoda jednim linkom) migriran iz portal snippeta u Kuponi modul; radi s &coupon=KOD bez duple primjene (postojeci dedup). ⚠️ Toggle DEFAULT OFF - ukljuciti TEK nakon gasenja snippeta (istovremeni rad duplo puni kosaricu).
+- Editable cart: default mod 'summary_x' (portal ga koristi); 'table' je legacy/deprecated, brisanje u v1.5. Postojece instalacije sa spremljenom opcijom nisu dirane.
+- Performance: gettext prijevodi - domain bail PRIJE lazy-loada parova (filter se okida tisucama puta po stranici, i u adminu).
+- Ciscenje: scroll-block no-op inject_script + hook van; mrtve varijable u adminu van.
+
 ## 1.3.0.1 (2026-07-12)
 
 ### Bugfixes (produkcijski nalaz: kupnja već kupljenog proizvoda)

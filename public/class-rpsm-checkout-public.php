@@ -13,7 +13,7 @@ final class RPSM_Checkout_Public {
 		'legal'            => RPSM_Checkout_Options::LEGAL_ENABLED,
 		'payment-display'  => RPSM_Checkout_Options::PAYMENT_LOGOS_ENABLED,
 		'bacs-control'     => RPSM_Checkout_Options::BACS_CONTROL_ENABLED,
-		'coupons'          => [ RPSM_Checkout_Options::COUPON_HIDE_ENABLED, RPSM_Checkout_Options::COUPON_URL_ENABLED ],
+		'coupons'          => [ RPSM_Checkout_Options::COUPON_HIDE_ENABLED, RPSM_Checkout_Options::COUPON_URL_ENABLED, RPSM_Checkout_Options::COUPON_MULTI_ENABLED ],
 		'editable-cart'    => RPSM_Checkout_Options::EDITABLE_CART_ENABLED,
 		'scroll-block'     => RPSM_Checkout_Options::SCROLL_BLOCK_ENABLED,
 		'single-purchase'  => RPSM_Checkout_Options::SINGLE_PURCHASE_ENABLED,

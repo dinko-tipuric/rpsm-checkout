@@ -22,16 +22,18 @@ final class RPSM_Checkout_Module_Translations {
 			return (string) $translated;
 		}
 
+		/* Domain bail PRIJE lazy-loada (v1.4.0.0): gettext se okida tisucama
+		   puta po stranici (i u adminu) - za sve tudje domene izlazimo ovdje
+		   bez JSON dekodiranja i pairs lookupa. */
+		if ( 'woocommerce' !== $domain && 'elementor-pro' !== $domain ) {
+			return $translated;
+		}
+
 		if ( null === self::$pairs ) {
 			self::load_pairs();
 		}
 
 		if ( empty( self::$pairs ) ) {
-			return $translated;
-		}
-
-		/* Quick domain check - skip irrelevant domains */
-		if ( 'woocommerce' !== $domain && 'elementor-pro' !== $domain ) {
 			return $translated;
 		}
 
