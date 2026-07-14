@@ -21,7 +21,9 @@ body.rpsm-kit-page #wpbody-content {
 	background: #f4efe6;
 }
 
-.rpsm-admin { max-width: 1240px; }
+/* Puna sirina (Dinko 2026-07-14): koristi cijeli raspolozivi ekran;
+   ~20px lijevo daje #wpcontent, ~20px desno .wrap margina - bez naseg capa. */
+.rpsm-admin { max-width: none; }
 
 .rpsm-admin,
 .rpsm-admin p,

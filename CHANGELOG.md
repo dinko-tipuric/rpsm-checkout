@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.4.1.1 (2026-07-14)
+
+- UI kit: puna sirina admin stranica (max-width cap uklonjen; Dinkov QA ispravak).
+
 ## 1.4.1.0 (2026-07-14) - Sprint E
 
 - UI kit skin: RPSM Admin UI kit (rpsm-admin-kit.css) kopiran u plugin i enqueue-an samo na stranici plugina, prije plugin CSS-a; Poppins font za naslove; body klasa rpsm-kit-page + wrap klasa rpsm-admin. Bez funkcionalnih promjena.
