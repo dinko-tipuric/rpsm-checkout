@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.4.1.0 (2026-07-14) - Sprint E
+
+- UI kit skin: RPSM Admin UI kit (rpsm-admin-kit.css) kopiran u plugin i enqueue-an samo na stranici plugina, prije plugin CSS-a; Poppins font za naslove; body klasa rpsm-kit-page + wrap klasa rpsm-admin. Bez funkcionalnih promjena.
+
 ## 1.4.0.0 (2026-07-14) - Sprint D
 
 - MULTIPRODUCT LINK: ?add-to-cart=X,Y (vise proizvoda jednim linkom) migriran iz portal snippeta u Kuponi modul; radi s &coupon=KOD bez duple primjene (postojeci dedup). ⚠️ Toggle DEFAULT OFF - ukljuciti TEK nakon gasenja snippeta (istovremeni rad duplo puni kosaricu).

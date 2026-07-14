@@ -1,0 +1,403 @@
+/**
+ * RPSM Admin UI kit v1.0 - KANONSKA verzija (Faza 6 konsolidacije, 2026-07-14).
+ *
+ * Iskovano u rpsm-web pilotu (Sprint B) kroz Dinkove feedback iteracije:
+ * cream pozadina, bijele kartice r14, copper gumbi/switchevi, mahogany naslovi
+ * (Poppins SAMO naslovi, Roboto/system ostalo), notice BEZ lijevog akcenta,
+ * KPI s prostorom, tihe akcije s tocka-separatorima, topli debug terminal.
+ *
+ * Kopira se PER-PLUGIN (kao updater klasa). Scope: .rpsm-admin wrapper na
+ * page containeru; kit restyla i WP nativne elemente (nav-tab, form-table,
+ * widefat, button, notice, code) unutar scopea pa stranice ne moraju mijenjati
+ * markup da dobiju osnovni skin.
+ *
+ * PRAVILA (memorija): NIKAD jaca boja na lijevom rubu kartice/noticea;
+ * bez em-dasha; Poppins samo H1-H4.
+ */
+
+/* ── Pozadina admin sadrzaja (postavlja se body klasom rpsm-kit-page) ── */
+body.rpsm-kit-page #wpcontent,
+body.rpsm-kit-page #wpbody-content {
+	background: #f4efe6;
+}
+
+.rpsm-admin { max-width: 1240px; }
+
+.rpsm-admin,
+.rpsm-admin p,
+.rpsm-admin td,
+.rpsm-admin th,
+.rpsm-admin label {
+	color: #3d2a24;
+}
+
+.rpsm-admin h1 {
+	font-family: Poppins, sans-serif;
+	font-weight: 600;
+	font-size: 26px;
+	color: #4c2e2e;
+}
+
+.rpsm-admin h2,
+.rpsm-admin h3 {
+	font-family: Poppins, sans-serif;
+	font-weight: 600;
+	color: #4c2e2e;
+}
+
+.rpsm-admin h1 .rpsm-ver {
+	font-size: 12px;
+	font-weight: 400;
+	color: #a2937d;
+	margin-left: 8px;
+}
+
+.rpsm-admin a { color: #b96343; }
+.rpsm-admin a:hover { color: #993a25; }
+
+/* ── Tabovi: WP nav-tab -> pill stil ── */
+.rpsm-admin .nav-tab-wrapper,
+.rpsm-admin .rpsm-tabs {
+	display: flex;
+	gap: 6px;
+	flex-wrap: wrap;
+	margin: 18px 0;
+	border-bottom: none;
+	padding-top: 0;
+}
+
+.rpsm-admin .nav-tab,
+.rpsm-admin .rpsm-tab {
+	display: inline-block;
+	float: none;
+	padding: 8px 16px;
+	margin: 0;
+	border-radius: 9px;
+	border: 1px solid #ddd0bb;
+	background: #fff;
+	color: #6b5d4d;
+	font-weight: 600;
+	font-size: 13px;
+	text-decoration: none;
+}
+
+.rpsm-admin .nav-tab:hover,
+.rpsm-admin .rpsm-tab:hover { color: #4c2e2e; border-color: #c9b8a3; background: #fff; }
+
+.rpsm-admin .nav-tab-active,
+.rpsm-admin .nav-tab-active:hover,
+.rpsm-admin .rpsm-tab.is-active {
+	background: #4c2e2e;
+	border-color: #4c2e2e;
+	color: #faf9f5;
+}
+
+/* ── Kartica (.rpsm-card; alias za nasljedne containere) ── */
+.rpsm-admin .rpsm-card,
+.rpsm-admin .rpsm-chart-box,
+.rpsm-admin .postbox,
+.rpsm-admin .card {
+	background: #fff;
+	border: 1px solid #ece3d3;
+	border-radius: 14px;
+	box-shadow: 0 1px 2px rgba(76, 46, 46, .05);
+	padding: 20px 24px;
+	margin-bottom: 18px;
+	min-width: 0;
+	max-width: none;
+}
+
+.rpsm-admin .rpsm-card > h3,
+.rpsm-admin .rpsm-chart-box-title {
+	margin: 0 0 14px;
+	padding-bottom: 10px;
+	border-bottom: 1px solid #efe7d8;
+	font-family: Roboto, -apple-system, sans-serif;
+	font-size: 11px;
+	font-weight: 700;
+	letter-spacing: .08em;
+	text-transform: uppercase;
+	color: #a2937d;
+}
+
+/* ── KPI ── */
+.rpsm-admin .rpsm-kpi-row { display: flex; gap: 18px; flex-wrap: wrap; margin-bottom: 22px; }
+.rpsm-admin .rpsm-kpi {
+	flex: 1 1 240px;
+	min-width: 240px;
+	max-width: 460px;
+	background: #fff;
+	border: 1px solid #ece3d3;
+	border-radius: 14px;
+	padding: 20px 24px 22px;
+	box-shadow: 0 1px 2px rgba(76, 46, 46, .05);
+}
+.rpsm-admin .rpsm-kpi__label {
+	font-size: 11px;
+	font-weight: 700;
+	letter-spacing: .07em;
+	line-height: 1.7;
+	text-transform: uppercase;
+	color: #9a8b76;
+}
+.rpsm-admin .rpsm-kpi__label::before {
+	content: "";
+	display: inline-block;
+	width: 7px; height: 7px;
+	border-radius: 50%;
+	background: #d17954;
+	margin-right: 8px;
+	vertical-align: 1px;
+}
+.rpsm-admin .rpsm-kpi__value {
+	font-family: Poppins, sans-serif;
+	font-size: 28px;
+	font-weight: 600;
+	line-height: 1.25;
+	color: #4c2e2e;
+	font-variant-numeric: tabular-nums;
+	margin-top: 10px;
+}
+
+/* ── Gumbi ── */
+.rpsm-admin .button-primary {
+	background: #d17954 !important;
+	border-color: #d17954 !important;
+	border-radius: 9px !important;
+	box-shadow: none !important;
+	text-shadow: none !important;
+	color: #fff !important;
+}
+.rpsm-admin .button-primary:hover { background: #b96343 !important; border-color: #b96343 !important; }
+.rpsm-admin .button:not(.button-primary):not(.button-link) {
+	border-radius: 9px;
+	border-color: #ddd0bb;
+	color: #6b5d4d;
+	background: #fff;
+}
+.rpsm-admin .button:not(.button-primary):not(.button-link):hover { color: #4c2e2e; border-color: #c9b8a3; }
+
+/* ── Form elementi ── */
+.rpsm-admin input[type="text"],
+.rpsm-admin input[type="number"],
+.rpsm-admin input[type="url"],
+.rpsm-admin input[type="email"],
+.rpsm-admin input[type="password"],
+.rpsm-admin input[type="date"],
+.rpsm-admin input[type="datetime-local"],
+.rpsm-admin select,
+.rpsm-admin textarea {
+	border: 1px solid #ddd0bb;
+	border-radius: 8px;
+	min-height: 34px;
+	background: #fff;
+	color: #3d2a24;
+}
+.rpsm-admin input:focus,
+.rpsm-admin select:focus,
+.rpsm-admin textarea:focus {
+	border-color: #d17954;
+	box-shadow: 0 0 0 1px #d17954;
+	outline: none;
+}
+
+.rpsm-admin .form-table th { color: #4c2e2e; font-weight: 600; }
+.rpsm-admin .description { color: #8a7d6b; }
+
+/* ── Switch (checkbox restil, opt-in klasom .rpsm-switch) ──
+   ⚠️ WP core na :checked::before stavlja kvacicu s NEGATIVNIM marginama -
+   bez tvrdih overridea knob "pobjegne" iz tracka. */
+.rpsm-admin input[type="checkbox"].rpsm-switch {
+	appearance: none !important;
+	-webkit-appearance: none !important;
+	width: 40px !important;
+	min-width: 40px !important;
+	height: 22px !important;
+	border-radius: 22px !important;
+	background: #cdc2af !important;
+	border: none !important;
+	box-shadow: none !important;
+	position: relative;
+	cursor: pointer;
+	transition: background .15s ease;
+	vertical-align: middle;
+	margin: 0 6px 0 0 !important;
+	padding: 0 !important;
+	line-height: 1;
+	overflow: hidden;
+}
+.rpsm-admin input[type="checkbox"].rpsm-switch::before,
+.rpsm-admin input[type="checkbox"].rpsm-switch:checked::before {
+	content: "" !important;
+	position: absolute !important;
+	top: 3px !important;
+	left: 3px !important;
+	margin: 0 !important;
+	float: none !important;
+	width: 16px !important;
+	height: 16px !important;
+	border-radius: 50% !important;
+	background: #fff !important;
+	transition: left .15s ease;
+	box-shadow: 0 1px 2px rgba(0,0,0,.2);
+	speak: never;
+}
+.rpsm-admin input[type="checkbox"].rpsm-switch:checked { background: #d17954 !important; }
+.rpsm-admin input[type="checkbox"].rpsm-switch:checked::before { left: 21px !important; }
+.rpsm-admin input[type="checkbox"].rpsm-switch:focus { box-shadow: 0 0 0 1px #d17954 !important; outline: none; }
+
+/* Obicni checkboxi (bez .rpsm-switch): samo copper naglasak */
+.rpsm-admin input[type="checkbox"]:checked:not(.rpsm-switch) {
+	background: #d17954;
+	border-color: #d17954;
+}
+
+/* ── Pills ── */
+.rpsm-admin .rpsm-pill {
+	display: inline-block;
+	padding: 3px 10px;
+	border-radius: 20px;
+	font-size: 11px;
+	font-weight: 700;
+	background: #eceae5;
+	color: #7d766a;
+}
+.rpsm-admin .rpsm-pill--on   { background: #e7ecdd; color: #5a6b3a; }
+.rpsm-admin .rpsm-pill--err  { background: #f3ded8; color: #993a25; }
+.rpsm-admin .rpsm-pill--wait { background: #f5ecd8; color: #8a6d2f; }
+
+/* ── Tablice (.rpsm-table + WP widefat restil) ── */
+.rpsm-admin table.rpsm-table,
+.rpsm-admin table.widefat {
+	width: 100%;
+	border-collapse: separate;
+	border-spacing: 0;
+	background: #fff;
+	border: 1px solid #ece3d3;
+	border-radius: 14px;
+	overflow: hidden;
+	box-shadow: none;
+}
+.rpsm-admin table.rpsm-table thead th,
+.rpsm-admin table.widefat thead th,
+.rpsm-admin table.widefat thead td {
+	font-size: 11px;
+	font-weight: 700;
+	letter-spacing: .07em;
+	text-transform: uppercase;
+	color: #9a8b76;
+	background: #fdfaf4;
+	padding: 10px 14px;
+	border-bottom: 1px solid #efe7d8;
+	text-align: left;
+	white-space: nowrap;
+}
+.rpsm-admin table.rpsm-table td,
+.rpsm-admin table.widefat td {
+	padding: 10px 14px;
+	border-bottom: 1px solid #f5efe3;
+	vertical-align: middle;
+}
+.rpsm-admin table.rpsm-table tbody tr:last-child td,
+.rpsm-admin table.widefat tbody tr:last-child td { border-bottom: none; }
+.rpsm-admin table.rpsm-table tbody tr:hover td,
+.rpsm-admin table.widefat tbody tr:hover td { background: #fdfaf4; }
+.rpsm-admin table.widefat tbody tr:nth-child(odd) { background: transparent; }
+
+/* Numericke kolone: desno, tabular, bez lomljenja; nula prigusena */
+.rpsm-admin table th.num,
+.rpsm-admin table td.num {
+	text-align: right;
+	font-variant-numeric: tabular-nums;
+	white-space: nowrap;
+}
+.rpsm-admin table td.num b { font-weight: 600; color: #4c2e2e; }
+.rpsm-admin .rpsm-zero { color: #cfc4ae; }
+.rpsm-admin .rpsm-sub {
+	display: block;
+	margin-top: 3px;
+	font-size: 12px;
+	color: #9a8b76;
+}
+.rpsm-admin table td.nowrap { white-space: nowrap; }
+
+/* Naslov retka kao link (bez WP plavog podcrtanog) */
+.rpsm-admin table a.rpsm-row-title {
+	color: #4c2e2e;
+	font-weight: 600;
+	text-decoration: none;
+	border-bottom: 1px dashed #d9c9b4;
+}
+.rpsm-admin table a.rpsm-row-title:hover { color: #b96343; border-bottom-color: #d17954; }
+
+/* Akcijski linkovi: tihi dok ne trebaju paznju */
+.rpsm-admin table td.rpsm-actions { white-space: nowrap; text-align: right; }
+.rpsm-admin table td.rpsm-actions a {
+	color: #8a7d6b;
+	font-size: 12px;
+	font-weight: 600;
+	text-decoration: none;
+}
+.rpsm-admin table td.rpsm-actions a:hover { color: #4c2e2e; text-decoration: underline; }
+.rpsm-admin table td.rpsm-actions a.rpsm-act-danger:hover { color: #993a25; }
+.rpsm-admin table td.rpsm-actions .rpsm-sep { color: #ddd0bb; margin: 0 7px; }
+
+/* ── Code chip ── */
+.rpsm-admin code {
+	background: #f6f1e7;
+	border: 1px solid #eee4d2;
+	border-radius: 6px;
+	padding: 2px 7px;
+	font-size: 12px;
+	color: #6b5d4d;
+}
+
+/* ── Repeater red ── */
+.rpsm-admin .rpsm-rep-row {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+	flex-wrap: wrap;
+	padding: 10px 12px;
+	border: 1px solid #e7dcc9;
+	border-radius: 12px;
+	background: #fbf8f2;
+	margin-bottom: 8px;
+}
+
+/* ── Debug terminal (topli, s bojanjem po razini) ── */
+.rpsm-admin .rpsm-log,
+.rpsm-admin pre.rpsm-log {
+	background: #241c18;
+	color: #d8cfc4;
+	border-radius: 12px;
+	padding: 16px 18px;
+	font-family: SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 12px;
+	line-height: 1.65;
+	max-height: 520px;
+	overflow: auto;
+	white-space: pre-wrap;
+	word-break: break-word;
+	border: none;
+}
+.rpsm-admin .rpsm-log .lvl-error   { color: #ef8f78; }
+.rpsm-admin .rpsm-log .lvl-warning { color: #e5c07b; }
+.rpsm-admin .rpsm-log .lvl-info    { color: #a8c7a2; }
+.rpsm-admin .rpsm-log .lvl-debug   { color: #9a8b76; }
+
+/* ── Notice: BEZ lijevog akcenta (Dinkovo pravilo) ── */
+.rpsm-admin .notice,
+.rpsm-admin div.updated,
+.rpsm-admin div.error {
+	border: 1px solid #ece3d3;
+	border-left-width: 1px !important;
+	border-radius: 10px;
+	box-shadow: 0 1px 2px rgba(76, 46, 46, .05);
+	padding: 10px 14px;
+	background: #fff;
+}
+.rpsm-admin .notice-success, .rpsm-admin div.updated { background: #eef5e7; border-color: #dbe8cd !important; }
+.rpsm-admin .notice-error,   .rpsm-admin div.error   { background: #f7e8e3; border-color: #ecd4cb !important; }
+.rpsm-admin .notice-warning  { background: #f8f1de; border-color: #ecdfc0 !important; }
+.rpsm-admin .notice-info     { background: #f3efe8; border-color: #e4dccd !important; }

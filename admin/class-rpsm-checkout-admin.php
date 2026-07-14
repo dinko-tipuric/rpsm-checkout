@@ -13,6 +13,7 @@ final class RPSM_Checkout_Admin {
 	public static function init(): void {
 		add_action( 'admin_menu', [ __CLASS__, 'register_menu' ], 20 );
 		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'enqueue_styles' ] );
+		add_filter( 'admin_body_class', [ __CLASS__, 'admin_body_class' ] );
 	}
 
 	/* ── Menu ──────────────────────────────────────────────────────── */
@@ -47,10 +48,25 @@ final class RPSM_Checkout_Admin {
 		if ( false === strpos( $hook_suffix, self::SLUG ) ) {
 			return;
 		}
+
+		/* RPSM Admin UI kit (prije plugin CSS-a) + Poppins za naslove */
+		wp_enqueue_style(
+			'rpsm-kit-poppins',
+			'https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap',
+			[],
+			null
+		);
+		wp_enqueue_style(
+			'rpsm-admin-kit',
+			RPSM_CHECKOUT_PLUGIN_URL . 'admin/css/rpsm-admin-kit.css',
+			[],
+			RPSM_CHECKOUT_VERSION
+		);
+
 		wp_enqueue_style(
 			'rpsm-checkout-admin',
 			RPSM_CHECKOUT_PLUGIN_URL . 'admin/css/rpsm-checkout-admin.css',
-			[],
+			[ 'rpsm-admin-kit' ],
 			RPSM_CHECKOUT_VERSION
 		);
 
@@ -61,6 +77,17 @@ final class RPSM_Checkout_Admin {
 			wp_enqueue_script( 'wc-enhanced-select' );
 			wp_enqueue_style( 'woocommerce_admin_styles' );
 		}
+	}
+
+	/**
+	 * Body klasa 'rpsm-kit-page' samo na stranici ovog plugina (UI kit pozadina).
+	 */
+	public static function admin_body_class( string $classes ): string {
+		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+		if ( $screen && false !== strpos( (string) $screen->id, self::SLUG ) ) {
+			$classes .= ' rpsm-kit-page';
+		}
+		return $classes;
 	}
 
 	/* ── Render ────────────────────────────────────────────────────── */
@@ -89,7 +116,7 @@ final class RPSM_Checkout_Admin {
 			$active = 'suglasnost';
 		}
 
-		echo '<div class="wrap"><h1>RPSM Checkout</h1>';
+		echo '<div class="wrap rpsm-admin"><h1>RPSM Checkout</h1>';
 
 		/* Notice is shown inline next to save button, not here */
 
