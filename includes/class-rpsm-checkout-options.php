@@ -82,6 +82,10 @@ final class RPSM_Checkout_Options {
 	const SHIPPING_PHONE_ENABLED    = 'rpsm_checkout_shipping_phone_enabled';
 	const EMAIL_AS_USERNAME_ENABLED = 'rpsm_checkout_email_as_username_enabled';
 
+	/* ── Atribucija (SPEC-atribucija.md, Sloj 2) ──────────────────────── */
+	const ATTR_ENABLED         = 'rpsm_checkout_attr_enabled';
+	const ATTR_RETENTION_DAYS  = 'rpsm_checkout_attr_retention_days';
+
 	/* ── Debug ─────────────────────────────────────────────────────── */
 	const DEBUG_MODE             = 'rpsm_checkout_debug_mode';
 
@@ -164,6 +168,11 @@ final class RPSM_Checkout_Options {
 		/* Fields */
 		self::SHIPPING_PHONE_ENABLED    => '1',
 		self::EMAIL_AS_USERNAME_ENABLED => '1',
+
+		/* Atribucija - primarni put je WC sesija (ne skriveno polje), vidi
+		   includes/modules/class-module-attribution.php za arhitekturu */
+		self::ATTR_ENABLED        => '1',
+		self::ATTR_RETENTION_DAYS => '30',
 
 		/* Debug */
 		self::DEBUG_MODE             => '0',

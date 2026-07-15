@@ -22,6 +22,7 @@ final class RPSM_Checkout_Public {
 		'thankyou'         => RPSM_Checkout_Options::THANKYOU_ENABLED,
 		'translations'     => RPSM_Checkout_Options::TRANSLATIONS_ENABLED,
 		'fields'           => [ RPSM_Checkout_Options::SHIPPING_PHONE_ENABLED, RPSM_Checkout_Options::EMAIL_AS_USERNAME_ENABLED ],
+		'attribution'      => RPSM_Checkout_Options::ATTR_ENABLED,
 	];
 
 	public static function init(): void {
@@ -85,8 +86,12 @@ final class RPSM_Checkout_Public {
 			);
 		}
 
-		/* JS - load on checkout (most modules need it) */
-		if ( is_checkout() ) {
+		/* JS - load on checkout (most modules need it). Atribucija treba JS na
+		   SVAKOJ portal stranici (čita kolačić prije nego korisnik uopće dođe
+		   do checkouta), pa se učitava i van checkouta kad je taj modul aktivan. */
+		$attribution_active = '1' === RPSM_Checkout_Options::get( RPSM_Checkout_Options::ATTR_ENABLED );
+
+		if ( is_checkout() || $attribution_active ) {
 			wp_enqueue_script(
 				'rpsm-checkout-public',
 				RPSM_CHECKOUT_PLUGIN_URL . 'public/js/rpsm-checkout-public.js',
@@ -139,6 +144,18 @@ final class RPSM_Checkout_Public {
 		if ( '1' === RPSM_Checkout_Options::get( RPSM_Checkout_Options::PAYMENT_LOGOS_ENABLED ) ) {
 			$data['paymentLogos'] = [
 				'gateway' => RPSM_Checkout_Options::get( RPSM_Checkout_Options::PAYMENT_LOGOS_GATEWAY ),
+			];
+		}
+
+		/* Atribucija - čita kolačić rpsm_attr (piše ga rpsm-web na www) i pošalje
+		   na REST rutu ako WC sesija još nema atribuciju. Vidi SPEC-atribucija.md. */
+		if ( '1' === RPSM_Checkout_Options::get( RPSM_Checkout_Options::ATTR_ENABLED ) ) {
+			/* Bez nonce-a: zapekao bi se u keširani HTML (WP Super Cache) i istekao
+			   prije nego posjetitelj otvori stranicu -> 403 i tihi gubitak atribucije.
+			   Ruta se brani sanitizacijom i rate limitom. Vidi check_permission(). */
+			$data['attribution'] = [
+				'cookieName' => 'rpsm_attr',
+				'restUrl'    => rest_url( 'rpsm-checkout/v1/attr' ),
 			];
 		}
 

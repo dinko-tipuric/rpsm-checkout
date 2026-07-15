@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.5.0.0 (2026-07-14) - Atribucija (SPEC-atribucija.md, Sloj 2)
+
+Novi modul "Atribucija": narudžba pamti svoj izvor/kampanju/CTA kroz cijeli lanac www -> portal -> narudžba.
+
+- Novi modul `includes/modules/class-module-attribution.php`. Primarni put je WC SESIJA, ne skriveno polje - narudžbe na portalu nastaju i programski (buy-now, rpsm-upsell post-purchase, WCS obnove/switchevi), pa bi skriveno polje na klasičnom checkoutu sve to promašilo.
+- JS (na SVAKOJ portal stranici kad je modul uključen, ne samo checkoutu) čita kolačić `rpsm_attr` (piše ga rpsm-web na www, domain=.radimposvom.com.hr) i, ako WC sesija još nema atribuciju, jednom pošalje POST na novu REST rutu `rpsm-checkout/v1/attr` (nonce + IP rate limit 20/min).
+- Ruta whitelista ključeve, sanitizira (`sanitize_text_field`), cappa na 128 znakova i sprema u `WC()->session->set('rpsm_attr', ...)`. Server nikad ne vjeruje inputu i ne prepisuje sesiju ako već ima atribuciju.
+- Prepis sesije u order meta na `woocommerce_checkout_create_order` (klasični checkout) I `woocommerce_new_order` prio 20 (buy-now, blocks checkout, sve programske narudžbe).
+- Fallback skriveno polje `rpsm_attr_payload` (JSON) na `woocommerce_after_order_notes`, ista server-side sanitizacija - koristi se samo ako je WC sesija prazna.
+- ⚠️ WCS obnove i switchevi: atribucija se kopira s parenta/pretplate (NE iz sesije) i `_rpsm_attr_type` se force-a na `renewal` - na `wcs_renewal_order_created` i na `woocommerce_subscription_checkout_switch_order_processed`. Bez ovoga bi obnove padale u "direct" ili se brojale kao nova akvizicija (napuše ROAS).
+- rpsm-upsell narudžbe (post-purchase): detektirane preko postojećeg `_rpsm_upsell_parent_order` order meta (upisuje ga rpsm-upsell), provjera odgođena na `shutdown` jer ta meta stiže tek nakon prvog `woocommerce_new_order`; tip se postavlja na `upsell`, atribucija se kopira s originalne narudžbe.
+- Bez privole na www nema kolačića - narudžba NE dobiva `_rpsm_attr_type` uopće ("bez privole" u izvještaju, nikad "direct").
+- Admin: stupac "Izvor" u listi WC narudžbi (HPOS + Legacy CPT), cijeli lanac atribucije na order edit stranici, novi tab "Atribucija" (toggle, retencija sesije u danima, debug pregled zadnjih 50 zapisa).
+- Order meta ključevi (prefiks `_rpsm_attr_`): first_source/medium/campaign/content/term/landing/ts, last_source/medium/campaign, lp, cta, click_id, type. HQ (Faza 3, van opsega ovog releasea) čita baš te ključeve.
+
 ## 1.4.1.1 (2026-07-14)
 
 - UI kit: puna sirina admin stranica (max-width cap uklonjen; Dinkov QA ispravak).

@@ -108,6 +108,7 @@ final class RPSM_Checkout_Admin {
 			'email'       => 'Email validacija',
 			'thankyou'    => 'Thank-you',
 			'prijevodi'   => 'Prijevodi',
+			'atribucija'  => 'Atribucija',
 			'debug'       => 'Debug',
 		];
 
@@ -307,6 +308,53 @@ final class RPSM_Checkout_Admin {
 		echo "</tr>";
 	}
 
+	private static function tab_atribucija(): void {
+		$o = RPSM_Checkout_Options::class;
+		self::row_toggle(
+			'Omogući atribuciju',
+			$o::ATTR_ENABLED,
+			'Čita rpsm_attr kolačić (piše ga rpsm-web na www) i sprema izvor/kampanju/CTA na narudžbu kroz WC sesiju + WCS obnove/switcheve. Bez privole na www nema kolačića - narudžba ostaje "bez privole", nikad se ne trpa u "direct".'
+		);
+		self::row_text(
+			'Retencija sesije (dana)',
+			$o::ATTR_RETENTION_DAYS,
+			'Ako je atribucija u WC sesiji starija od ovoliko dana (dugotrajna sesija ulogiranog korisnika), pri kreiranju narudžbe se ignorira - sprječava lijepljenje stare atribucije na sasvim novu narudžbu.'
+		);
+
+		echo '</table>';
+
+		echo '<h3>Zadnjih 50 zapisa (debug log, filtrirano na Atribuciju)</h3>';
+		echo '<p class="description">Uključi Debug mod na Debug tabu za detaljno logiranje svakog upisa/kopiranja atribucije.</p>';
+		echo '<pre style="background:#1d2327;color:#c3c4c7;padding:16px;max-height:400px;overflow:auto;font-size:12px;border-radius:4px;">';
+		$log = self::attribution_log_tail( 50 );
+		echo $log ? esc_html( $log ) : '<em>Nema zapisa.</em>';
+		echo '</pre>';
+
+		echo '<table class="form-table">';
+	}
+
+	/**
+	 * Debug log je zajednički za cijeli plugin - filtriramo na retke koje je
+	 * upisao modul Atribucije (izvorišna klasa se pojavljuje u svakoj liniji
+	 * kroz RPSM_Checkout_Debug::get_caller_info()).
+	 */
+	private static function attribution_log_tail( int $limit ): string {
+		$all = RPSM_Checkout_Debug::read_log( 500 );
+		if ( '' === $all ) {
+			return '';
+		}
+		$lines   = explode( "\n", $all );
+		$matched = array_values(
+			array_filter(
+				$lines,
+				static function ( $line ) {
+					return false !== strpos( $line, 'Attribution' );
+				}
+			)
+		);
+		return implode( "\n", array_slice( $matched, 0, $limit ) );
+	}
+
 	private static function tab_debug(): void {
 		$o = RPSM_Checkout_Options::class;
 		self::row_toggle( 'Debug mod', $o::DEBUG_MODE, 'Zapisuje detaljne logove u wp-content/uploads/rpsm-checkout/.' );
@@ -451,6 +499,10 @@ final class RPSM_Checkout_Admin {
 			],
 			'prijevodi' => [
 				$o::TRANSLATIONS_ENABLED => 'toggle',
+			],
+			'atribucija' => [
+				$o::ATTR_ENABLED        => 'toggle',
+				$o::ATTR_RETENTION_DAYS => 'text',
 			],
 			'debug' => [
 				$o::DEBUG_MODE => 'toggle',

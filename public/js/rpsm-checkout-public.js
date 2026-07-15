@@ -232,4 +232,82 @@
 		});
 	}
 
+	/* ══════════════════════════════════════════════════════════════ */
+	/*  6. ATRIBUCIJA - citanje kolacica rpsm_attr + REST push +      */
+	/*     popunjavanje fallback skrivenog polja                     */
+	/*                                                                */
+	/*  Kolacic pise rpsm-web na www (domain=.radimposvom.com.hr) -   */
+	/*  ovdje se SAMO cita, nikad ne pise. Portal na privolu ne ceka  */
+	/*  (nije ista privola kao na www) - ako kolacica nema, atribucija */
+	/*  ostaje prazna (narudzba ide u "bez privole", ne "direct").    */
+	/* ══════════════════════════════════════════════════════════════ */
+
+	if (rpsmCheckout.attribution) {
+		var attr = rpsmCheckout.attribution;
+
+		function rpsmReadCookie(name) {
+			var match = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+			return match ? decodeURIComponent(match.pop()) : '';
+		}
+
+		function rpsmGetAttrCookie() {
+			var raw = rpsmReadCookie(attr.cookieName);
+			if (!raw) { return null; }
+			try {
+				return JSON.parse(raw);
+			} catch (e) {
+				return null;
+			}
+		}
+
+		var rpsmCookieData = rpsmGetAttrCookie();
+
+		/* Fallback skriveno polje - popuni odmah i nakon svakog checkout
+		   AJAX refresha (Elementor/WC re-renderiraju order-notes sekciju). */
+		function rpsmFillFallbackField() {
+			var $field = $('#rpsm_attr_payload_field');
+			if ($field.length && rpsmCookieData) {
+				$field.val(JSON.stringify(rpsmCookieData));
+			}
+		}
+		rpsmFillFallbackField();
+		$(document.body).on('updated_checkout', rpsmFillFallbackField);
+
+		/* REST push - jednom po BROWSING SESIJI (sessionStorage), ne trajno.
+
+		   ⚠️ Ne smije biti localStorage "jednom po pregledniku": kolacic rpsm_attr
+		   zivi 180 dana, a WC sesija na portalu istekne za ~48 h. Povratnik koji
+		   kupi tjedan dana kasnije ima NOVU (praznu) WC sesiju, pa push mora ici
+		   opet - inace bi atribucija tiho nestala bas kod povratnika, a to je
+		   vecina kupaca.
+
+		   Kljuc ukljucuje i sadrzaj kolacica, pa se push ponovi i ako se izvor
+		   promijeni unutar iste sesije (nova kampanja). Server je zadnja linija
+		   obrane (ne prepisuje sesiju ako vec postoji). */
+		if (rpsmCookieData && window.sessionStorage) {
+			var rpsmRaw     = JSON.stringify(rpsmCookieData);
+			var rpsmPushKey = 'rpsm_attr_pushed_' + rpsmRaw.length + '_' + (rpsmCookieData.f ? rpsmCookieData.f.ts : '0');
+			var rpsmPushed  = false;
+
+			try {
+				rpsmPushed = window.sessionStorage.getItem(rpsmPushKey) === '1';
+			} catch (e) { /* privatni mod - push ce ici svaki put, server no-opa */ }
+
+			if (!rpsmPushed) {
+				$.ajax({
+					url: attr.restUrl,
+					method: 'POST',
+					contentType: 'application/json',
+					data: rpsmRaw
+				}).done(function() {
+					/* Markiraj SAMO na uspjeh - inace bi jedan neuspjeli zahtjev
+					   (403/429/offline) trajno ugasio push za tu sesiju. */
+					try {
+						window.sessionStorage.setItem(rpsmPushKey, '1');
+					} catch (e) {}
+				});
+			}
+		}
+	}
+
 })(jQuery);
