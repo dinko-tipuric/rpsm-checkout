@@ -77,7 +77,11 @@ final class RPSM_Checkout_Module_Attribution {
 
 		/* WCS obnove i switchevi - kopiraj s parenta/pretplate, force type=renewal */
 		if ( class_exists( 'WC_Subscriptions' ) ) {
-			add_action( 'woocommerce_checkout_subscription_created', [ __CLASS__, 'on_subscription_created' ], 20, 2 );
+			// ⚠️ accepted_args MORA biti 3 (callback prima i $recurring_cart). S "2" je
+			// callback dobivao manje argumenata nego što PHP 8 zahtijeva ->
+			// ArgumentCountError FATAL usred checkouta za SVAKU pretplatu (incident
+			// 2026-07-15: "Došlo je do greške prilikom obrade vaše narudžbe").
+			add_action( 'woocommerce_checkout_subscription_created', [ __CLASS__, 'on_subscription_created' ], 20, 3 );
 			// ⚠️ wcs_renewal_order_created je FILTER (WCS radi return apply_filters(...)),
 			// NE action. Callback MORA vratiti $renewal_order netaknut, inace
 			// wcs_create_renewal_order() vrati null i obnova pukne. Zato add_filter + return.
@@ -441,7 +445,7 @@ final class RPSM_Checkout_Module_Attribution {
 	 * osiguravamo naše ključeve - isti pattern kao R1-računov
 	 * RPOM_R1_Subscriptions::copy_r1_to_subscription().
 	 */
-	public static function on_subscription_created( \WC_Subscription $subscription, \WC_Order $order, $recurring_cart ): void {
+	public static function on_subscription_created( \WC_Subscription $subscription, \WC_Order $order, $recurring_cart = null ): void {
 		$copied = false;
 
 		foreach ( self::META_MAP as $meta_key ) {

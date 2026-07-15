@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.0.4 (2026-07-15) - HOTFIX: fatal na checkoutu za SVE pretplate (GLAVNI uzrok)
+
+- woocommerce_checkout_subscription_created registriran s accepted_args=2, a handler zahtijeva 3 parametra ($recurring_cart bez defaulta) -> PHP 8 ArgumentCountError FATAL usred kreiranja pretplate na checkoutu -> WC prikaze "Došlo je do greške prilikom obrade vaše narudžbe". Pucalo za SVAKI pretplatnicki proizvod od 1.5.0.0, neovisno o atribucijskim podacima. Fix: accepted_args=3 + $recurring_cart = null default. Ostale registracije auditirane - poklapaju se.
+
 ## 1.5.0.3 (2026-07-15) - HOTFIX: ugnijezdeni save u woocommerce_new_order
 
 - Atribucija se na woocommerce_new_order upisivala i SPREMALA odmah - a taj hook se okida USRED spremanja narudzbe (datastore create()), pa je nas $order->save() radio ugnijezdeni save u nedovrsenom checkout toku i obrada placanja je pucala (dupli "Atribucija upisana" u debug logu, order 10324). Fix: on_new_order vise nista ne pise; sav upis (atribucija + upsell korekcija) odgodjen na shutdown, gdje se narudzba svjeze ucita i sigurno spremi. Idempotencija preko _rpsm_attr_type ostaje.
