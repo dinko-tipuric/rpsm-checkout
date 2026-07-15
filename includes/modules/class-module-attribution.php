@@ -162,56 +162,15 @@ final class RPSM_Checkout_Module_Attribution {
 			return new \WP_REST_Response( [ 'ok' => false, 'reason' => 'no_wc' ], 200 );
 		}
 
-		/* ⚠️ WooCommerce NE inicijalizira sesiju u REST zahtjevima: is_request('frontend')
-		   eksplicitno isključuje REST (`&& ! $this->is_rest_api_request()`), pa se
-		   wc_load_cart()/initialize_session() nikad ne pozovu i WC()->session je null.
-		   Bez ovog bootstrapa primarni put (sesija) bio bi tiho mrtav, a sve bi ovisilo
-		   o fallback skrivenom polju - dakle o klasičnom checkoutu, što nam je upravo
-		   ono što NE pokriva buy-now/upsell/obnove. Zato sesiju podignemo sami. */
-		if ( ! WC()->session && method_exists( WC(), 'initialize_session' ) ) {
-			WC()->initialize_session();
-		}
-
-		if ( ! WC()->session ) {
-			RPSM_Checkout_Debug::warning( 'Atribucija REST: WC sesija se ne može inicijalizirati - zahtjev odbačen.' );
-			return new \WP_REST_Response( [ 'ok' => false, 'reason' => 'no_session' ], 200 );
-		}
-
-		$existing = WC()->session->get( self::SESSION_KEY );
-		if ( ! empty( $existing ) ) {
-			return new \WP_REST_Response( [ 'ok' => true, 'reason' => 'already_set' ], 200 );
-		}
-
-		$raw = $request->get_json_params();
-		if ( ! is_array( $raw ) ) {
-			return new \WP_REST_Response( [ 'ok' => false, 'reason' => 'invalid_payload' ], 200 );
-		}
-
-		$clean = self::sanitize_payload( $raw );
-		if ( empty( array_filter( $clean ) ) ) {
-			return new \WP_REST_Response( [ 'ok' => false, 'reason' => 'empty_payload' ], 200 );
-		}
-
-		$clean['_received_ts'] = time();
-		WC()->session->set( self::SESSION_KEY, $clean );
-
-		/* WC inače postavlja session kolačić tek kod prve košarica-akcije.
-		   Mi želimo da sesija "uhvati" već na prvoj stranici bez košarice. */
-		if ( method_exists( WC()->session, 'set_customer_session_cookie' ) ) {
-			WC()->session->set_customer_session_cookie( true );
-		}
-
-		RPSM_Checkout_Debug::info(
-			'Atribucija primljena preko REST-a i spremljena u sesiju',
-			[
-				'first_source' => $clean['first_source'] ?? '',
-				'last_source'  => $clean['last_source'] ?? '',
-				'lp'           => $clean['lp'] ?? '',
-				'cta'          => $clean['cta'] ?? '',
-			]
-		);
-
-		return new \WP_REST_Response( [ 'ok' => true ], 200 );
+		/* ⚠️ HOTFIX 1.5.0.2: REST ruta VISE NE DIRA WC sesiju.
+		   Prijasnji initialize_session() + set_customer_session_cookie(true) je na SVAKOM
+		   page loadu (JS gadja rutu) pisao NOVI WC session kolacic i time razbijao
+		   postojecu checkout sesiju -> vanjski Stripe redirect bi otkazao (narudzba se
+		   kreirala, ali placanje nije islo dalje). Atribucija se sada cita DIREKTNO iz
+		   $_COOKIE server-side u apply_attribution() - kolacic rpsm_attr se ionako salje
+		   sa svakim zahtjevom na portal (isti root domen), pa REST/sesija nisu potrebni.
+		   Ruta ostaje kao no-op da JS koji jos gadja endpoint dobije cist 200. */
+		return new \WP_REST_Response( [ 'ok' => true, 'reason' => 'noop' ], 200 );
 	}
 
 	/**
@@ -312,6 +271,25 @@ final class RPSM_Checkout_Module_Attribution {
 	}
 
 	/**
+	 * Cita atribuciju DIREKTNO iz kolacica rpsm_attr (server-side). Kolacic je na
+	 * .radimposvom.com.hr pa se salje sa svakim zahtjevom na portal, ukljucujuci
+	 * checkout submit i sve frontend narudzbe (buy-now, upsell). Ovo je primarni
+	 * izvor od 1.5.0.2 - zamjenjuje raniji REST->sesija put koji je razbijao checkout.
+	 */
+	private static function get_cookie_attribution(): array {
+		$raw = isset( $_COOKIE[ self::COOKIE_NAME ] ) ? wp_unslash( $_COOKIE[ self::COOKIE_NAME ] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+		if ( '' === $raw ) {
+			return [];
+		}
+		$decoded = json_decode( $raw, true );
+		if ( ! is_array( $decoded ) ) {
+			/* Defenzivno: neki setupovi ostave URL-encoded vrijednost u $_COOKIE. */
+			$decoded = json_decode( rawurldecode( $raw ), true );
+		}
+		return is_array( $decoded ) ? self::sanitize_payload( $decoded ) : [];
+	}
+
+	/**
 	 * Upiši atribuciju (sesija, ili fallback ako je sesija prazna) na narudžbu.
 	 * Idempotentno - ako narudžba već ima _rpsm_attr_type, ne diraj (drugi hook
 	 * ju je već obradio u istom requestu).
@@ -325,6 +303,10 @@ final class RPSM_Checkout_Module_Attribution {
 		}
 
 		$data = self::get_session_attribution();
+
+		if ( empty( array_filter( $data ) ) ) {
+			$data = self::get_cookie_attribution();
+		}
 
 		if ( empty( array_filter( $data ) ) ) {
 			$data = self::get_fallback_payload();

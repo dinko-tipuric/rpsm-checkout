@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.0.2 (2026-07-15) - HOTFIX: checkout/Stripe redirect pucao
+
+- Atribucijska REST ruta je na SVAKOM page loadu zvala `initialize_session()` + `set_customer_session_cookie(true)`, cime je pisala NOVI WC session kolacic i razbijala postojecu checkout sesiju. Posljedica: narudzba se kreirala, ali vanjski Stripe redirect nije isao (placanje stalo). Fix: REST ruta vise NE dira sesiju (no-op); atribucija se cita direktno iz `$_COOKIE` server-side u apply_attribution(). Kolacic rpsm_attr se ionako salje sa svakim zahtjevom na portal, pa REST/sesija nisu potrebni.
+
 ## 1.5.0.1 (2026-07-15) - HOTFIX: obnove pucale
 
 - `wcs_renewal_order_created` je FILTER, ne action; handler je vracao void i time NULL-irao renewal order (wcs_create_renewal_order() vratio null), pa je "Process renewal" i automatska obnova pucala. Sad add_filter + return $renewal_order, uz defenzivnu instanceof provjeru. Akvizicijski (frontend) put nije bio pogodjen.
