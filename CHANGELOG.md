@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.0.5 (2026-07-15) - Renewal type safety net + dijagnostika
+
+- Renewal narudzbe su dobivale type=acquisition umjesto renewal: WCS data copier kopira svu _rpsm_attr_* meta s pretplate (ukljucujuci tip), a nas wcs_renewal_order_created callback se prema debug logu nije izvrsio (uzrok jos nejasan). Fix: shutdown safety net - za svaku novu narudzbu koja je wcs_order_contains_renewal() autoritativno se kopira atribucija s pretplate i force-a type=renewal, neovisno o filteru. Filter ostaje registriran + entry-log za dijagnozu.
+
 ## 1.5.0.4 (2026-07-15) - HOTFIX: fatal na checkoutu za SVE pretplate (GLAVNI uzrok)
 
 - woocommerce_checkout_subscription_created registriran s accepted_args=2, a handler zahtijeva 3 parametra ($recurring_cart bez defaulta) -> PHP 8 ArgumentCountError FATAL usred kreiranja pretplate na checkoutu -> WC prikaze "Došlo je do greške prilikom obrade vaše narudžbe". Pucalo za SVAKI pretplatnicki proizvod od 1.5.0.0, neovisno o atribucijskim podacima. Fix: accepted_args=3 + $recurring_cart = null default. Ostale registracije auditirane - poklapaju se.

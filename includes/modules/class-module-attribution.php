@@ -381,6 +381,30 @@ final class RPSM_Checkout_Module_Attribution {
 			return;
 		}
 
+		/* ⚠️ 1.5.0.5: RENEWAL SAFETY NET, ne ovisi o wcs_renewal_order_created filteru.
+		   Na dev testu 2026-07-15 renewal narudžba (#10330) je dobila type=acquisition:
+		   WCS-ov data copier kopira SVU meta s pretplate (pa i _rpsm_attr_*), a naš
+		   filter callback se prema debug logu nije izvršio (uzrok još nejasan - filter
+		   ostaje registriran + entry-log za dijagnozu). Zato ovdje, na shutdownu, kad
+		   relacija renewal->subscription sigurno postoji (add_relation ide PRIJE
+		   filtera), autoritativno force-amo kopiju s pretplate i type=renewal. */
+		if ( function_exists( 'wcs_order_contains_renewal' ) && wcs_order_contains_renewal( $order ) ) {
+			$subscription = null;
+			if ( function_exists( 'wcs_get_subscriptions_for_renewal_order' ) ) {
+				$subs         = wcs_get_subscriptions_for_renewal_order( $order );
+				$subscription = is_array( $subs ) && $subs ? reset( $subs ) : null;
+			}
+			if ( $subscription instanceof \WC_Order ) {
+				self::copy_from_source( $order, $subscription, 'renewal' );
+			} else {
+				/* Nema pretplate (ne bi se smjelo dogoditi) - barem ispravi tip. */
+				$order->update_meta_data( self::META_TYPE, 'renewal' );
+				$order->save();
+				RPSM_Checkout_Debug::warning( 'Renewal safety net: pretplata nije nađena, samo type=renewal postavljen.', [ 'order_id' => $order_id ] );
+			}
+			return;
+		}
+
 		if ( self::apply_attribution( $order, 'acquisition' ) ) {
 			$order->save();
 		}
@@ -473,6 +497,14 @@ final class RPSM_Checkout_Module_Attribution {
 	 * se broje kao nova akvizicija (napušu ROAS).
 	 */
 	public static function on_renewal_order_created( $renewal_order, $subscription = null ) {
+		/* Entry-log (dijagnoza 2026-07-15: na dev testu se ovaj callback prema logu
+		   NIJE izvršio iako je filter registriran - ovo dokaže/opovrgne izvršavanje).
+		   Ispravnost tipa vise NE ovisi o ovom filteru (safety net na shutdownu). */
+		RPSM_Checkout_Debug::debug( 'wcs_renewal_order_created filter pozvan', [
+			'renewal_order' => $renewal_order instanceof \WC_Order ? $renewal_order->get_id() : gettype( $renewal_order ),
+			'subscription'  => $subscription instanceof \WC_Order ? $subscription->get_id() : gettype( $subscription ),
+		] );
+
 		// Defenzivno: filter moze dobiti sto drugi plugini vrate; ne fatalaj.
 		// WC_Subscription extends WC_Order pa instanceof WC_Order hvata i pretplatu.
 		if ( $renewal_order instanceof \WC_Order && $subscription instanceof \WC_Order ) {
