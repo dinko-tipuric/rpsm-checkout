@@ -78,7 +78,10 @@ final class RPSM_Checkout_Module_Attribution {
 		/* WCS obnove i switchevi - kopiraj s parenta/pretplate, force type=renewal */
 		if ( class_exists( 'WC_Subscriptions' ) ) {
 			add_action( 'woocommerce_checkout_subscription_created', [ __CLASS__, 'on_subscription_created' ], 20, 2 );
-			add_action( 'wcs_renewal_order_created', [ __CLASS__, 'on_renewal_order_created' ], 10, 2 );
+			// ⚠️ wcs_renewal_order_created je FILTER (WCS radi return apply_filters(...)),
+			// NE action. Callback MORA vratiti $renewal_order netaknut, inace
+			// wcs_create_renewal_order() vrati null i obnova pukne. Zato add_filter + return.
+			add_filter( 'wcs_renewal_order_created', [ __CLASS__, 'on_renewal_order_created' ], 10, 2 );
 			add_action( 'woocommerce_subscription_checkout_switch_order_processed', [ __CLASS__, 'on_switch_order_processed' ], 10, 2 );
 		}
 
@@ -467,8 +470,13 @@ final class RPSM_Checkout_Module_Attribution {
 	 * ⚠️ Ključno: bez ovoga obnove padnu u "direct" (razvodne izvještaj) ili
 	 * se broje kao nova akvizicija (napušu ROAS).
 	 */
-	public static function on_renewal_order_created( \WC_Order $renewal_order, $subscription ): void {
-		self::copy_from_source( $renewal_order, $subscription, 'renewal' );
+	public static function on_renewal_order_created( $renewal_order, $subscription = null ) {
+		// Defenzivno: filter moze dobiti sto drugi plugini vrate; ne fatalaj.
+		// WC_Subscription extends WC_Order pa instanceof WC_Order hvata i pretplatu.
+		if ( $renewal_order instanceof \WC_Order && $subscription instanceof \WC_Order ) {
+			self::copy_from_source( $renewal_order, $subscription, 'renewal' );
+		}
+		return $renewal_order; // ⚠️ FILTER - UVIJEK vrati order netaknut.
 	}
 
 	/**

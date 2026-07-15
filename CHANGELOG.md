@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.0.1 (2026-07-15) - HOTFIX: obnove pucale
+
+- `wcs_renewal_order_created` je FILTER, ne action; handler je vracao void i time NULL-irao renewal order (wcs_create_renewal_order() vratio null), pa je "Process renewal" i automatska obnova pucala. Sad add_filter + return $renewal_order, uz defenzivnu instanceof provjeru. Akvizicijski (frontend) put nije bio pogodjen.
+
 ## 1.5.0.0 (2026-07-14) - Atribucija (SPEC-atribucija.md, Sloj 2)
 
 Novi modul "Atribucija": narudžba pamti svoj izvor/kampanju/CTA kroz cijeli lanac www -> portal -> narudžba.
