@@ -348,24 +348,40 @@ final class RPSM_Checkout_Module_Attribution {
 
 	/**
 	 * Sve ostale narudžbe (buy-now, blocks checkout, programske narudžbe).
-	 * Narudžba je ovdje već spremljena s ID-em pa moramo eksplicitno save()-ati
-	 * ako smo nešto upisali.
+	 *
+	 * ⚠️ HOTFIX 1.5.0.3: OVDJE SE NIŠTA NE PIŠE I NE SPREMA. woocommerce_new_order
+	 * se okida USRED spremanja narudžbe (unutar datastore create()), pa je raniji
+	 * apply + $order->save() radio ugniježđeni save u nedovršenom checkout toku -
+	 * narudžba se kreirala, ali obrada plaćanja/Stripe redirect je pucao (staging
+	 * incident 2026-07-15, order 10324: dupli "Atribucija upisana" u logu).
+	 * Sve se odgađa na shutdown - narudžba se tada svježe učita i sigurno spremi,
+	 * izvan kritičnog puta. Idempotencija u apply_attribution() (META_TYPE) i dalje
+	 * garantira da narudžbi koju je klasični checkout već obradio ne diramo ništa.
 	 */
 	public static function on_new_order( int $order_id, \WC_Order $order ): void {
+		add_action(
+			'shutdown',
+			static function () use ( $order_id ): void {
+				self::finalize_order_attribution( $order_id );
+			}
+		);
+	}
+
+	/**
+	 * Shutdown: svježe učitaj narudžbu pa (1) upiši atribuciju ako je klasični
+	 * checkout nije već upisao, (2) upsell korekcija ako je narudžba upsell.
+	 */
+	private static function finalize_order_attribution( int $order_id ): void {
+		$order = wc_get_order( $order_id );
+		if ( ! $order ) {
+			return;
+		}
 
 		if ( self::apply_attribution( $order, 'acquisition' ) ) {
 			$order->save();
 		}
 
-		/* rpsm-upsell upisuje _rpsm_upsell_parent_order NAKON prvog save()-a
-		   (koji je već okinuo ovaj hook), pa tu meta ovdje još nema. Do
-		   shutdowna će, u istom requestu, već biti spremljena. */
-		add_action(
-			'shutdown',
-			static function () use ( $order_id ): void {
-				self::maybe_apply_upsell_attribution( $order_id );
-			}
-		);
+		self::maybe_apply_upsell_attribution( $order_id );
 	}
 
 	private static function maybe_apply_upsell_attribution( int $order_id ): void {

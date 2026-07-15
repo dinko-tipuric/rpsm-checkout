@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.0.3 (2026-07-15) - HOTFIX: ugnijezdeni save u woocommerce_new_order
+
+- Atribucija se na woocommerce_new_order upisivala i SPREMALA odmah - a taj hook se okida USRED spremanja narudzbe (datastore create()), pa je nas $order->save() radio ugnijezdeni save u nedovrsenom checkout toku i obrada placanja je pucala (dupli "Atribucija upisana" u debug logu, order 10324). Fix: on_new_order vise nista ne pise; sav upis (atribucija + upsell korekcija) odgodjen na shutdown, gdje se narudzba svjeze ucita i sigurno spremi. Idempotencija preko _rpsm_attr_type ostaje.
+
 ## 1.5.0.2 (2026-07-15) - HOTFIX: checkout/Stripe redirect pucao
 
 - Atribucijska REST ruta je na SVAKOM page loadu zvala `initialize_session()` + `set_customer_session_cookie(true)`, cime je pisala NOVI WC session kolacic i razbijala postojecu checkout sesiju. Posljedica: narudzba se kreirala, ali vanjski Stripe redirect nije isao (placanje stalo). Fix: REST ruta vise NE dira sesiju (no-op); atribucija se cita direktno iz `$_COOKIE` server-side u apply_attribution(). Kolacic rpsm_attr se ionako salje sa svakim zahtjevom na portal, pa REST/sesija nisu potrebni.
