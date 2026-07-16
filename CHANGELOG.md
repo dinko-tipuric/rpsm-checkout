@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.6.0.0 (2026-07-17) - Atribucijski capture i NA portalu
+
+- Kolacic rpsm_attr se sada pise i na portalu, ne samo na www. Dosad je portal
+  kolacic samo CITAO, pa je promet koji slijece direktno na WC product page
+  (oglasi za Prodajni ritam, biz ARENA product put, upsell mailovi na product
+  page) prolazio kroz GA4 ali narudzba je ostajala "(nepoznato)".
+- Ista pravila kao na www (port iz rpsm-web modula): UTM/click ID/referrer se
+  cita odmah a kolacic pise tek po privoli (portalov Complianz, fail-closed);
+  first touch se NIKAD ne prepisuje; referrer s *.radimposvom.com.hr se ignorira
+  (www->portal prijelaz nije novi izvor). Bez CTA capture dijela (www-specifican).
+- Nove opcije: "Hvataj izvor i NA portalu" (default ON) + consent kategorija
+  portalovog bannera (default statistics). Novi row_select admin helper.
+
 ## 1.5.0.5 (2026-07-15) - Renewal type safety net + dijagnostika
 
 - Renewal narudzbe su dobivale type=acquisition umjesto renewal: WCS data copier kopira svu _rpsm_attr_* meta s pretplate (ukljucujuci tip), a nas wcs_renewal_order_created callback se prema debug logu nije izvrsio (uzrok jos nejasan). Fix: shutdown safety net - za svaku novu narudzbu koja je wcs_order_contains_renewal() autoritativno se kopira atribucija s pretplate i force-a type=renewal, neovisno o filteru. Filter ostaje registriran + entry-log za dijagnozu.

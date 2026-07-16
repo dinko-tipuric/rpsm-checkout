@@ -70,6 +70,15 @@ final class RPSM_Checkout_Module_Attribution {
 		/* Fallback skriveno polje na klasičnom checkoutu */
 		add_action( 'woocommerce_after_order_notes', [ __CLASS__, 'render_fallback_field' ] );
 
+		/* v1.6.0.0: CAPTURE I NA PORTALU. Oglasi/mailovi koji slijecu DIREKTNO na
+		   WC product page (Funnel "Prodajni ritam", biz ARENA product put, upsell
+		   mailovi) inace nemaju tko napisati kolacic - rpsm-web zivi samo na www,
+		   a portal je kolacic dosad samo citao. UTM bi prosao kroz GA4, ali
+		   narudzba bi ostala "(nepoznato)". */
+		if ( '1' === RPSM_Checkout_Options::get( RPSM_Checkout_Options::ATTR_CAPTURE_ENABLED ) ) {
+			add_action( 'wp_footer', [ __CLASS__, 'print_capture_js' ], 20 );
+		}
+
 		/* Primarni put: sesija -> order meta. Dva hooka - klasični checkout i
 		   sve ostale (programske) narudžbe. */
 		add_action( 'woocommerce_checkout_create_order', [ __CLASS__, 'on_checkout_create_order' ], 20, 2 );
@@ -272,6 +281,147 @@ final class RPSM_Checkout_Module_Attribution {
 
 		unset( $data['_received_ts'] );
 		return $data;
+	}
+
+	/**
+	 * Capture JS za portal - PORT iz rpsm-web modula Atribucija (www), ista
+	 * pravila, bez CTA dijela (data-rpsm-cta ima smisla samo na www landingu):
+	 *  - UTM/click ID/referrer se cita ODMAH, kolacic se pise TEK po privoli
+	 *    (portalov Complianz banner; fail-closed - bez Complianz JS-a nema pisanja)
+	 *  - first touch (f) se pise JEDNOM; last (l) samo kad izvor nije direct
+	 *  - referrer s *.radimposvom.com.hr se IGNORIRA (www->portal nije novi izvor)
+	 */
+	public static function print_capture_js(): void {
+		if ( is_admin() ) {
+			return;
+		}
+		$consent_cat = sanitize_key( RPSM_Checkout_Options::get( RPSM_Checkout_Options::ATTR_CONSENT_CAT ) );
+		?>
+		<script>
+		(function () {
+			var COOKIE_NAME   = 'rpsm_attr';
+			var COOKIE_DAYS   = 180;
+			var COOKIE_DOMAIN = '.radimposvom.com.hr';
+			var CONSENT_CAT   = '<?php echo esc_js( $consent_cat ); ?>';
+			var ROOT_DOMAIN   = 'radimposvom.com.hr';
+			var HARD_CAP      = 3072;
+			var VAL_CAP       = 128;
+
+			var pending = null;
+			var written = false;
+
+			function capStr(v) {
+				v = (v === null || v === undefined) ? '' : String(v);
+				return v.length > VAL_CAP ? v.substring(0, VAL_CAP) : v;
+			}
+			function qs(name) {
+				try { return new URLSearchParams(location.search).get(name) || ''; } catch (e) { return ''; }
+			}
+			function isOwnHost(host) {
+				if (!host) return false;
+				host = host.toLowerCase();
+				return host === ROOT_DOMAIN || host.slice(-(ROOT_DOMAIN.length + 1)) === ('.' + ROOT_DOMAIN);
+			}
+			function getClickIds() {
+				var ids = {};
+				['gclid', 'fbclid', 'msclkid', 'ttclid'].forEach(function (k) {
+					var v = qs(k);
+					if (v) ids[k] = capStr(v);
+				});
+				return ids;
+			}
+			function deriveFromClickId(ids) {
+				if (ids.gclid) return { s: 'google', m: 'cpc' };
+				if (ids.fbclid) return { s: 'meta', m: 'paid' };
+				if (ids.msclkid) return { s: 'microsoft', m: 'cpc' };
+				if (ids.ttclid) return { s: 'tiktok', m: 'paid' };
+				return null;
+			}
+			function currentTouch() {
+				var utmSource = qs('utm_source');
+				var cid = getClickIds();
+				var hasCid = Object.keys(cid).length > 0;
+				var refHost = '';
+				try { refHost = document.referrer ? new URL(document.referrer).hostname : ''; } catch (e) { refHost = ''; }
+				var externalRef = !!refHost && !isOwnHost(refHost);
+				var s, m, c = '', ct = '', t = '';
+				if (utmSource) {
+					s = capStr(utmSource); m = capStr(qs('utm_medium')); c = capStr(qs('utm_campaign'));
+					ct = capStr(qs('utm_content')); t = capStr(qs('utm_term'));
+				} else if (hasCid) {
+					var derived = deriveFromClickId(cid);
+					s = derived ? derived.s : 'direct'; m = derived ? derived.m : 'direct';
+				} else if (externalRef) {
+					s = capStr(refHost); m = 'referral';
+				} else {
+					s = 'direct'; m = 'direct';
+				}
+				return { s: s, m: m, c: c, ct: ct, t: t, lp: capStr(location.pathname),
+					r: externalRef ? capStr(refHost) : '', ts: Math.floor(Date.now() / 1000),
+					cid: hasCid ? cid : null };
+			}
+			function readCookie() {
+				var m = document.cookie.match(new RegExp('(?:^|; )' + COOKIE_NAME + '=([^;]*)'));
+				if (!m) return null;
+				try { return JSON.parse(decodeURIComponent(m[1])); } catch (e) { return null; }
+			}
+			function writeCookie(obj) {
+				var str = encodeURIComponent(JSON.stringify(obj));
+				if (str.length > HARD_CAP && obj.cid) { delete obj.cid; str = encodeURIComponent(JSON.stringify(obj)); }
+				if (str.length > HARD_CAP && obj.l) { delete obj.l; str = encodeURIComponent(JSON.stringify(obj)); }
+				var expires = new Date(Date.now() + COOKIE_DAYS * 24 * 60 * 60 * 1000).toUTCString();
+				document.cookie = COOKIE_NAME + '=' + str + '; expires=' + expires + '; path=/' +
+					'; domain=' + COOKIE_DOMAIN + '; SameSite=Lax; Secure';
+			}
+			/* FAIL-CLOSED: bez Complianz JS-a NE pretpostavljamo privolu (cmplz_
+			   kolacici postoje i nakon ODBIJANJA - ne smiju biti signal). */
+			function hasConsent() {
+				if (typeof window.cmplz_has_consent !== 'function') return false;
+				return cmplz_has_consent(CONSENT_CAT);
+			}
+			function tryWrite() {
+				if (written) return;
+				if (!hasConsent()) return;
+				var touch = pending || currentTouch();
+				var cookie = readCookie() || { v: 1 };
+				if (!cookie.f) {
+					cookie.f = { s: touch.s, m: touch.m, c: touch.c, ct: touch.ct, t: touch.t,
+						lp: touch.lp, r: touch.r, ts: touch.ts };
+				}
+				if ('direct' !== touch.s) {
+					var l = cookie.l || {};
+					if (l.s !== touch.s || l.m !== touch.m || l.c !== touch.c) {
+						cookie.l = { s: touch.s, m: touch.m, c: touch.c };
+					}
+				}
+				if (touch.cid) { cookie.cid = touch.cid; }
+				written = true;
+				writeCookie(cookie);
+			}
+			function boot() {
+				pending = currentTouch();
+				if (hasConsent()) { tryWrite(); }
+			}
+			if ('loading' === document.readyState) {
+				document.addEventListener('DOMContentLoaded', boot);
+			} else {
+				boot();
+			}
+			/* Complianz eventi kroz dataLayer (GTM4WP je i na portalu) */
+			window.dataLayer = window.dataLayer || [];
+			var origPush = window.dataLayer.push;
+			window.dataLayer.push = function () {
+				try {
+					var obj = arguments[0];
+					if (obj && typeof obj.event === 'string' && obj.event.indexOf('cmplz_event_') === 0 && ! written) {
+						tryWrite();
+					}
+				} catch (e) {}
+				return origPush.apply(window.dataLayer, arguments);
+			};
+		})();
+		</script>
+		<?php
 	}
 
 	/**

@@ -85,6 +85,8 @@ final class RPSM_Checkout_Options {
 	/* ── Atribucija (SPEC-atribucija.md, Sloj 2) ──────────────────────── */
 	const ATTR_ENABLED         = 'rpsm_checkout_attr_enabled';
 	const ATTR_RETENTION_DAYS  = 'rpsm_checkout_attr_retention_days';
+	const ATTR_CAPTURE_ENABLED = 'rpsm_checkout_attr_capture_enabled'; // pisi kolacic i NA portalu (direktan promet na product page)
+	const ATTR_CONSENT_CAT     = 'rpsm_checkout_attr_consent_cat';     // Complianz kategorija (portalov banner)
 
 	/* ── Debug ─────────────────────────────────────────────────────── */
 	const DEBUG_MODE             = 'rpsm_checkout_debug_mode';
@@ -173,6 +175,8 @@ final class RPSM_Checkout_Options {
 		   includes/modules/class-module-attribution.php za arhitekturu */
 		self::ATTR_ENABLED        => '1',
 		self::ATTR_RETENTION_DAYS => '30',
+		self::ATTR_CAPTURE_ENABLED => '1',
+		self::ATTR_CONSENT_CAT     => 'statistics',
 
 		/* Debug */
 		self::DEBUG_MODE             => '0',

@@ -320,6 +320,17 @@ final class RPSM_Checkout_Admin {
 			$o::ATTR_RETENTION_DAYS,
 			'Ako je atribucija u WC sesiji starija od ovoliko dana (dugotrajna sesija ulogiranog korisnika), pri kreiranju narudžbe se ignorira - sprječava lijepljenje stare atribucije na sasvim novu narudžbu.'
 		);
+		self::row_toggle(
+			'Hvataj izvor i NA portalu',
+			$o::ATTR_CAPTURE_ENABLED,
+			'Oglasi i mailovi koji vode DIREKTNO na stranicu proizvoda (bez prolaska kroz www) dobiju kolačić ovdje. Ista pravila kao na www: piše se tek po privoli, prvi izvor se nikad ne prepisuje, www→portal prijelaz se ne računa kao novi izvor.'
+		);
+		self::row_select(
+			'Consent kategorija (portal)',
+			$o::ATTR_CONSENT_CAT,
+			[ 'functional' => 'Funkcionalni', 'marketing' => 'Marketing', 'preferences' => 'Preference', 'statistics' => 'Statistika' ],
+			'Complianz kategorija portalovog bannera koja mora biti prihvaćena prije pisanja kolačića.'
+		);
 
 		echo '</table>';
 
@@ -501,8 +512,10 @@ final class RPSM_Checkout_Admin {
 				$o::TRANSLATIONS_ENABLED => 'toggle',
 			],
 			'atribucija' => [
-				$o::ATTR_ENABLED        => 'toggle',
-				$o::ATTR_RETENTION_DAYS => 'text',
+				$o::ATTR_ENABLED         => 'toggle',
+				$o::ATTR_RETENTION_DAYS  => 'text',
+				$o::ATTR_CAPTURE_ENABLED => 'toggle',
+				$o::ATTR_CONSENT_CAT     => 'text',
 			],
 			'debug' => [
 				$o::DEBUG_MODE => 'toggle',
@@ -522,6 +535,27 @@ final class RPSM_Checkout_Admin {
 		echo '<th scope="row">' . esc_html( $label ) . '</th>';
 		echo '<td>';
 		echo '<label><input type="checkbox" name="' . esc_attr( $key ) . '" value="1"' . checked( '1', $val, false ) . '> Omogućeno</label>';
+		if ( $hint ) {
+			echo '<p class="description">' . esc_html( $hint ) . '</p>';
+		}
+		echo '</td></tr>';
+	}
+
+	/** Select red - opcije label => prikaz, abecedno slozene od pozivatelja. */
+	private static function row_select( string $label, string $key, array $options, string $hint = '' ): void {
+		$val = (string) RPSM_Checkout_Options::get( $key );
+		echo '<tr>';
+		echo '<th scope="row">' . esc_html( $label ) . '</th>';
+		echo '<td><select name="' . esc_attr( $key ) . '">';
+		foreach ( $options as $opt_val => $opt_label ) {
+			printf(
+				'<option value="%s"%s>%s</option>',
+				esc_attr( (string) $opt_val ),
+				selected( $val, (string) $opt_val, false ),
+				esc_html( (string) $opt_label )
+			);
+		}
+		echo '</select>';
 		if ( $hint ) {
 			echo '<p class="description">' . esc_html( $hint ) . '</p>';
 		}
