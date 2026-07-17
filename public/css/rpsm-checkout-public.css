@@ -179,3 +179,54 @@ button.rpsm-review-remove:disabled {
 	opacity: 0.5;
 	cursor: wait;
 }
+
+/* ── Express stranica (v1.7.0.0) ─────────────────────────────────── */
+
+/* Kosarica je zakljucana na express stranici - X za uklanjanje se skriva */
+body.rpsm-express-page .rpsm-review-remove {
+	display: none !important;
+}
+
+/* "Vec posjedujes" kartica umjesto forme */
+.rpsm-express-owned {
+	background: #fffdfa;
+	border: 1px solid #e6d8c9;
+	border-radius: 14px;
+	padding: 22px;
+	text-align: center;
+}
+
+/* Sticky mobilna CTA traka (prikaz samo na uskim ekranima) */
+.rpsm-express-sticky {
+	display: none;
+}
+@media (max-width: 920px) {
+	.rpsm-express-sticky {
+		display: flex;
+		position: fixed;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		z-index: 9999;
+		align-items: center;
+		gap: 14px;
+		padding: 10px 16px;
+		background: #fffdfa;
+		border-top: 1px solid #e6d8c9;
+		box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.08);
+	}
+	.rpsm-express-sticky-total {
+		font-weight: 700;
+		font-size: 17px;
+		font-variant-numeric: tabular-nums;
+		color: #4c2e2e;
+		white-space: nowrap;
+	}
+	.rpsm-express-sticky .rpsm-express-sticky-btn {
+		flex: 1;
+		text-align: center;
+	}
+	body.rpsm-express-page {
+		padding-bottom: 70px;
+	}
+}

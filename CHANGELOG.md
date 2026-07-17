@@ -1,5 +1,27 @@
 # Changelog
 
+## 1.7.0.0 (2026-07-17) - Express stranica + Sadrzaj proizvoda
+
+- NOVI MODUL Express (default OFF): stranice sa [rpsm_express product_id=X]
+  shortcodeom postaju checkout. woocommerce_is_checkout filter pali sve
+  postojece module (legal, kuponi, upsell, R1, atribucija...); auto-add s
+  clobberom PRIJE WC empty-cart redirecta; vlasniku zasticenog proizvoda se
+  umjesto forme prikazuje "vec posjedujes" kartica (v1.3.0.1 guard); gateway
+  reorder (kartica prva) SAMO u express kontekstu; sticky mobilna CTA traka
+  s totalom kroz WC fragmente; noindex + canonical na proizvod; X za
+  uklanjanje stavki skriven (kosarica zakljucana). Helper
+  rpsm_checkout_is_express() za druge pluginove (rpsm-upsell compact).
+- NOVI MODUL Sadrzaj proizvoda (default ON, inertan bez podataka): meta box
+  "Prodajna stranica" na proizvodu (chipovi, za/nije liste, moduli repeater,
+  FAQ repeater, recenzije repeater tekst/ime/titula, video URL) + shortcodovi
+  rpsm_product_stats/za_koga/moduli/faq/recenzije/video. FAQ spaja globalna
+  pitanja (novi Sadrzaj tab u postavkama) sa specificnima; na stranici
+  proizvoda emitira FAQPage schema.org. Prazna sekcija ne renderira nista.
+- Admin: novi tabovi Express (postavke + auto-detekcija express stranica u
+  post_content i _elementor_data) i Sadrzaj (toggle + globalna FAQ pitanja).
+- Spec: SPEC-express-checkout.md (mockup artifact = izvor istine za layout).
+
+
 ## 1.6.0.0 (2026-07-17) - Atribucijski capture i NA portalu
 
 - Kolacic rpsm_attr se sada pise i na portalu, ne samo na www. Dosad je portal

@@ -109,6 +109,8 @@ final class RPSM_Checkout_Admin {
 			'thankyou'    => 'Thank-you',
 			'prijevodi'   => 'Prijevodi',
 			'atribucija'  => 'Atribucija',
+			'express'     => 'Express',
+			'sadrzaj'     => 'Sadržaj',
 			'debug'       => 'Debug',
 		];
 
@@ -366,6 +368,122 @@ final class RPSM_Checkout_Admin {
 		return implode( "\n", array_slice( $matched, 0, $limit ) );
 	}
 
+	private static function tab_express(): void {
+		$o = RPSM_Checkout_Options::class;
+		self::row_toggle(
+			'Omogući Express stranice',
+			$o::EXPRESS_ENABLED,
+			'Stranice sa shortcodeom [rpsm_express product_id=X] postaju checkout: proizvod se auto-doda u košaricu, svi checkout moduli rade, canonical pokazuje na proizvod. Bez shortcodea na stranicama modul ne radi ništa.'
+		);
+		self::row_toggle(
+			'Isprazni košaricu pri ulasku (clobber)',
+			$o::EXPRESS_CLOBBER,
+			'Express = "kupi ovo sada": postojeći sadržaj košarice se zamijeni express proizvodom. Isključeno = proizvod se dodaje uz postojeće stavke.'
+		);
+		self::row_text(
+			'Gateway prvi na expressu',
+			$o::EXPRESS_FIRST_GATEWAY,
+			'Gateway ID koji ide na vrh liste plaćanja SAMO na express stranicama (npr. eh_stripe_checkout). Prazno = redoslijed se ne dira. Globalni checkout nikad nije pogođen.'
+		);
+		self::row_toggle(
+			'Sticky mobilna traka',
+			$o::EXPRESS_STICKY_CTA,
+			'Na mobitelu prikazuje fiksnu donju traku s ukupnim iznosom i gumbom koji skrola na formu. Sakriva se dok je forma u viewportu.'
+		);
+		self::row_text( 'Tekst gumba u traci', $o::EXPRESS_STICKY_CTA_TEXT );
+		self::row_textarea(
+			'Poruka vlasniku proizvoda',
+			$o::EXPRESS_OWNED_MESSAGE,
+			'Prikazuje se umjesto forme kad je kupac proizvod već kupio (Jednokratna kupnja). {proizvod} = naziv proizvoda.'
+		);
+		self::row_text( 'Tekst linka na Moj račun', $o::EXPRESS_OWNED_LINK_TEXT, 'Gumb ispod poruke vlasniku. Prazno = bez gumba.' );
+
+		echo '</table>';
+		echo '<h3>Pronađene express stranice</h3>';
+		$pages = self::find_express_pages();
+		if ( empty( $pages ) ) {
+			echo '<p class="description">Nijedna stranica ne sadrži [rpsm_express] shortcode. Napravi Elementor stranicu i u Shortcode widget stavi npr. [rpsm_express product_id=123].</p>';
+		} else {
+			echo '<table class="widefat striped" style="max-width:760px"><thead><tr><th>Stranica</th><th>Status</th><th></th></tr></thead><tbody>';
+			foreach ( $pages as $page ) {
+				printf(
+					'<tr><td><a href="%s">%s</a></td><td>%s</td><td><a href="%s" target="_blank" rel="noopener">Otvori</a></td></tr>',
+					esc_url( get_edit_post_link( $page->ID ) ),
+					esc_html( get_the_title( $page ) ),
+					esc_html( get_post_status_object( $page->post_status )->label ?? $page->post_status ),
+					esc_url( get_permalink( $page ) )
+				);
+			}
+			echo '</tbody></table>';
+		}
+		echo '<p class="description" style="margin-top:8px">Podsjetnik za slaganje: express URL-ove dodati u cache exclusion; slike optimizirane (hero bez lazy-loada).</p>';
+		echo '<table class="form-table">';
+	}
+
+	/**
+	 * Stranice koje sadrze [rpsm_express - u post_contentu ILI u Elementor
+	 * JSON-u (_elementor_data), jer Shortcode widget ne zavrsava nuzno u
+	 * post_contentu. Admin-only upit, bez keširanja.
+	 */
+	private static function find_express_pages(): array {
+		global $wpdb;
+		$like = '%' . $wpdb->esc_like( '[rpsm_express' ) . '%';
+		$ids  = $wpdb->get_col( $wpdb->prepare(
+			"SELECT DISTINCT p.ID FROM {$wpdb->posts} p
+			 LEFT JOIN {$wpdb->postmeta} m ON m.post_id = p.ID AND m.meta_key = '_elementor_data'
+			 WHERE p.post_type = 'page' AND p.post_status IN ('publish','draft','private')
+			   AND (p.post_content LIKE %s OR m.meta_value LIKE %s)
+			 LIMIT 50",
+			$like,
+			$like
+		) );
+		return empty( $ids ) ? [] : array_filter( array_map( 'get_post', array_map( 'intval', $ids ) ) );
+	}
+
+	private static function tab_sadrzaj(): void {
+		$o = RPSM_Checkout_Options::class;
+		self::row_toggle(
+			'Omogući Sadržaj proizvoda',
+			$o::CONTENT_ENABLED,
+			'Meta box "Prodajna stranica" na proizvodu + shortcodovi za prodajne blokove. Prazne sekcije se na stranicama ne prikazuju, pa je modul bezopasan dok proizvodi nemaju podatke.'
+		);
+
+		echo '<tr><td colspan="2"><h3>Shortcodovi</h3><p class="description">'
+			. esc_html( 'Na stranici proizvoda i express stranici rade bez atributa; bilo gdje drugdje uz product_id="123". Blokovi: [rpsm_product_stats] chipovi, [rpsm_product_za_koga] za/nije liste, [rpsm_product_moduli] accordion s trajanjima, [rpsm_product_faq] pitanja (+ FAQPage schema na proizvodu), [rpsm_product_recenzije] citati, [rpsm_product_video] uvodni video.' )
+			. '</p></td></tr>';
+
+		$pairs = json_decode( (string) RPSM_Checkout_Options::get( $o::CONTENT_GLOBAL_FAQ ), true ) ?: [];
+
+		echo '</table>';
+		echo '<h3>Globalna FAQ pitanja</h3>';
+		echo '<p class="description">Vrijede za SVE proizvode (plaćanje, R1, pristup...). Prikazuju se IZA specifičnih pitanja proizvoda; proizvod ih može sakriti checkboxom u svom meta boxu.</p>';
+		echo '<table class="widefat rpsm-gfaq-table" id="rpsm-gfaq" style="max-width:900px">';
+		echo '<thead><tr><th style="width:35%">Pitanje</th><th>Odgovor</th><th style="width:40px"></th></tr></thead><tbody>';
+		foreach ( $pairs as $i => $pair ) {
+			$q = esc_attr( $pair['q'] ?? '' );
+			$a = esc_textarea( $pair['a'] ?? '' );
+			echo '<tr>';
+			echo "<td><input type='text' name='rpsm_gfaq[{$i}][q]' value='{$q}' class='large-text'></td>";
+			echo "<td><textarea name='rpsm_gfaq[{$i}][a]' rows='2' class='large-text'>{$a}</textarea></td>";
+			echo "<td><button type='button' class='button' onclick='this.closest(\"tr\").remove()'>&times;</button></td>";
+			echo '</tr>';
+		}
+		echo '</tbody></table>';
+		echo '<button type="button" class="button" id="rpsm-add-gfaq" style="margin-top:8px;">+ Dodaj pitanje</button>';
+		echo '<script>
+			document.getElementById("rpsm-add-gfaq").addEventListener("click", function(){
+				var tbody = document.querySelector("#rpsm-gfaq tbody");
+				var i = tbody.children.length + "_" + Date.now();
+				var tr = document.createElement("tr");
+				tr.innerHTML = \'<td><input type="text" name="rpsm_gfaq[\'+i+\'][q]" class="large-text"></td>\'+
+					\'<td><textarea name="rpsm_gfaq[\'+i+\'][a]" rows="2" class="large-text"></textarea></td>\'+
+					\'<td><button type="button" class="button" onclick="this.closest(\\\'tr\\\').remove()">&times;</button></td>\';
+				tbody.appendChild(tr);
+			});
+		</script>';
+		echo '<table class="form-table">';
+	}
+
 	private static function tab_debug(): void {
 		$o = RPSM_Checkout_Options::class;
 		self::row_toggle( 'Debug mod', $o::DEBUG_MODE, 'Zapisuje detaljne logove u wp-content/uploads/rpsm-checkout/.' );
@@ -417,6 +535,21 @@ final class RPSM_Checkout_Admin {
 				$val = sanitize_text_field( $_POST[ $key ] ?? '' );
 			}
 			RPSM_Checkout_Options::set( $key, $val );
+		}
+
+		/* Special: globalna FAQ pitanja (Sadrzaj tab) */
+		if ( 'sadrzaj' === $tab ) {
+			$pairs = [];
+			if ( isset( $_POST['rpsm_gfaq'] ) && is_array( $_POST['rpsm_gfaq'] ) ) {
+				foreach ( wp_unslash( $_POST['rpsm_gfaq'] ) as $row ) { // phpcs:ignore
+					$q = sanitize_text_field( $row['q'] ?? '' );
+					$a = sanitize_textarea_field( $row['a'] ?? '' );
+					if ( '' !== $q && '' !== $a ) {
+						$pairs[] = [ 'q' => $q, 'a' => $a ];
+					}
+				}
+			}
+			RPSM_Checkout_Options::set( $o::CONTENT_GLOBAL_FAQ, wp_json_encode( $pairs, JSON_UNESCAPED_UNICODE ) );
 		}
 
 		/* Special: translation pairs */
@@ -516,6 +649,18 @@ final class RPSM_Checkout_Admin {
 				$o::ATTR_RETENTION_DAYS  => 'text',
 				$o::ATTR_CAPTURE_ENABLED => 'toggle',
 				$o::ATTR_CONSENT_CAT     => 'text',
+			],
+			'express' => [
+				$o::EXPRESS_ENABLED         => 'toggle',
+				$o::EXPRESS_CLOBBER         => 'toggle',
+				$o::EXPRESS_FIRST_GATEWAY   => 'text',
+				$o::EXPRESS_STICKY_CTA      => 'toggle',
+				$o::EXPRESS_STICKY_CTA_TEXT => 'text',
+				$o::EXPRESS_OWNED_MESSAGE   => 'textarea',
+				$o::EXPRESS_OWNED_LINK_TEXT => 'text',
+			],
+			'sadrzaj' => [
+				$o::CONTENT_ENABLED => 'toggle',
 			],
 			'debug' => [
 				$o::DEBUG_MODE => 'toggle',

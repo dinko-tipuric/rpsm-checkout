@@ -23,6 +23,8 @@ final class RPSM_Checkout_Public {
 		'translations'     => RPSM_Checkout_Options::TRANSLATIONS_ENABLED,
 		'fields'           => [ RPSM_Checkout_Options::SHIPPING_PHONE_ENABLED, RPSM_Checkout_Options::EMAIL_AS_USERNAME_ENABLED ],
 		'attribution'      => RPSM_Checkout_Options::ATTR_ENABLED,
+		'express'          => RPSM_Checkout_Options::EXPRESS_ENABLED,
+		'product-content'  => RPSM_Checkout_Options::CONTENT_ENABLED,
 	];
 
 	public static function init(): void {

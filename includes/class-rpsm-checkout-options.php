@@ -88,6 +88,19 @@ final class RPSM_Checkout_Options {
 	const ATTR_CAPTURE_ENABLED = 'rpsm_checkout_attr_capture_enabled'; // pisi kolacic i NA portalu (direktan promet na product page)
 	const ATTR_CONSENT_CAT     = 'rpsm_checkout_attr_consent_cat';     // Complianz kategorija (portalov banner)
 
+	/* ── Express stranica (SPEC-express-checkout.md) ───────────────── */
+	const EXPRESS_ENABLED         = 'rpsm_checkout_express_enabled';
+	const EXPRESS_CLOBBER         = 'rpsm_checkout_express_clobber';
+	const EXPRESS_FIRST_GATEWAY   = 'rpsm_checkout_express_first_gateway';
+	const EXPRESS_STICKY_CTA      = 'rpsm_checkout_express_sticky_cta';
+	const EXPRESS_STICKY_CTA_TEXT = 'rpsm_checkout_express_sticky_cta_text';
+	const EXPRESS_OWNED_MESSAGE   = 'rpsm_checkout_express_owned_message';
+	const EXPRESS_OWNED_LINK_TEXT = 'rpsm_checkout_express_owned_link_text';
+
+	/* ── Sadrzaj proizvoda (prodajni blokovi, shortcodovi) ─────────── */
+	const CONTENT_ENABLED    = 'rpsm_checkout_content_enabled';
+	const CONTENT_GLOBAL_FAQ = 'rpsm_checkout_content_global_faq';
+
 	/* ── Debug ─────────────────────────────────────────────────────── */
 	const DEBUG_MODE             = 'rpsm_checkout_debug_mode';
 
@@ -177,6 +190,19 @@ final class RPSM_Checkout_Options {
 		self::ATTR_RETENTION_DAYS => '30',
 		self::ATTR_CAPTURE_ENABLED => '1',
 		self::ATTR_CONSENT_CAT     => 'statistics',
+
+		/* Express - default OFF: pali se tek kad express stranice postoje */
+		self::EXPRESS_ENABLED         => '0',
+		self::EXPRESS_CLOBBER         => '1',
+		self::EXPRESS_FIRST_GATEWAY   => 'eh_stripe_checkout',
+		self::EXPRESS_STICKY_CTA      => '1',
+		self::EXPRESS_STICKY_CTA_TEXT => 'Naruči',
+		self::EXPRESS_OWNED_MESSAGE   => 'Program "{proizvod}" već imaš - nalazi se u tvom računu.',
+		self::EXPRESS_OWNED_LINK_TEXT => 'Otvori Moj račun',
+
+		/* Sadrzaj proizvoda - ON, ali inertno dok proizvodi nemaju podatke */
+		self::CONTENT_ENABLED    => '1',
+		self::CONTENT_GLOBAL_FAQ => '',
 
 		/* Debug */
 		self::DEBUG_MODE             => '0',

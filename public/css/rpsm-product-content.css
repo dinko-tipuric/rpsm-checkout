@@ -1,0 +1,175 @@
+/**
+ * RPSM Checkout - Sadrzaj proizvoda (shortcode blokovi)
+ * Brand: copper #d17954, hover #993a25, mahogany #4c2e2e, cream pozadine.
+ * Fontovi se namjerno NE forsiraju - nasljeduju se s teme (Poppins/Roboto).
+ * Pravilo: bez jacih lijevih rubova na karticama; jedna mekana boja + uniformni rub.
+ */
+
+/* ── Stats chipovi ────────────────────────────────────────────────── */
+.rpsm-pc-stats {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin: 16px 0;
+}
+.rpsm-pc-chip {
+	border: 1px solid #e6d8c9;
+	background: #fffdfa;
+	border-radius: 999px;
+	padding: 5px 14px;
+	font-size: 13px;
+	font-weight: 600;
+	color: #4c2e2e;
+}
+
+/* ── Za koga ──────────────────────────────────────────────────────── */
+.rpsm-pc-zakoga {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 14px;
+	margin: 16px 0;
+}
+.rpsm-pc-card {
+	background: #fffdfa;
+	border: 1px solid #e6d8c9;
+	border-radius: 14px;
+	padding: 18px;
+}
+.rpsm-pc-card h3 {
+	margin: 0 0 10px;
+	font-size: 16px;
+}
+.rpsm-pc-card ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+.rpsm-pc-card li {
+	display: flex;
+	gap: 8px;
+	align-items: flex-start;
+	font-size: 14px;
+}
+.rpsm-pc-mark {
+	flex: 0 0 auto;
+	font-weight: 700;
+}
+.rpsm-pc-zakoga-yes .rpsm-pc-mark { color: #993a25; }
+.rpsm-pc-zakoga-no  .rpsm-pc-mark { color: #8a6f63; }
+
+/* ── Accordion (moduli + FAQ) ─────────────────────────────────────── */
+.rpsm-pc-moduli,
+.rpsm-pc-faq {
+	margin: 16px 0;
+}
+details.rpsm-pc-acc {
+	background: #fffdfa;
+	border: 1px solid #e6d8c9;
+	border-radius: 12px;
+	padding: 0 16px;
+	margin-bottom: 10px;
+}
+details.rpsm-pc-acc summary {
+	cursor: pointer;
+	padding: 13px 0;
+	font-weight: 500;
+	list-style: none;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+details.rpsm-pc-acc summary::-webkit-details-marker { display: none; }
+details.rpsm-pc-acc summary::after {
+	content: "+";
+	font-weight: 600;
+	color: #d17954;
+	font-size: 18px;
+	margin-left: auto;
+}
+details.rpsm-pc-acc[open] summary::after { content: "\2212"; }
+.rpsm-pc-acc .rpsm-pc-mins {
+	margin-left: auto;
+	color: #8a6f63;
+	font-size: 13px;
+	font-variant-numeric: tabular-nums;
+	padding-right: 8px;
+}
+/* Kad postoji trajanje, +/- ide iza njega pa mu ne treba auto margin */
+.rpsm-pc-acc .rpsm-pc-mins ~ ::after { margin-left: 0; }
+.rpsm-pc-num {
+	flex: 0 0 auto;
+	width: 22px;
+	height: 22px;
+	border-radius: 50%;
+	background: #f7ecd6;
+	border: 1px solid #d7aa50;
+	color: #4c2e2e;
+	display: grid;
+	place-items: center;
+	font-weight: 600;
+	font-size: 12px;
+}
+.rpsm-pc-acc-body {
+	padding: 0 0 14px;
+	color: #6f5a50;
+	font-size: 14px;
+	max-width: 62ch;
+}
+
+/* ── Recenzije ────────────────────────────────────────────────────── */
+.rpsm-pc-recenzije {
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+	margin: 16px 0;
+}
+.rpsm-pc-quote {
+	background: #fffdfa;
+	border: 1px solid #e6d8c9;
+	border-radius: 14px;
+	padding: 20px 22px;
+}
+.rpsm-pc-quote-mark {
+	display: block;
+	font-size: 32px;
+	font-weight: 700;
+	line-height: 1;
+	color: #d17954;
+	margin-bottom: 6px;
+}
+.rpsm-pc-quote p {
+	margin: 0 0 10px;
+}
+.rpsm-pc-quote-who {
+	font-weight: 600;
+	font-size: 14px;
+	color: #4c2e2e;
+}
+.rpsm-pc-quote-who small {
+	display: block;
+	font-weight: 400;
+	color: #8a6f63;
+}
+
+/* ── Video ────────────────────────────────────────────────────────── */
+.rpsm-pc-video {
+	margin: 16px 0;
+	border-radius: 14px;
+	overflow: hidden;
+}
+.rpsm-pc-video iframe,
+.rpsm-pc-video video {
+	display: block;
+	width: 100%;
+	aspect-ratio: 16 / 9;
+	height: auto;
+	border: 0;
+}
+
+/* ── Mobilno ──────────────────────────────────────────────────────── */
+@media (max-width: 767px) {
+	.rpsm-pc-zakoga { grid-template-columns: 1fr; }
+}
