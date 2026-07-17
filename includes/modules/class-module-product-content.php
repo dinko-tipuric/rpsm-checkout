@@ -523,7 +523,10 @@ final class RPSM_Checkout_Module_Product_Content {
 		$data['faq']       = self::clean_rows( $in['faq'] ?? [], [ 'q', 'a' ], 'q' );
 		$data['recenzije'] = self::clean_rows( $in['recenzije'] ?? [], [ 'tekst', 'ime', 'titula' ], 'tekst' );
 
-		update_post_meta( $post_id, self::META_KEY, wp_json_encode( $data, JSON_UNESCAPED_UNICODE ) );
+		/* wp_slash OBAVEZAN: update_post_meta radi stripslashes nad vrijednoscu,
+		   pa bi \r\n escape sekvence u JSON-u postale literalno "rn" u tekstu
+		   (nadjeno u dev testu v1.7.0.0 na za/nije natuknicama). */
+		update_post_meta( $post_id, self::META_KEY, wp_slash( wp_json_encode( $data, JSON_UNESCAPED_UNICODE ) ) );
 		unset( self::$memo[ $post_id ] );
 	}
 

@@ -47,14 +47,41 @@ final class RPSM_Checkout_Module_Express {
 
 	/* ── Kontekst ──────────────────────────────────────────────────── */
 
-	/** Je li trenutni request express stranica. */
+	private const SESSION_FLAG = 'rpsm_express_pid';
+
+	/**
+	 * Je li trenutni request express kontekst.
+	 *
+	 * Page load: detekcija shortcodea na 'wp'. AJAX (wc-ajax update_order_review,
+	 * fragmenti): 'wp' se NE izvrsava pa se kontekst cita iz WC sesije - bez
+	 * toga bi prvi fragment refresh vratio gateway redoslijed i upsell compact
+	 * na standardni prikaz (nadjeno u dev testu v1.7.0.0).
+	 */
 	public static function is_express(): bool {
-		return self::$detected;
+		if ( self::$detected ) {
+			return true;
+		}
+		return self::is_ajax_request() && self::session_pid() > 0;
 	}
 
 	/** Proizvod express stranice (null van konteksta). */
 	public static function product_id(): ?int {
-		return self::$product_id;
+		if ( null !== self::$product_id ) {
+			return self::$product_id;
+		}
+		$pid = self::session_pid();
+		return ( $pid > 0 && self::is_ajax_request() ) ? $pid : null;
+	}
+
+	private static function is_ajax_request(): bool {
+		return wp_doing_ajax() || ! empty( $_GET['wc-ajax'] ); // phpcs:ignore
+	}
+
+	private static function session_pid(): int {
+		if ( ! function_exists( 'WC' ) || ! WC()->session ) {
+			return 0;
+		}
+		return (int) WC()->session->get( self::SESSION_FLAG );
 	}
 
 	/**
@@ -92,6 +119,18 @@ final class RPSM_Checkout_Module_Express {
 
 		if ( self::$detected && null === self::$product_id ) {
 			RPSM_Checkout_Debug::info( 'Express: shortcode bez product_id atributa', [ 'page' => $post->ID ], 'express' );
+		}
+
+		/* Express flag u WC sesiju - AJAX fragmenti ('wp' se tamo ne vrti)
+		   iz njega znaju da su u express kontekstu. Na PRAVOM checkoutu se
+		   flag brise da express postavke (gateway redoslijed, compact upsell)
+		   ne procure na standardni flow. */
+		if ( function_exists( 'WC' ) && WC()->session ) {
+			if ( self::$detected && null !== self::$product_id ) {
+				WC()->session->set( self::SESSION_FLAG, self::$product_id );
+			} elseif ( self::session_pid() > 0 && is_checkout() ) {
+				WC()->session->set( self::SESSION_FLAG, null );
+			}
 		}
 	}
 
@@ -158,7 +197,7 @@ final class RPSM_Checkout_Module_Express {
 	 * ostaje netaknut. Ako kupac vec ima izbor u sesiji, on se postuje.
 	 */
 	public static function gateway_first( $gateways ) {
-		if ( ! self::$detected || ! is_array( $gateways ) ) {
+		if ( ! self::is_express() || ! is_array( $gateways ) ) {
 			return $gateways;
 		}
 		$first = (string) RPSM_Checkout_Options::get( RPSM_Checkout_Options::EXPRESS_FIRST_GATEWAY );
@@ -238,7 +277,7 @@ final class RPSM_Checkout_Module_Express {
 
 	/** Total u sticky traci prati promjene (bump, kupon) kroz WC fragmente. */
 	public static function sticky_total_fragment( array $fragments ): array {
-		if ( self::$detected && WC()->cart ) {
+		if ( self::is_express() && WC()->cart ) {
 			$fragments['.rpsm-express-sticky-total'] =
 				'<span class="rpsm-express-sticky-total">' . wp_kses_post( WC()->cart->get_total() ) . '</span>';
 		}

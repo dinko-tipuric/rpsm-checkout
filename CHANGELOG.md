@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.7.0.1 (2026-07-17) - HOTFIX: express kontekst u AJAX-u + wp_slash na meta JSON
+
+- Express kontekst se gubio u wc-ajax fragmentima ('wp' detekcija se tamo ne
+  izvrsava) pa je prvi update_order_review vracao gateway redoslijed (virman
+  natrag na prvo mjesto) i upsell compact na standardni prikaz. Fix: express
+  flag (product_id) u WC sesiji; is_express()/product_id() ga citaju u AJAX
+  requestovima; flag se brise na PRAVOM checkoutu da postavke ne procure.
+- Sadrzaj proizvoda: update_post_meta radi stripslashes pa su \r\n escape
+  sekvence u JSON-u postajale literalno "rn" u za/nije natuknicama i
+  textarea poljima. Fix: wp_slash oko JSON-a. NAPOMENA: postojece podatke
+  unesene na 1.7.0.0 treba ponovno spremiti na proizvodu.
+
+
 ## 1.7.0.0 (2026-07-17) - Express stranica + Sadrzaj proizvoda
 
 - NOVI MODUL Express (default OFF): stranice sa [rpsm_express product_id=X]
