@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.7.1.0 (2026-07-17) - Express: bez napomena + bazni izgled forme
+
+- Napomene uz narudzbu se vise ne prikazuju na express stranicama (toggle
+  "Sakrij napomene uz narudzbu", default ON; standardni checkout netaknut).
+- Bazni kartica-stil oko checkout forme (.rpsm-express-checkout): cream
+  pozadina, uniformni rubovi, copper CTA - da forma izgleda pristojno i
+  prije Elementor slaganja; sve scopeano na wrapper.
+
+
 ## 1.7.0.1 (2026-07-17) - HOTFIX: express kontekst u AJAX-u + wp_slash na meta JSON
 
 - Express kontekst se gubio u wc-ajax fragmentima ('wp' detekcija se tamo ne

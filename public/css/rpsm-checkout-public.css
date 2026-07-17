@@ -230,3 +230,54 @@ body.rpsm-express-page .rpsm-review-remove {
 		padding-bottom: 70px;
 	}
 }
+
+/* ── Express: kartica oko checkout forme (v1.7.1.0) ──────────────── */
+/* Bazni izgled po mockupu i bez Elementora; sve scopeano na wrapper
+   pa Elementor/tema mogu nadograditi bez sukoba. */
+.rpsm-express-checkout {
+	background: #fffdfa;
+	border: 1px solid #e6d8c9;
+	border-radius: 18px;
+	padding: 22px;
+}
+.rpsm-express-checkout h3,
+.rpsm-express-checkout #order_review_heading {
+	font-size: 18px;
+	margin: 18px 0 10px;
+}
+.rpsm-express-checkout .form-row input.input-text,
+.rpsm-express-checkout .form-row select,
+.rpsm-express-checkout .form-row textarea {
+	border: 1px solid #e6d8c9;
+	border-radius: 10px;
+	padding: 10px 12px;
+	background: #faf6f1;
+}
+.rpsm-express-checkout .form-row input.input-text:focus,
+.rpsm-express-checkout .form-row select:focus {
+	outline: 2px solid #d17954;
+	outline-offset: 1px;
+	border-color: #d17954;
+}
+.rpsm-express-checkout table.shop_table {
+	border: 1px solid #e6d8c9;
+	border-radius: 12px;
+	border-collapse: separate;
+	border-spacing: 0;
+}
+.rpsm-express-checkout table.shop_table th,
+.rpsm-express-checkout table.shop_table td {
+	border-color: #efe4d7;
+}
+.rpsm-express-checkout #place_order,
+.rpsm-express-checkout .button.alt {
+	background: #d17954;
+	border-radius: 12px;
+	width: 100%;
+	padding: 15px 18px;
+	font-weight: 600;
+}
+.rpsm-express-checkout #place_order:hover,
+.rpsm-express-checkout .button.alt:hover {
+	background: #993a25;
+}

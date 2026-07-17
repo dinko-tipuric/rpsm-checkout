@@ -39,6 +39,7 @@ final class RPSM_Checkout_Module_Express {
 		add_filter( 'woocommerce_is_checkout', [ __CLASS__, 'filter_is_checkout' ] );
 		add_action( 'template_redirect', [ __CLASS__, 'auto_add_to_cart' ], 5 );
 		add_filter( 'woocommerce_available_payment_gateways', [ __CLASS__, 'gateway_first' ], 50 );
+		add_filter( 'woocommerce_enable_order_notes_field', [ __CLASS__, 'hide_order_notes' ], 50 );
 		add_filter( 'body_class', [ __CLASS__, 'body_class' ] );
 		add_action( 'wp_footer', [ __CLASS__, 'render_sticky_cta' ] );
 		add_filter( 'woocommerce_update_order_review_fragments', [ __CLASS__, 'sticky_total_fragment' ] );
@@ -207,6 +208,14 @@ final class RPSM_Checkout_Module_Express {
 		$gateway = $gateways[ $first ];
 		unset( $gateways[ $first ] );
 		return [ $first => $gateway ] + $gateways;
+	}
+
+	/** Napomene uz narudzbu ne nose nista na express stranici - van. */
+	public static function hide_order_notes( $enabled ) {
+		if ( self::is_express() && '1' === RPSM_Checkout_Options::get( RPSM_Checkout_Options::EXPRESS_HIDE_NOTES ) ) {
+			return false;
+		}
+		return $enabled;
 	}
 
 	/* ── Shortcode ─────────────────────────────────────────────────── */

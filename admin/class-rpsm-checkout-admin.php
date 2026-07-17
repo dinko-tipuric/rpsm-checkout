@@ -391,6 +391,7 @@ final class RPSM_Checkout_Admin {
 			'Na mobitelu prikazuje fiksnu donju traku s ukupnim iznosom i gumbom koji skrola na formu. Sakriva se dok je forma u viewportu.'
 		);
 		self::row_text( 'Tekst gumba u traci', $o::EXPRESS_STICKY_CTA_TEXT );
+		self::row_toggle( 'Sakrij napomene uz narudžbu', $o::EXPRESS_HIDE_NOTES, 'Textarea "Napomene uz narudžbu" se ne prikazuje na express stranicama (za digitalne proizvode ne nosi ništa, a produljuje formu). Standardni checkout netaknut.' );
 		self::row_textarea(
 			'Poruka vlasniku proizvoda',
 			$o::EXPRESS_OWNED_MESSAGE,
@@ -656,6 +657,7 @@ final class RPSM_Checkout_Admin {
 				$o::EXPRESS_FIRST_GATEWAY   => 'text',
 				$o::EXPRESS_STICKY_CTA      => 'toggle',
 				$o::EXPRESS_STICKY_CTA_TEXT => 'text',
+				$o::EXPRESS_HIDE_NOTES      => 'toggle',
 				$o::EXPRESS_OWNED_MESSAGE   => 'textarea',
 				$o::EXPRESS_OWNED_LINK_TEXT => 'text',
 			],
