@@ -281,3 +281,17 @@ body.rpsm-express-page .rpsm-review-remove {
 .rpsm-express-checkout .button.alt:hover {
 	background: #993a25;
 }
+
+/* ── Express: forma u punoj sirini stupca (v1.7.1.1) ─────────────── */
+/* WC #customer_details rezervira col-1/col-2 (naplata/dostava+napomene).
+   Na expressu su napomene skrivene i nema dostave pa bi col-2 ostao
+   prazan, a forma stisnuta na pola - zato oba stupca preko cijele sirine. */
+.rpsm-express-checkout .col2-set .col-1,
+.rpsm-express-checkout .col2-set .col-2 {
+	float: none;
+	width: 100%;
+	max-width: 100%;
+}
+.rpsm-express-checkout .col2-set {
+	width: 100%;
+}

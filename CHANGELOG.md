@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.7.1.1 (2026-07-17) - Express: forma u punoj sirini
+
+- WC col2-set (naplata/dostava+napomene) je na expressu ostavljao prazan
+  desni polustupac (napomene skrivene, dostave nema) pa je forma bila
+  stisnuta na pola. col-1/col-2 sada pune sirine unutar express wrappera.
+
+
 ## 1.7.1.0 (2026-07-17) - Express: bez napomena + bazni izgled forme
 
 - Napomene uz narudzbu se vise ne prikazuju na express stranicama (toggle
