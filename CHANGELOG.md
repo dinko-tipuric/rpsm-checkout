@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.7.2.2 (2026-07-17) - HOTFIX: legal checkbox lom teksta
+
+- Flex na checkbox labelu lomio je inline komade (tekst/link/abbr) u
+  zasebne kutije pa se "web-stranice" raspadao u novi red s velikim
+  razmakom. Zamijenjeno hanging-indentom: checkbox apsolutno lijevo,
+  tekst tece prirodno u 12px/16px.
+
+
 ## 1.7.2.1 (2026-07-17) - Clobber garancija + mikro-tipografija
 
 - CLOBBER FIX: ako je express proizvod vec bio u kosarici UZ druge stavke

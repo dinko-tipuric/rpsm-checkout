@@ -361,16 +361,26 @@ body.rpsm-express-page .rpsm-review-remove {
 	font-size: 12px !important;
 	line-height: 16px !important;
 }
+/* Hanging indent umjesto flexa: label sadrzi vise inline komada (tekst,
+   link, abbr *) pa ih flex lomi u zasebne kutije i raspada red - checkbox
+   apsolutno lijevo, tekst tece prirodno (v1.7.2.2). */
 .rpsm-express-checkout .woocommerce-terms-and-conditions-wrapper label.checkbox,
 .rpsm-express-checkout .extra_privacy label.checkbox {
-	display: flex;
-	align-items: flex-start;
-	gap: 8px;
+	display: block !important;
+	position: relative;
+	padding-left: 26px;
+	font-size: 12px !important;
+	line-height: 16px !important;
 }
-.rpsm-express-checkout .woocommerce-terms-and-conditions-wrapper input[type="checkbox"],
-.rpsm-express-checkout .extra_privacy input[type="checkbox"] {
-	flex-shrink: 0;
-	margin-top: 1px;
+.rpsm-express-checkout .woocommerce-terms-and-conditions-wrapper label.checkbox input[type="checkbox"],
+.rpsm-express-checkout .extra_privacy label.checkbox input[type="checkbox"] {
+	position: absolute;
+	left: 0;
+	top: 1px;
+	margin: 0;
+}
+.rpsm-express-checkout .woocommerce-terms-and-conditions-checkbox-text {
+	display: inline;
 }
 /* Razmak izmedju CTA gumba i ikona kartica (payment display modul) */
 .rpsm-express-checkout #place_order + *,
