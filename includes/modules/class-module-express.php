@@ -171,14 +171,26 @@ final class RPSM_Checkout_Module_Express {
 			return;
 		}
 
-		/* Vec u kosarici? Gotovo. */
+		/* Stanje kosarice: express proizvod moze vec biti unutra (raniji
+		   posjet), ali uz njega i DRUGE stavke (npr. add-to-cart link u
+		   medjuvremenu). Clobber garantira: kosarica = TOCNO ovaj proizvod. */
+		$has_product = false;
+		$has_others  = false;
 		foreach ( WC()->cart->get_cart() as $item ) {
 			if ( (int) $item['product_id'] === self::$product_id ) {
-				return;
+				$has_product = true;
+			} else {
+				$has_others = true;
 			}
 		}
 
-		if ( '1' === RPSM_Checkout_Options::get( RPSM_Checkout_Options::EXPRESS_CLOBBER ) && ! WC()->cart->is_empty() ) {
+		$clobber = '1' === RPSM_Checkout_Options::get( RPSM_Checkout_Options::EXPRESS_CLOBBER );
+
+		if ( $has_product && ( ! $has_others || ! $clobber ) ) {
+			return;
+		}
+
+		if ( $clobber && ! WC()->cart->is_empty() ) {
 			WC()->cart->empty_cart();
 			RPSM_Checkout_Debug::info( 'Express: kosarica ispraznjena (clobber)', [ 'product' => self::$product_id ], 'express' );
 		}

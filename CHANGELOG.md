@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.7.2.1 (2026-07-17) - Clobber garancija + mikro-tipografija
+
+- CLOBBER FIX: ako je express proizvod vec bio u kosarici UZ druge stavke
+  (naknadni add-to-cart), rani izlaz je preskakao ciscenje pa je checkout
+  imao 2+ proizvoda. Sada clobber garantira: kosarica = tocno express
+  proizvod. (Dinkov nalaz u dev testu.)
+- Sitni print na 12px: Stripe gateway opis, privacy tekst, oba legal
+  checkboxa (uz line-height 16px i flex poravnanje); +12px razmak izmedju
+  CTA gumba i ikona kartica; +32px razmak narudzbe od R1 sekcije.
+
+
 ## 1.7.2.0 (2026-07-17) - Express: skin forme po portalskom checkoutu
 
 - Express checkout skin prepisan s tokenima IZMJERENIMA na /placanje/

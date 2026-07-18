@@ -339,3 +339,46 @@ body.rpsm-express-page .rpsm-review-remove {
 .rpsm-express-checkout .col2-set {
 	width: 100%;
 }
+
+/* ── Express: mikro-tipografija legal/privacy zone (v1.7.2.1) ────── */
+/* Dinkov QA 2026-07-17: sitni print na 12px, kompaktni checkboxi,
+   razmaci oko kartica-ikona i narudzbe. */
+.rpsm-express-checkout .payment_box,
+.rpsm-express-checkout .payment_box p {
+	font-size: 12px;
+	line-height: 1.5;
+}
+.rpsm-express-checkout .woocommerce-privacy-policy-text,
+.rpsm-express-checkout .woocommerce-privacy-policy-text p {
+	font-size: 12px;
+	line-height: 1.5;
+}
+.rpsm-express-checkout .woocommerce-terms-and-conditions-wrapper .form-row,
+.rpsm-express-checkout .woocommerce-terms-and-conditions-checkbox-text,
+.rpsm-express-checkout .extra_privacy,
+.rpsm-express-checkout .extra_privacy label,
+.rpsm-express-checkout .extra_privacy .woocommerce-terms-and-conditions-checkbox-text {
+	font-size: 12px !important;
+	line-height: 16px !important;
+}
+.rpsm-express-checkout .woocommerce-terms-and-conditions-wrapper label.checkbox,
+.rpsm-express-checkout .extra_privacy label.checkbox {
+	display: flex;
+	align-items: flex-start;
+	gap: 8px;
+}
+.rpsm-express-checkout .woocommerce-terms-and-conditions-wrapper input[type="checkbox"],
+.rpsm-express-checkout .extra_privacy input[type="checkbox"] {
+	flex-shrink: 0;
+	margin-top: 1px;
+}
+/* Razmak izmedju CTA gumba i ikona kartica (payment display modul) */
+.rpsm-express-checkout #place_order + *,
+.rpsm-express-checkout .rpsm-payment-logos,
+.rpsm-express-checkout img[src*="Card-payment"] {
+	margin-top: 12px;
+}
+/* Narudzba sekcija: dah od R1 modula iznad */
+.rpsm-express-checkout #order_review_heading {
+	margin-top: 32px;
+}
