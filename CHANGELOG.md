@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.7.2.0 (2026-07-17) - Express: skin forme po portalskom checkoutu
+
+- Express checkout skin prepisan s tokenima IZMJERENIMA na /placanje/
+  stranici (ne mockup aproksimacija): bijela kartica sa soft sjenom,
+  inputi bez rubova na #f9fafa radius 5px, naslovi 24px/600, notice trake
+  bez ikone na #f8f4ec s copper linkovima, borderless order tablica s
+  tankim separatorima, payment sekcija na cream pozadini, copper CTA
+  radius 5px. Sve scopeano na .rpsm-express-checkout.
+
+
 ## 1.7.1.1 (2026-07-17) - Express: forma u punoj sirini
 
 - WC col2-set (naplata/dostava+napomene) je na expressu ostavljao prazan
