@@ -382,11 +382,30 @@ body.rpsm-express-page .rpsm-review-remove {
 .rpsm-express-checkout .woocommerce-terms-and-conditions-checkbox-text {
 	display: inline;
 }
-/* Razmak izmedju CTA gumba i ikona kartica (payment display modul) */
-.rpsm-express-checkout #place_order + *,
-.rpsm-express-checkout .rpsm-payment-logos,
-.rpsm-express-checkout img[src*="Card-payment"] {
-	margin-top: 12px;
+/* Razmak izmedju CTA gumba i ikona kartica (payment display modul
+   renderira .card_notice nakon submita) */
+.rpsm-express-checkout .card_notice {
+	margin-top: 20px !important;
+}
+/* Login/kupon toggle trake: bez WC-ovog debelog copper top bordera,
+   zaobljeno, u tonu ostatka forme */
+.rpsm-express-checkout .woocommerce-form-login-toggle .woocommerce-info,
+.rpsm-express-checkout .woocommerce-form-coupon-toggle .woocommerce-info,
+.rpsm-express-checkout .woocommerce-info,
+.rpsm-express-checkout .woocommerce-message {
+	background: #f8f4ec !important;
+	border: 0 !important;
+	border-top: 0 !important;
+	border-radius: 5px !important;
+	box-shadow: none !important;
+	color: #212121;
+	padding: 13px 16px !important;
+	font-size: 14px;
+	margin-bottom: 12px;
+}
+.rpsm-express-checkout .woocommerce-info::before,
+.rpsm-express-checkout .woocommerce-message::before {
+	display: none !important;
 }
 /* Narudzba sekcija: dah od R1 modula iznad */
 .rpsm-express-checkout #order_review_heading {

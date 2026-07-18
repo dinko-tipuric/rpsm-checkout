@@ -3,7 +3,7 @@
  * Plugin Name: RPSM Checkout
  * Plugin URI:  https://radimposvom.com.hr
  * Description: Checkout customizations za #radimposvom portal - TnC suglasnost, payment prikaz, kuponi, validacija, prijevodi i ostalo.
- * Version:     1.7.2.2
+ * Version:     1.7.2.3
  * Author:      Business Labs d.o.o.
  * Author URI:  https://radimposvom.com.hr
  * License:     GPL-2.0+
@@ -23,7 +23,7 @@ if ( defined( 'RPSM_CHECKOUT_VERSION' ) ) {
 	return;
 }
 
-define( 'RPSM_CHECKOUT_VERSION', '1.7.2.2' );
+define( 'RPSM_CHECKOUT_VERSION', '1.7.2.3' );
 define( 'RPSM_CHECKOUT_PLUGIN_FILE', __FILE__ );
 define( 'RPSM_CHECKOUT_PLUGIN_DIR',  plugin_dir_path( __FILE__ ) );
 define( 'RPSM_CHECKOUT_PLUGIN_URL',  plugin_dir_url( __FILE__ ) );

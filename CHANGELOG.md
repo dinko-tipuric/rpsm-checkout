@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.7.2.3 (2026-07-17) - Ikone kartica 20px + notice trake bez top bordera
+
+- Razmak CTA gumb -> ikone kartica sada cilja .card_notice (pravi selektor
+  payment display modula) s 20px.
+- Login/kupon toggle trake: maknut WC-ov debeli copper top border i ikona,
+  zaobljene na #f8f4ec s 14px tekstom - u tonu ostatka forme.
+
+
 ## 1.7.2.2 (2026-07-17) - HOTFIX: legal checkbox lom teksta
 
 - Flex na checkbox labelu lomio je inline komade (tekst/link/abbr) u
