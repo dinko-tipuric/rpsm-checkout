@@ -412,37 +412,110 @@ body.rpsm-express-page .rpsm-review-remove {
 	margin-top: 32px;
 }
 
-/* ── Express: countdown ponuda (v1.8.0.0) ────────────────────────── */
-.rpsm-express-deal {
+/* ── Express: countdown ponuda (v1.8.2.0 pozicioniranje) ─────────── */
+/* Fiksna traka na vrhu ekrana (SamCart/Deadline Funnel pattern) */
+.rpsm-express-dealbar {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	z-index: 99999;
 	display: flex;
 	align-items: center;
-	justify-content: space-between;
-	gap: 14px;
-	background: #f7ecd6;
-	border: 1px solid #d7aa50;
+	justify-content: center;
+	flex-wrap: wrap;
+	gap: 10px 14px;
+	background: #4c2e2e;
+	color: #faf9f5;
+	padding: 10px 16px;
+	font-size: 14px;
+	box-shadow: 0 2px 12px rgba(0, 0, 0, 0.18);
+}
+body.rpsm-express-dealbar-on {
+	padding-top: 44px;
+}
+.rpsm-express-dealbar-pill {
+	background: #d7aa50;
+	color: #212121;
+	border-radius: 999px;
+	padding: 3px 12px;
+	font-weight: 700;
+	font-size: 13px;
+	white-space: nowrap;
+}
+.rpsm-express-dealbar-pill .woocommerce-Price-amount {
+	color: #212121;
+}
+.rpsm-express-dealbar-title {
+	font-weight: 500;
+}
+.rpsm-express-dealbar .rpsm-express-deal-timer {
+	font-variant-numeric: tabular-nums;
+	font-size: 17px;
+	font-weight: 700;
+	color: #f4b107;
+	white-space: nowrap;
+}
+/* Poruka isteka unutar forme */
+.rpsm-express-deal.is-expired {
+	background: #f3f0ea;
+	border: 1px solid #ddd5c8;
 	border-radius: 5px;
 	padding: 12px 16px;
 	margin-bottom: 14px;
 	font-size: 14px;
-	color: #212121;
+	color: #6f5a50;
 }
-.rpsm-express-deal-title {
+/* Usteda red u sazetku */
+.rpsm-express-deal-savings th,
+.rpsm-express-deal-savings td {
+	color: #1e7a3c !important;
 	font-weight: 600;
 }
-.rpsm-express-deal-timer {
+/* Timer linija ispod CTA */
+.rpsm-express-deal-cta-note {
+	text-align: center;
+	font-size: 12.5px;
+	color: #8a6f63;
+	margin: 10px 0 0;
+}
+.rpsm-express-deal-cta-note .rpsm-express-deal-timer {
 	font-variant-numeric: tabular-nums;
-	font-size: 18px;
-	font-weight: 700;
 	color: #993a25;
-	white-space: nowrap;
 }
-.rpsm-express-deal.is-expired {
-	background: #f3f0ea;
-	border-color: #ddd5c8;
-	color: #6f5a50;
-	justify-content: flex-start;
-}
+/* Precrtana puna cijena u sazetku */
 del.rpsm-express-deal-full {
 	color: #8a6f63;
 	margin-right: 4px;
+}
+@media (max-width: 767px) {
+	.rpsm-express-dealbar { font-size: 12.5px; padding: 8px 10px; }
+	.rpsm-express-dealbar-title { display: none; }
+	body.rpsm-express-dealbar-on { padding-top: 40px; }
+}
+
+/* ── Express: slim R1 header (v1.8.2.0, uz r1-racun 1.1.4.0) ─────── */
+.rpsm-express-checkout .rpom-r1-section--express .rpom-r1-header {
+	padding: 12px 14px;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+.rpsm-express-checkout .rpom-r1-section--express .rpom-r1-header__icon {
+	display: none;
+}
+.rpsm-express-checkout .rpom-r1-section--express .rpom-r1-title {
+	font-size: 15px;
+	font-weight: 600;
+	margin: 0;
+	flex: 1;
+}
+.rpsm-express-checkout .rpom-r1-section--express .rpom-r1-toggle {
+	margin: 0;
+	flex-shrink: 0;
+}
+.rpsm-express-checkout .rpom-r1-info--generic {
+	font-size: 12px;
+	color: #8a6f63;
+	margin: 0 0 10px;
 }

@@ -45,10 +45,16 @@ final class RPSM_Checkout_Module_Express {
 		   radi) - remove na prio 5, WC ga dodaje na before_checkout_form@10 */
 		add_action( 'woocommerce_before_checkout_form', [ __CLASS__, 'maybe_remove_coupon_form' ], 5 );
 
-		/* Ogranicena ponuda (countdown popust) - SPEC Dio 5 */
+		/* Ogranicena ponuda (countdown popust) - SPEC Dio 5. Pozicioniranje
+		   po industrijskom standardu (SamCart/Deadline Funnel/ThriveCart):
+		   fiksna traka na vrhu ekrana + usteda red u sazetku + timer ispod
+		   CTA gumba - sve sinkronizirano na isti countdown. */
 		add_action( 'woocommerce_before_calculate_totals', [ __CLASS__, 'deal_apply_price' ], 1000 );
 		add_filter( 'woocommerce_cart_item_subtotal', [ __CLASS__, 'deal_subtotal_display' ], 15, 2 );
-		add_action( 'woocommerce_before_checkout_form', [ __CLASS__, 'render_deal_bar' ], 8 );
+		add_action( 'wp_footer', [ __CLASS__, 'render_deal_bar' ], 5 );
+		add_action( 'woocommerce_before_checkout_form', [ __CLASS__, 'render_deal_expired_slot' ], 8 );
+		add_action( 'woocommerce_review_order_before_order_total', [ __CLASS__, 'render_deal_savings_row' ] );
+		add_action( 'woocommerce_review_order_after_submit', [ __CLASS__, 'render_deal_cta_note' ], 5 );
 		add_action( 'woocommerce_after_checkout_validation', [ __CLASS__, 'deal_expiry_guard' ], 10, 2 );
 		add_action( 'woocommerce_checkout_create_order', [ __CLASS__, 'deal_order_meta' ] );
 		add_filter( 'body_class', [ __CLASS__, 'body_class' ] );
@@ -459,8 +465,83 @@ final class RPSM_Checkout_Module_Express {
 		return '<del class="rpsm-express-deal-full">' . wc_price( $full ) . '</del> ' . $subtotal;
 	}
 
-	/** Countdown traka iznad checkout forme + poruka isteka. */
+	/** Oznaka popusta ("-20%" ili "-10,00 EUR") + apsolutna usteda za prikaze. */
+	private static function deal_labels( int $product_id, array $config ): ?array {
+		$fresh = wc_get_product( $product_id );
+		$price = self::deal_price( $product_id, $config );
+		if ( ! $fresh || null === $price ) {
+			return null;
+		}
+		$full    = (float) $fresh->get_price();
+		$savings = max( 0.0, $full - $price );
+		$label   = 'fixed' === $config['type']
+			? '-' . wp_strip_all_tags( wc_price( $config['amount'] ) )
+			: '-' . rtrim( rtrim( number_format( $config['amount'], 1, ',', '.' ), '0' ), ',' ) . '%';
+		return [ 'label' => $label, 'savings' => $savings, 'full' => $full ];
+	}
+
+	/**
+	 * Fiksna traka na VRHU EKRANA (industrijski standard: uvijek vidljiva,
+	 * iznad folda) - popust oznaka + usteda + naslov + timer. Poruka isteka
+	 * se pojavi u traci i u formi; fragmenti vrate punu cijenu.
+	 */
 	public static function render_deal_bar(): void {
+		if ( ! self::is_express() || null === self::$product_id ) {
+			return;
+		}
+		$config = self::deal_config( self::$product_id );
+		if ( null === $config ) {
+			return;
+		}
+		$seconds = self::deal_seconds_left( self::$product_id );
+		if ( null === $seconds || $seconds <= 0 ) {
+			return;
+		}
+		$labels = self::deal_labels( self::$product_id, $config );
+		if ( null === $labels ) {
+			return;
+		}
+
+		echo '<div class="rpsm-express-dealbar" id="rpsm-express-dealbar" data-seconds="' . (int) $seconds . '">';
+		echo '<span class="rpsm-express-dealbar-pill">' . esc_html( $labels['label'] ) . ' &middot; ušteda ' . wp_kses_post( wc_price( $labels['savings'] ) ) . '</span>';
+		echo '<span class="rpsm-express-dealbar-title">' . esc_html( $config['title'] ) . '</span>';
+		echo '<b class="rpsm-express-deal-timer" aria-live="polite">--:--</b>';
+		echo '</div>';
+
+		/* Countdown je samo PRIKAZ (server je autoritet). Isti timer pogoni
+		   SVE .rpsm-express-deal-timer elemente (traka + linija ispod CTA). */
+		echo '<script>(function(){
+			var bar = document.getElementById("rpsm-express-dealbar");
+			if (!bar) return;
+			document.body.classList.add("rpsm-express-dealbar-on");
+			var left = parseInt(bar.dataset.seconds, 10) || 0;
+			var timers = document.querySelectorAll(".rpsm-express-deal-timer");
+			function fmt(s){
+				var h = Math.floor(s/3600), m = Math.floor((s%3600)/60), sec = s%60;
+				var mm = (m<10?"0":"")+m, ss = (sec<10?"0":"")+sec;
+				return h > 0 ? h+":"+mm+":"+ss : mm+":"+ss;
+			}
+			function tick(){
+				if (left <= 0) {
+					bar.remove();
+					document.body.classList.remove("rpsm-express-dealbar-on");
+					var ex = document.getElementById("rpsm-express-deal-expired");
+					if (ex) ex.hidden = false;
+					var note = document.getElementById("rpsm-express-deal-cta-note");
+					if (note) note.remove();
+					if (window.jQuery) { jQuery(document.body).trigger("update_checkout"); }
+					return;
+				}
+				timers.forEach(function(t){ t.textContent = fmt(left); });
+				left--;
+				setTimeout(tick, 1000);
+			}
+			tick();
+		})();</script>';
+	}
+
+	/** Slot za poruku isteka unutar forme (JS je otkrije, fragmenti potvrde). */
+	public static function render_deal_expired_slot(): void {
 		if ( ! self::is_express() || null === self::$product_id ) {
 			return;
 		}
@@ -472,44 +553,46 @@ final class RPSM_Checkout_Module_Express {
 		if ( null === $seconds ) {
 			return;
 		}
+		$hidden = $seconds > 0 ? ' hidden' : '';
+		echo '<div class="rpsm-express-deal is-expired" id="rpsm-express-deal-expired"' . $hidden . '>' . esc_html( $config['expired'] ) . '</div>';
+	}
 
-		if ( $seconds <= 0 ) {
-			echo '<div class="rpsm-express-deal is-expired">' . esc_html( $config['expired'] ) . '</div>';
+	/** "Ušteda" red u sazetku narudzbe, odmah iznad totala. */
+	public static function render_deal_savings_row(): void {
+		if ( ! self::is_express() ) {
 			return;
 		}
+		$pid = self::product_id();
+		if ( null === $pid ) {
+			return;
+		}
+		$seconds = self::deal_seconds_left( $pid );
+		if ( null === $seconds || $seconds <= 0 ) {
+			return;
+		}
+		$config = self::deal_config( $pid );
+		$labels = null !== $config ? self::deal_labels( $pid, $config ) : null;
+		if ( null === $labels || $labels['savings'] <= 0 ) {
+			return;
+		}
+		echo '<tr class="rpsm-express-deal-savings"><th>Ušteda (' . esc_html( $labels['label'] ) . ')</th>';
+		echo '<td>-' . wp_kses_post( wc_price( $labels['savings'] ) ) . '</td></tr>';
+	}
 
-		echo '<div class="rpsm-express-deal" id="rpsm-express-deal" data-seconds="' . (int) $seconds . '">';
-		echo '<span class="rpsm-express-deal-title">' . esc_html( $config['title'] ) . '</span>';
-		echo '<b class="rpsm-express-deal-timer" aria-live="polite">--:--</b>';
-		echo '</div>';
-		echo '<div class="rpsm-express-deal is-expired" id="rpsm-express-deal-expired" hidden>' . esc_html( $config['expired'] ) . '</div>';
-
-		/* Countdown je samo PRIKAZ - na istek osvjezi checkout pa server
-		   vrati punu cijenu. */
-		echo '<script>(function(){
-			var bar = document.getElementById("rpsm-express-deal");
-			if (!bar) return;
-			var left = parseInt(bar.dataset.seconds, 10) || 0;
-			var timer = bar.querySelector(".rpsm-express-deal-timer");
-			function fmt(s){
-				var h = Math.floor(s/3600), m = Math.floor((s%3600)/60), sec = s%60;
-				var mm = (m<10?"0":"")+m, ss = (sec<10?"0":"")+sec;
-				return h > 0 ? h+":"+mm+":"+ss : mm+":"+ss;
-			}
-			function tick(){
-				if (left <= 0) {
-					bar.hidden = true;
-					var ex = document.getElementById("rpsm-express-deal-expired");
-					if (ex) ex.hidden = false;
-					if (window.jQuery) { jQuery(document.body).trigger("update_checkout"); }
-					return;
-				}
-				timer.textContent = fmt(left);
-				left--;
-				setTimeout(tick, 1000);
-			}
-			tick();
-		})();</script>';
+	/** Mala linija ispod CTA gumba - timer ponovljen uz tocku odluke. */
+	public static function render_deal_cta_note(): void {
+		if ( ! self::is_express() ) {
+			return;
+		}
+		$pid = self::product_id();
+		if ( null === $pid ) {
+			return;
+		}
+		$seconds = self::deal_seconds_left( $pid );
+		if ( null === $seconds || $seconds <= 0 ) {
+			return;
+		}
+		echo '<p class="rpsm-express-deal-cta-note" id="rpsm-express-deal-cta-note">Popust istječe za <b class="rpsm-express-deal-timer">--:--</b></p>';
 	}
 
 	/**

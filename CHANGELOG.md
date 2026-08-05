@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.8.2.0 (2026-07-20) - Countdown pozicioniranje po industrijskom standardu
+
+- Countdown premjesten po patternu SamCart/Deadline Funnel/ThriveCart:
+  (1) FIKSNA TRAKA NA VRHU EKRANA (mahogany, uvijek vidljiva) s gold pillom
+  "-20% - usteda 5,40 EUR" + naslovom + timerom; (2) zeleni "Usteda" red u
+  sazetku narudzbe iznad totala; (3) mala timer linija ispod Naruci gumba.
+  Svi prikazi sinkronizirani na isti countdown; na istek traka nestaje,
+  poruka isteka se pokaze u formi i fragmenti vrate punu cijenu.
+- Slim R1 header CSS za express (uz r1-racun 1.1.4.0): naslov + toggle u
+  jednom redu, bez ikone; opisni tekst preseljen iznad forme (vidi se tek
+  na "Da").
+
+
 ## 1.8.1.0 (2026-07-20) - Express: bez rucnog unosa kupona
 
 - Novi toggle "Sakrij unos kupona" (default ON): na express stranicama nema
