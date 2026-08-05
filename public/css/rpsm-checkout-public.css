@@ -427,12 +427,12 @@ body.rpsm-express-page .rpsm-review-remove {
 	gap: 10px 14px;
 	background: #4c2e2e;
 	color: #faf9f5;
-	padding: 10px 16px;
+	padding: 20px 16px;
 	font-size: 14px;
 	box-shadow: 0 2px 12px rgba(0, 0, 0, 0.18);
 }
 body.rpsm-express-dealbar-on {
-	padding-top: 44px;
+	padding-top: 64px;
 }
 .rpsm-express-dealbar-pill {
 	background: #d7aa50;
@@ -489,9 +489,9 @@ del.rpsm-express-deal-full {
 	margin-right: 4px;
 }
 @media (max-width: 767px) {
-	.rpsm-express-dealbar { font-size: 12.5px; padding: 8px 10px; }
+	.rpsm-express-dealbar { font-size: 12.5px; padding: 16px 10px; }
 	.rpsm-express-dealbar-title { display: none; }
-	body.rpsm-express-dealbar-on { padding-top: 40px; }
+	body.rpsm-express-dealbar-on { padding-top: 56px; }
 }
 
 /* ── Express: slim R1 header (v1.8.2.0, uz r1-racun 1.1.4.0) ─────── */

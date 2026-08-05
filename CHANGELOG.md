@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.8.3.1 (2026-07-20) - Deal traka +10px gore/dolje
+
+- Deal traka: padding 10->20px vertikalno (mobilno 8->16px), body offset
+  uskladjen (44->64px, mobilno 40->56px).
+
+
 ## 1.8.3.0 (2026-07-20) - Admin countdown reset (testiranje)
 
 - Adminu (manage_woocommerce) se express countdown resetira SVAKIM
