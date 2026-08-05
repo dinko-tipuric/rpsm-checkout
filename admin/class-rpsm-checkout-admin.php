@@ -107,7 +107,6 @@ final class RPSM_Checkout_Admin {
 			'polja'       => 'Polja',
 			'email'       => 'Email validacija',
 			'thankyou'    => 'Thank-you',
-			'prijevodi'   => 'Prijevodi',
 			'atribucija'  => 'Atribucija',
 			'express'     => 'Express',
 			'sadrzaj'     => 'Sadržaj',
@@ -260,54 +259,6 @@ final class RPSM_Checkout_Admin {
 		echo '<tr><td colspan="2"><h3>Besplatne narudžbe (0 €)</h3></td></tr>';
 		self::row_toggle( 'Redirect za besplatne narudžbe', $o::THANKYOU_FREE_ENABLED, 'Narudžbe bez načina plaćanja (total 0 €) također se preusmjeravaju; na GTM timeout redirect ide automatski.' );
 		self::row_text( 'Naslov (besplatne)', $o::THANKYOU_FREE_TITLE, 'Naslov za besplatne narudžbe (nema "plaćanje je uspješno").' );
-	}
-
-	private static function tab_prijevodi(): void {
-		$o    = RPSM_Checkout_Options::class;
-		self::row_toggle( 'Omogući prijevode', $o::TRANSLATIONS_ENABLED, 'Gettext override za WooCommerce i Elementor Pro stringove.' );
-
-		$pairs = json_decode( RPSM_Checkout_Options::get( $o::TRANSLATIONS_PAIRS ), true ) ?: [];
-
-		echo '</table>';
-		echo '<h3>Parovi prijevoda</h3>';
-		echo '<p class="description">Svaki red: originalni tekst → prijevod (domain: woocommerce ili elementor-pro).</p>';
-		echo '<table class="widefat rpsm-translations-table" id="rpsm-translations">';
-		echo '<thead><tr><th>Original</th><th>Prijevod</th><th>Domain</th><th></th></tr></thead><tbody>';
-
-		foreach ( $pairs as $i => $pair ) {
-			self::translation_row( $i, $pair );
-		}
-
-		echo '</tbody></table>';
-		echo '<button type="button" class="button" id="rpsm-add-translation" style="margin-top:8px;">+ Dodaj prijevod</button>';
-		echo '<script>
-			document.getElementById("rpsm-add-translation").addEventListener("click", function(){
-				var tbody = document.querySelector("#rpsm-translations tbody");
-				var i = tbody.children.length;
-				var tr = document.createElement("tr");
-				tr.innerHTML = \'<td><input type="text" name="rpsm_tr[\'+i+\'][original]" class="large-text"></td>\'+
-					\'<td><input type="text" name="rpsm_tr[\'+i+\'][translation]" class="large-text"></td>\'+
-					\'<td><select name="rpsm_tr[\'+i+\'][domain]"><option value="woocommerce">woocommerce</option><option value="elementor-pro">elementor-pro</option></select></td>\'+
-					\'<td><button type="button" class="button" onclick="this.closest(\\\'tr\\\').remove()">✕</button></td>\';
-				tbody.appendChild(tr);
-			});
-		</script>';
-		echo '<table class="form-table">';
-	}
-
-	private static function translation_row( int $i, array $pair ): void {
-		$orig  = esc_attr( $pair['original'] ?? '' );
-		$trans = esc_attr( $pair['translation'] ?? '' );
-		$dom   = $pair['domain'] ?? 'woocommerce';
-		echo "<tr>";
-		echo "<td><input type='text' name='rpsm_tr[{$i}][original]' value='{$orig}' class='large-text'></td>";
-		echo "<td><input type='text' name='rpsm_tr[{$i}][translation]' value='{$trans}' class='large-text'></td>";
-		echo "<td><select name='rpsm_tr[{$i}][domain]'>";
-		echo "<option value='woocommerce'" . selected( $dom, 'woocommerce', false ) . ">woocommerce</option>";
-		echo "<option value='elementor-pro'" . selected( $dom, 'elementor-pro', false ) . ">elementor-pro</option>";
-		echo "</select></td>";
-		echo "<td><button type='button' class='button' onclick='this.closest(\"tr\").remove()'>✕</button></td>";
-		echo "</tr>";
 	}
 
 	private static function tab_atribucija(): void {
@@ -563,19 +514,6 @@ final class RPSM_Checkout_Admin {
 			RPSM_Checkout_Options::set( $o::CONTENT_GLOBAL_FAQ, wp_json_encode( $pairs, JSON_UNESCAPED_UNICODE ) );
 		}
 
-		/* Special: translation pairs */
-		if ( 'prijevodi' === $tab && isset( $_POST['rpsm_tr'] ) ) {
-			$pairs = [];
-			foreach ( $_POST['rpsm_tr'] as $row ) {
-				$orig  = sanitize_text_field( $row['original'] ?? '' );
-				$trans = sanitize_text_field( $row['translation'] ?? '' );
-				$dom   = sanitize_text_field( $row['domain'] ?? 'woocommerce' );
-				if ( '' !== $orig && '' !== $trans ) {
-					$pairs[] = [ 'original' => $orig, 'translation' => $trans, 'domain' => $dom ];
-				}
-			}
-			RPSM_Checkout_Options::set( $o::TRANSLATIONS_PAIRS, wp_json_encode( $pairs, JSON_UNESCAPED_UNICODE ) );
-		}
 
 		RPSM_Checkout_Options::reset_cache();
 		set_transient( 'rpsm_checkout_notice', 'Postavke spremljene.', 30 );
@@ -651,9 +589,6 @@ final class RPSM_Checkout_Admin {
 				$o::THANKYOU_FALLBACK_MSG => 'text',
 				$o::THANKYOU_FREE_ENABLED => 'toggle',
 				$o::THANKYOU_FREE_TITLE   => 'text',
-			],
-			'prijevodi' => [
-				$o::TRANSLATIONS_ENABLED => 'toggle',
 			],
 			'atribucija' => [
 				$o::ATTR_ENABLED         => 'toggle',

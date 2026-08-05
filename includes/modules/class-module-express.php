@@ -52,8 +52,6 @@ final class RPSM_Checkout_Module_Express {
 		   naslov "Podaci za placanje" se ispise PRIJE login bloka (@9, WC login
 		   je @10), a original u form-billing.php skriva express skin CSS. */
 		add_action( 'woocommerce_before_checkout_form', [ __CLASS__, 'render_billing_heading' ], 9 );
-		add_filter( 'gettext', [ __CLASS__, 'login_message_ti' ], 20, 3 );
-		add_filter( 'gettext_with_context', [ __CLASS__, 'login_message_ti_ctx' ], 20, 4 );
 		add_filter( 'woocommerce_login_redirect', [ __CLASS__, 'login_back_to_express' ] );
 
 		/* Ogranicena ponuda (countdown popust) - SPEC Dio 5. Pozicioniranje
@@ -357,22 +355,6 @@ final class RPSM_Checkout_Module_Express {
 			return;
 		}
 		echo '<h3 class="rpsm-express-billing-heading">' . esc_html__( 'Billing details', 'woocommerce' ) . '</h3>';
-	}
-
-	/** WC-ova vi-forma poruka u login formi ide u ti-formu (samo express). */
-	public static function login_message_ti( $translation, $text, $domain ) {
-		if ( 'woocommerce' === $domain
-			&& is_string( $text )
-			&& 0 === strpos( $text, 'If you have shopped with us before' )
-			&& self::is_express() ) {
-			return 'Prijavi se i tvoji će se podaci popuniti sami. Ako nemaš račun, samo nastavi s unosom ispod.';
-		}
-		return $translation;
-	}
-
-	/** Isto pravilo i za gettext_with_context varijantu. */
-	public static function login_message_ti_ctx( $translation, $text, $context, $domain ) {
-		return self::login_message_ti( $translation, $text, $domain );
 	}
 
 	/**

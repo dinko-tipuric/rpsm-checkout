@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.9.0.0 (2026-08-06) - Prijevodi preseljeni u rpsm-alati Lokalizacija
+
+- UKLONJEN modul Prijevodi (gettext parovi) + admin tab - prijevodi sada
+  centralno u rpsm-alati > Lokalizacija (.mo overrides svih 9 domena + editor
+  parova). rpsm-alati v1.14.0.0 automatski migrira postojece parove iz opcije
+  (opcija rpsm_checkout_translations_pairs ostaje u bazi kao izvor migracije).
+- UKLONJEN express login-message gettext override (1.8.4.1) - pokriva ga
+  centralni woocommerce .mo prijevod.
+- ⚠️ DEPLOY REDOSLIJED: prvo rpsm-alati 1.14.0.0, onda ovaj update (inace
+  parovi kratko ne rade izmedju dva updatea).
+
 ## 1.8.4.2 (2026-08-05) - Razmak ikona kartica bez countdowna
 
 - Ikone kartica ispod CTA gumba: margin-top 20->32px pa razmak ne ovisi o
