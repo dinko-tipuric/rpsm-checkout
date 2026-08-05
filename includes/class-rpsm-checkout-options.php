@@ -92,6 +92,7 @@ final class RPSM_Checkout_Options {
 	const EXPRESS_ENABLED         = 'rpsm_checkout_express_enabled';
 	const EXPRESS_CLOBBER         = 'rpsm_checkout_express_clobber';
 	const EXPRESS_FIRST_GATEWAY   = 'rpsm_checkout_express_first_gateway';
+	const EXPRESS_CARD_ONLY       = 'rpsm_checkout_express_card_only';
 	const EXPRESS_STICKY_CTA      = 'rpsm_checkout_express_sticky_cta';
 	const EXPRESS_STICKY_CTA_TEXT = 'rpsm_checkout_express_sticky_cta_text';
 	const EXPRESS_HIDE_NOTES      = 'rpsm_checkout_express_hide_notes';
@@ -196,6 +197,7 @@ final class RPSM_Checkout_Options {
 		self::EXPRESS_ENABLED         => '0',
 		self::EXPRESS_CLOBBER         => '1',
 		self::EXPRESS_FIRST_GATEWAY   => 'eh_stripe_checkout',
+		self::EXPRESS_CARD_ONLY       => '1',
 		self::EXPRESS_STICKY_CTA      => '1',
 		self::EXPRESS_STICKY_CTA_TEXT => 'Naruči',
 		self::EXPRESS_HIDE_NOTES      => '1',

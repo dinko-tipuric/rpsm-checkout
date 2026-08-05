@@ -1,5 +1,23 @@
 # Changelog
 
+## 1.8.0.0 (2026-07-20) - Ogranicena ponuda (countdown popust) + samo kartica
+
+- NOVO: Ogranicena ponuda na express stranicama (SPEC Dio 5): per-proizvod
+  konfiguracija u meta boxu Prodajna stranica (postotak ili fiksni iznos,
+  trajanje u minutama, tekstovi). Countdown krece od PRVOG posjeta (deadline
+  u WC sesiji, refresh ne resetira), gold traka iznad forme, precrtana puna
+  cijena u sazetku. SERVER JE AUTORITET: cijena se racuna u svakom
+  calculate_totals passu; JS countdown je samo prikaz, na istek fragmenti
+  vrate punu cijenu. Istek izmedju rendera i submita JEDNOM blokira checkout
+  s obavijesti (drugi submit prolazi po redovnoj cijeni). Pretplatni
+  proizvodi preskoceni. Order meta _rpsm_express_deal kad je kupljeno s
+  popustom. Bez kupona - cisti price override (nema interakcija s coupon
+  modulima ni Minimaxom).
+- NOVO: "Samo karticno placanje" toggle (default ON): na express stranicama
+  se nudi iskljucivo prvi gateway (Stripe) - virman/BACS skriveni; standardni
+  checkout netaknut.
+
+
 ## 1.7.2.3 (2026-07-17) - Ikone kartica 20px + notice trake bez top bordera
 
 - Razmak CTA gumb -> ikone kartica sada cilja .card_notice (pravi selektor

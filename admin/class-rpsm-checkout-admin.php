@@ -386,6 +386,11 @@ final class RPSM_Checkout_Admin {
 			'Gateway ID koji ide na vrh liste plaćanja SAMO na express stranicama (npr. eh_stripe_checkout). Prazno = redoslijed se ne dira. Globalni checkout nikad nije pogođen.'
 		);
 		self::row_toggle(
+			'Samo kartično plaćanje',
+			$o::EXPRESS_CARD_ONLY,
+			'Na express stranicama se nudi ISKLJUČIVO gornji gateway - virman/BACS se skrivaju ("pristup odmah" ponuda nema smisla s uplatom koja sjeda za dva dana). Virman ostaje dostupan na standardnom checkoutu.'
+		);
+		self::row_toggle(
 			'Sticky mobilna traka',
 			$o::EXPRESS_STICKY_CTA,
 			'Na mobitelu prikazuje fiksnu donju traku s ukupnim iznosom i gumbom koji skrola na formu. Sakriva se dok je forma u viewportu.'
@@ -655,6 +660,7 @@ final class RPSM_Checkout_Admin {
 				$o::EXPRESS_ENABLED         => 'toggle',
 				$o::EXPRESS_CLOBBER         => 'toggle',
 				$o::EXPRESS_FIRST_GATEWAY   => 'text',
+				$o::EXPRESS_CARD_ONLY       => 'toggle',
 				$o::EXPRESS_STICKY_CTA      => 'toggle',
 				$o::EXPRESS_STICKY_CTA_TEXT => 'text',
 				$o::EXPRESS_HIDE_NOTES      => 'toggle',

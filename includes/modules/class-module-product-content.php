@@ -62,6 +62,19 @@ final class RPSM_Checkout_Module_Product_Content {
 			'faq_hide_global' => '0',
 			'recenzije'       => [],   // [{tekst,ime,titula}]
 			'video'           => '',
+			'deal'            => self::empty_deal(),
+		];
+	}
+
+	/** Ogranicena ponuda (express countdown popust) - SPEC Dio 5. */
+	private static function empty_deal(): array {
+		return [
+			'on'      => '0',
+			'type'    => 'percent', // 'percent' | 'fixed'
+			'amount'  => '',
+			'minutes' => '',
+			'title'   => 'Ponuda vrijedi još',
+			'expired' => 'Ponuda je istekla - vrijedi redovna cijena.',
 		];
 	}
 
@@ -72,6 +85,11 @@ final class RPSM_Checkout_Module_Product_Content {
 		$raw  = get_post_meta( $product_id, self::META_KEY, true );
 		$data = is_string( $raw ) && '' !== $raw ? json_decode( $raw, true ) : null;
 		$data = is_array( $data ) ? array_merge( self::empty_data(), $data ) : self::empty_data();
+
+		/* Nested merge za deal (array_merge na vrhu zamijeni cijeli pod-array) */
+		$data['deal'] = is_array( $data['deal'] ?? null )
+			? array_merge( self::empty_deal(), $data['deal'] )
+			: self::empty_deal();
 
 		self::$memo[ $product_id ] = $data;
 		return $data;
@@ -434,6 +452,23 @@ final class RPSM_Checkout_Module_Product_Content {
 		echo '<p class="description">YouTube/Vimeo link ili direktni .mp4 iz Medija. Prazno = bez videa.</p>';
 		echo '<input type="text" class="large-text" name="rpsm_pc[video]" value="' . esc_attr( $data['video'] ) . '">';
 
+		/* Ogranicena ponuda (express countdown) */
+		$deal = $data['deal'];
+		echo '<h4>Ograničena ponuda (express countdown)</h4>';
+		echo '<p class="description">Vremenski ograničen popust SAMO na express stranicama: countdown kreće od prvog posjeta, po isteku se popust automatski miče (server odlučuje, ne preglednik). Pretplatni proizvodi nisu podržani.</p>';
+		echo '<p><label><input type="checkbox" name="rpsm_pc[deal][on]" value="1"' . checked( '1', $deal['on'], false ) . '> <b>Uključi ograničenu ponudu za ovaj proizvod</b></label></p>';
+		echo '<table class="rpsm-pc-rep" style="max-width:640px"><tbody>';
+		echo '<tr><td style="width:180px">Vrsta popusta</td><td><select name="rpsm_pc[deal][type]">';
+		foreach ( [ 'percent' => 'Postotak (%)', 'fixed' => 'Fiksni iznos (EUR, bruto)' ] as $val => $label ) {
+			printf( '<option value="%s"%s>%s</option>', esc_attr( $val ), selected( $deal['type'], $val, false ), esc_html( $label ) );
+		}
+		echo '</select></td></tr>';
+		echo '<tr><td>Iznos popusta</td><td><input type="text" name="rpsm_pc[deal][amount]" value="' . esc_attr( $deal['amount'] ) . '" style="width:120px"> npr. 20 (za 20%) ili 10,00 (za 10 EUR)</td></tr>';
+		echo '<tr><td>Trajanje (minuta)</td><td><input type="text" name="rpsm_pc[deal][minutes]" value="' . esc_attr( $deal['minutes'] ) . '" style="width:120px"> od prvog posjeta express stranici</td></tr>';
+		echo '<tr><td>Naslov countdowna</td><td><input type="text" name="rpsm_pc[deal][title]" value="' . esc_attr( $deal['title'] ) . '" class="large-text"></td></tr>';
+		echo '<tr><td>Poruka nakon isteka</td><td><input type="text" name="rpsm_pc[deal][expired]" value="' . esc_attr( $deal['expired'] ) . '" class="large-text"></td></tr>';
+		echo '</tbody></table>';
+
 		echo '</div>';
 	}
 
@@ -518,6 +553,16 @@ final class RPSM_Checkout_Module_Product_Content {
 		$data['nije']            = sanitize_textarea_field( (string) ( $in['nije'] ?? '' ) );
 		$data['faq_hide_global'] = isset( $in['faq_hide_global'] ) ? '1' : '0';
 		$data['video']           = esc_url_raw( (string) ( $in['video'] ?? '' ) );
+
+		$deal_in      = is_array( $in['deal'] ?? null ) ? $in['deal'] : [];
+		$data['deal'] = [
+			'on'      => isset( $deal_in['on'] ) ? '1' : '0',
+			'type'    => in_array( $deal_in['type'] ?? '', [ 'percent', 'fixed' ], true ) ? $deal_in['type'] : 'percent',
+			'amount'  => sanitize_text_field( (string) ( $deal_in['amount'] ?? '' ) ),
+			'minutes' => (string) absint( $deal_in['minutes'] ?? 0 ),
+			'title'   => sanitize_text_field( (string) ( $deal_in['title'] ?? '' ) ),
+			'expired' => sanitize_text_field( (string) ( $deal_in['expired'] ?? '' ) ),
+		];
 
 		$data['moduli']    = self::clean_rows( $in['moduli'] ?? [], [ 'naziv', 'trajanje', 'opis' ], 'naziv' );
 		$data['faq']       = self::clean_rows( $in['faq'] ?? [], [ 'q', 'a' ], 'q' );

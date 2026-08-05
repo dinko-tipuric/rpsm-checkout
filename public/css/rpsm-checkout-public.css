@@ -411,3 +411,38 @@ body.rpsm-express-page .rpsm-review-remove {
 .rpsm-express-checkout #order_review_heading {
 	margin-top: 32px;
 }
+
+/* ── Express: countdown ponuda (v1.8.0.0) ────────────────────────── */
+.rpsm-express-deal {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 14px;
+	background: #f7ecd6;
+	border: 1px solid #d7aa50;
+	border-radius: 5px;
+	padding: 12px 16px;
+	margin-bottom: 14px;
+	font-size: 14px;
+	color: #212121;
+}
+.rpsm-express-deal-title {
+	font-weight: 600;
+}
+.rpsm-express-deal-timer {
+	font-variant-numeric: tabular-nums;
+	font-size: 18px;
+	font-weight: 700;
+	color: #993a25;
+	white-space: nowrap;
+}
+.rpsm-express-deal.is-expired {
+	background: #f3f0ea;
+	border-color: #ddd5c8;
+	color: #6f5a50;
+	justify-content: flex-start;
+}
+del.rpsm-express-deal-full {
+	color: #8a6f63;
+	margin-right: 4px;
+}

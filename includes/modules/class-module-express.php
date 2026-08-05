@@ -40,6 +40,13 @@ final class RPSM_Checkout_Module_Express {
 		add_action( 'template_redirect', [ __CLASS__, 'auto_add_to_cart' ], 5 );
 		add_filter( 'woocommerce_available_payment_gateways', [ __CLASS__, 'gateway_first' ], 50 );
 		add_filter( 'woocommerce_enable_order_notes_field', [ __CLASS__, 'hide_order_notes' ], 50 );
+
+		/* Ogranicena ponuda (countdown popust) - SPEC Dio 5 */
+		add_action( 'woocommerce_before_calculate_totals', [ __CLASS__, 'deal_apply_price' ], 1000 );
+		add_filter( 'woocommerce_cart_item_subtotal', [ __CLASS__, 'deal_subtotal_display' ], 15, 2 );
+		add_action( 'woocommerce_before_checkout_form', [ __CLASS__, 'render_deal_bar' ], 8 );
+		add_action( 'woocommerce_after_checkout_validation', [ __CLASS__, 'deal_expiry_guard' ], 10, 2 );
+		add_action( 'woocommerce_checkout_create_order', [ __CLASS__, 'deal_order_meta' ] );
 		add_filter( 'body_class', [ __CLASS__, 'body_class' ] );
 		add_action( 'wp_footer', [ __CLASS__, 'render_sticky_cta' ] );
 		add_filter( 'woocommerce_update_order_review_fragments', [ __CLASS__, 'sticky_total_fragment' ] );
@@ -171,6 +178,10 @@ final class RPSM_Checkout_Module_Express {
 			return;
 		}
 
+		/* Countdown ponuda: deadline krece od PRVOG posjeta (refresh ga ne
+		   resetira). Postavlja se prije manipulacije kosaricom. */
+		self::deal_start( $product );
+
 		/* Stanje kosarice: express proizvod moze vec biti unutra (raniji
 		   posjet), ali uz njega i DRUGE stavke (npr. add-to-cart link u
 		   medjuvremenu). Clobber garantira: kosarica = TOCNO ovaj proizvod. */
@@ -207,7 +218,10 @@ final class RPSM_Checkout_Module_Express {
 
 	/**
 	 * Kartica prva i predodabrana NA EXPRESS STRANICI; globalni checkout
-	 * ostaje netaknut. Ako kupac vec ima izbor u sesiji, on se postuje.
+	 * ostaje netaknut. Uz EXPRESS_CARD_ONLY (default ON) ostali gatewayi
+	 * (virman/BACS) se na expressu uopce ne nude - "pristup odmah" ponuda
+	 * nema smisla s uplatom koja sjeda za dva dana. Virman zivi na
+	 * standardnom checkoutu.
 	 */
 	public static function gateway_first( $gateways ) {
 		if ( ! self::is_express() || ! is_array( $gateways ) ) {
@@ -216,6 +230,9 @@ final class RPSM_Checkout_Module_Express {
 		$first = (string) RPSM_Checkout_Options::get( RPSM_Checkout_Options::EXPRESS_FIRST_GATEWAY );
 		if ( '' === $first || ! isset( $gateways[ $first ] ) ) {
 			return $gateways;
+		}
+		if ( '1' === RPSM_Checkout_Options::get( RPSM_Checkout_Options::EXPRESS_CARD_ONLY ) ) {
+			return [ $first => $gateways[ $first ] ];
 		}
 		$gateway = $gateways[ $first ];
 		unset( $gateways[ $first ] );
@@ -303,6 +320,243 @@ final class RPSM_Checkout_Module_Express {
 				'<span class="rpsm-express-sticky-total">' . wp_kses_post( WC()->cart->get_total() ) . '</span>';
 		}
 		return $fragments;
+	}
+
+	/* ── Ogranicena ponuda (countdown popust, SPEC Dio 5) ──────────── */
+
+	private const DEAL_SESSION_PREFIX = 'rpsm_express_deal_';
+	private const DEAL_ACK_PREFIX     = 'rpsm_express_deal_ack_';
+
+	/**
+	 * Konfiguracija ponude s proizvoda (meta box Prodajna stranica).
+	 * null = ponuda nije ukljucena ili nije valjana.
+	 */
+	private static function deal_config( int $product_id ): ?array {
+		if ( ! class_exists( 'RPSM_Checkout_Module_Product_Content' ) ) {
+			return null;
+		}
+		$deal = RPSM_Checkout_Module_Product_Content::get_data( $product_id )['deal'] ?? null;
+		if ( ! is_array( $deal ) || '1' !== ( $deal['on'] ?? '0' ) ) {
+			return null;
+		}
+		$amount  = (float) str_replace( ',', '.', (string) ( $deal['amount'] ?? '' ) );
+		$minutes = (int) ( $deal['minutes'] ?? 0 );
+		if ( $amount <= 0 || $minutes <= 0 ) {
+			return null;
+		}
+		return [
+			'type'    => ( $deal['type'] ?? 'percent' ) === 'fixed' ? 'fixed' : 'percent',
+			'amount'  => $amount,
+			'minutes' => $minutes,
+			'title'   => (string) ( $deal['title'] ?? '' ),
+			'expired' => (string) ( $deal['expired'] ?? '' ),
+		];
+	}
+
+	/** Postavi deadline u sesiju pri prvom posjetu (pretplate preskacemo). */
+	private static function deal_start( WC_Product $product ): void {
+		$pid    = (int) $product->get_id();
+		$config = self::deal_config( $pid );
+		if ( null === $config || ! WC()->session ) {
+			return;
+		}
+		if ( class_exists( 'WC_Subscriptions_Product' ) && WC_Subscriptions_Product::is_subscription( $product ) ) {
+			return;
+		}
+		$key = self::DEAL_SESSION_PREFIX . $pid;
+		if ( ! WC()->session->get( $key ) ) {
+			WC()->session->set( $key, time() + $config['minutes'] * 60 );
+			RPSM_Checkout_Debug::info( 'Express deal: countdown pokrenut', [ 'product' => $pid, 'minutes' => $config['minutes'] ], 'express' );
+		}
+	}
+
+	/** Preostale sekunde ponude; null = ponuda ne postoji, 0 = istekla. */
+	private static function deal_seconds_left( int $product_id ): ?int {
+		if ( null === self::deal_config( $product_id ) || ! WC()->session ) {
+			return null;
+		}
+		$deadline = (int) WC()->session->get( self::DEAL_SESSION_PREFIX . $product_id );
+		if ( $deadline <= 0 ) {
+			return null;
+		}
+		return max( 0, $deadline - time() );
+	}
+
+	/** Snizena cijena iz SVJEZE kataloske (nikad iz vec snizene instance). */
+	private static function deal_price( int $product_id, array $config ): ?float {
+		$fresh = wc_get_product( $product_id );
+		if ( ! $fresh ) {
+			return null;
+		}
+		$full = (float) $fresh->get_price();
+		if ( $full <= 0 ) {
+			return null;
+		}
+		$price = 'fixed' === $config['type']
+			? max( 0.0, $full - $config['amount'] )
+			: $full * ( 1 - $config['amount'] / 100 );
+		return round( $price, 2 );
+	}
+
+	/**
+	 * Price override dok ponuda traje. SERVER JE AUTORITET: racuna se u
+	 * svakom calculate_totals passu (page load, fragmenti, checkout submit),
+	 * pa JS manipulacija countdownom ne moze kupiti po isteklom popustu.
+	 */
+	public static function deal_apply_price( $cart ): void {
+		if ( ! self::is_express() || ! $cart instanceof WC_Cart ) {
+			return;
+		}
+		$pid = self::product_id();
+		if ( null === $pid ) {
+			return;
+		}
+		$seconds = self::deal_seconds_left( $pid );
+		if ( null === $seconds || $seconds <= 0 ) {
+			return;
+		}
+		$config = self::deal_config( $pid );
+		$price  = null !== $config ? self::deal_price( $pid, $config ) : null;
+		if ( null === $price ) {
+			return;
+		}
+		foreach ( $cart->get_cart() as $item ) {
+			if ( (int) $item['product_id'] === $pid && $item['data'] instanceof WC_Product ) {
+				$item['data']->set_price( $price );
+			}
+		}
+	}
+
+	/** Precrtana puna cijena u sazetku narudzbe dok ponuda traje. */
+	public static function deal_subtotal_display( $subtotal, $cart_item ) {
+		if ( ! self::is_express() || ! is_array( $cart_item ) ) {
+			return $subtotal;
+		}
+		$pid = self::product_id();
+		if ( null === $pid || (int) ( $cart_item['product_id'] ?? 0 ) !== $pid ) {
+			return $subtotal;
+		}
+		$seconds = self::deal_seconds_left( $pid );
+		if ( null === $seconds || $seconds <= 0 ) {
+			return $subtotal;
+		}
+		$fresh = wc_get_product( $pid );
+		if ( ! $fresh ) {
+			return $subtotal;
+		}
+		$full = (float) $fresh->get_price() * (int) ( $cart_item['quantity'] ?? 1 );
+		return '<del class="rpsm-express-deal-full">' . wc_price( $full ) . '</del> ' . $subtotal;
+	}
+
+	/** Countdown traka iznad checkout forme + poruka isteka. */
+	public static function render_deal_bar(): void {
+		if ( ! self::is_express() || null === self::$product_id ) {
+			return;
+		}
+		$config = self::deal_config( self::$product_id );
+		if ( null === $config ) {
+			return;
+		}
+		$seconds = self::deal_seconds_left( self::$product_id );
+		if ( null === $seconds ) {
+			return;
+		}
+
+		if ( $seconds <= 0 ) {
+			echo '<div class="rpsm-express-deal is-expired">' . esc_html( $config['expired'] ) . '</div>';
+			return;
+		}
+
+		echo '<div class="rpsm-express-deal" id="rpsm-express-deal" data-seconds="' . (int) $seconds . '">';
+		echo '<span class="rpsm-express-deal-title">' . esc_html( $config['title'] ) . '</span>';
+		echo '<b class="rpsm-express-deal-timer" aria-live="polite">--:--</b>';
+		echo '</div>';
+		echo '<div class="rpsm-express-deal is-expired" id="rpsm-express-deal-expired" hidden>' . esc_html( $config['expired'] ) . '</div>';
+
+		/* Countdown je samo PRIKAZ - na istek osvjezi checkout pa server
+		   vrati punu cijenu. */
+		echo '<script>(function(){
+			var bar = document.getElementById("rpsm-express-deal");
+			if (!bar) return;
+			var left = parseInt(bar.dataset.seconds, 10) || 0;
+			var timer = bar.querySelector(".rpsm-express-deal-timer");
+			function fmt(s){
+				var h = Math.floor(s/3600), m = Math.floor((s%3600)/60), sec = s%60;
+				var mm = (m<10?"0":"")+m, ss = (sec<10?"0":"")+sec;
+				return h > 0 ? h+":"+mm+":"+ss : mm+":"+ss;
+			}
+			function tick(){
+				if (left <= 0) {
+					bar.hidden = true;
+					var ex = document.getElementById("rpsm-express-deal-expired");
+					if (ex) ex.hidden = false;
+					if (window.jQuery) { jQuery(document.body).trigger("update_checkout"); }
+					return;
+				}
+				timer.textContent = fmt(left);
+				left--;
+				setTimeout(tick, 1000);
+			}
+			tick();
+		})();</script>';
+	}
+
+	/**
+	 * Istek IZMEDJU rendera i submita: total se preracunao na punu cijenu,
+	 * ali kupac to jos nije vidio - JEDNOM blokiraj s obavijesti, drugi
+	 * submit prolazi po redovnoj cijeni.
+	 */
+	public static function deal_expiry_guard( $data, $errors ): void {
+		if ( ! self::is_express() || ! WC()->session ) {
+			return;
+		}
+		$pid = self::product_id();
+		if ( null === $pid ) {
+			return;
+		}
+		$seconds = self::deal_seconds_left( $pid );
+		if ( null === $seconds || $seconds > 0 ) {
+			return;
+		}
+		$ack_key = self::DEAL_ACK_PREFIX . $pid;
+		if ( WC()->session->get( $ack_key ) ) {
+			return;
+		}
+		$in_cart = false;
+		foreach ( WC()->cart ? WC()->cart->get_cart() : [] as $item ) {
+			if ( (int) $item['product_id'] === $pid ) {
+				$in_cart = true;
+				break;
+			}
+		}
+		if ( ! $in_cart ) {
+			return;
+		}
+		WC()->session->set( $ack_key, 1 );
+		$errors->add(
+			'rpsm_express_deal_expired',
+			'Vremenska ponuda je u međuvremenu istekla pa je cijena vraćena na redovnu. Provjeri iznos i ponovno potvrdi narudžbu.'
+		);
+		RPSM_Checkout_Debug::info( 'Express deal: istek na submitu, kupac obavijesten', [ 'product' => $pid ], 'express' );
+	}
+
+	/** Trag na narudzbi kad je kupljeno s aktivnom ponudom. */
+	public static function deal_order_meta( $order ): void {
+		if ( ! self::is_express() || ! $order instanceof WC_Order ) {
+			return;
+		}
+		$pid = self::product_id();
+		if ( null === $pid ) {
+			return;
+		}
+		$seconds = self::deal_seconds_left( $pid );
+		if ( null === $seconds || $seconds <= 0 ) {
+			return;
+		}
+		$config = self::deal_config( $pid );
+		if ( null !== $config ) {
+			$order->update_meta_data( '_rpsm_express_deal', $config['type'] . ':' . $config['amount'] );
+		}
 	}
 
 	/* ── SEO ───────────────────────────────────────────────────────── */
