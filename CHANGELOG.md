@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.8.3.3 (2026-07-20) - Sticky header prati deal traku
+
+- Elementor sticky header se spusta za visinu deal trake NASIM CSS-om
+  (body.rpsm-express-dealbar-on + .elementor-sticky--active top override)
+  umjesto fiksnog Elementor Offseta - kad traka nestane (istek/bez ponude),
+  header se sam vrati na vrh. U Elementoru sticky Offset postaviti na 0.
+
+
 ## 1.8.3.2 (2026-07-20) - Sadrzajni blokovi: X marker + trajanje desno
 
 - "Nije za tebe ako": X (✗) marker umjesto crtice.

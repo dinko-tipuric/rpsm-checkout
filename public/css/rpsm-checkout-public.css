@@ -529,3 +529,18 @@ del.rpsm-express-deal-full {
 	color: #e9dfc8;
 	white-space: nowrap;
 }
+
+/* ── Express: sticky header prati deal traku (v1.8.3.3) ──────────── */
+/* Elementor sticky Offset MORA biti 0 - guranje preuzima ovaj CSS jer
+   traka zivi i umire (istek/bez ponude), a fiksni offset ostane u zraku.
+   Vrijedi samo dok body nosi rpsm-express-dealbar-on (JS je mice na istek). */
+body.rpsm-express-dealbar-on [data-elementor-type="header"].elementor-sticky--active,
+body.rpsm-express-dealbar-on [data-elementor-type="header"] .elementor-sticky--active {
+	top: 64px !important;
+}
+@media (max-width: 767px) {
+	body.rpsm-express-dealbar-on [data-elementor-type="header"].elementor-sticky--active,
+	body.rpsm-express-dealbar-on [data-elementor-type="header"] .elementor-sticky--active {
+		top: 56px !important;
+	}
+}
