@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.8.4.0 (2026-07-20) - Login notice unutar forme
+
+- "Kupac povratnik / prijava" notice se na expressu seli s vrha stranice
+  IZMEDJU naslova "Podaci za placanje" i email polja (hook
+  woocommerce_before_checkout_billing_form, odmah iza h3). Tekst se mijenja
+  kroz Prijevodi tab (gettext) - default WC prijevod je "Kupac povratnik?".
+
+
 ## 1.8.3.3 (2026-07-20) - Sticky header prati deal traku
 
 - Elementor sticky header se spusta za visinu deal trake NASIM CSS-om

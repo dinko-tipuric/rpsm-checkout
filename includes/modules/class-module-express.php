@@ -45,6 +45,11 @@ final class RPSM_Checkout_Module_Express {
 		   radi) - remove na prio 5, WC ga dodaje na before_checkout_form@10 */
 		add_action( 'woocommerce_before_checkout_form', [ __CLASS__, 'maybe_remove_coupon_form' ], 5 );
 
+		/* Login notice se seli s vrha stranice IZMEDJU naslova "Podaci za
+		   placanje" i email polja (before_checkout_billing_form okida odmah
+		   iza h3 naslova u form-billing.php) */
+		add_action( 'woocommerce_before_checkout_form', [ __CLASS__, 'maybe_move_login_form' ], 5 );
+
 		/* Ogranicena ponuda (countdown popust) - SPEC Dio 5. Pozicioniranje
 		   po industrijskom standardu (SamCart/Deadline Funnel/ThriveCart):
 		   fiksna traka na vrhu ekrana + usteda red u sazetku + timer ispod
@@ -330,6 +335,15 @@ final class RPSM_Checkout_Module_Express {
 				'<span class="rpsm-express-sticky-total">' . wp_kses_post( WC()->cart->get_total() ) . '</span>';
 		}
 		return $fragments;
+	}
+
+	/** Login notice ide u formu, ne iznad nje (izmedju naslova i email polja). */
+	public static function maybe_move_login_form(): void {
+		if ( ! self::is_express() ) {
+			return;
+		}
+		remove_action( 'woocommerce_before_checkout_form', 'woocommerce_checkout_login_form', 10 );
+		add_action( 'woocommerce_before_checkout_billing_form', 'woocommerce_checkout_login_form', 5 );
 	}
 
 	/** Rucni unos kupona ne postoji na expressu - kupon ili dolazi kroz URL ili ga nema. */
