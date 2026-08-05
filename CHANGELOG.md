@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.8.3.0 (2026-07-20) - Admin countdown reset (testiranje)
+
+- Adminu (manage_woocommerce) se express countdown resetira SVAKIM
+  ucitavanjem stranice (+ cisti se expiry ack flag) - uvijek svjeza traka
+  za testiranje, bez brisanja sesije. Diskretna oznaka "admin: reset svakim
+  ucitavanjem" u traci da se ponasanje ne pomijesa s bugom. Kupci imaju
+  normalan sticky countdown.
+
+
 ## 1.8.2.1 (2026-07-20) - HOTFIX: timer ispod CTA ostajao --:--
 
 - Linija "Popust istjece za" zivi u payment fragmentu koji WC zamijeni na

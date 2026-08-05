@@ -381,6 +381,16 @@ final class RPSM_Checkout_Module_Express {
 			return;
 		}
 		$key = self::DEAL_SESSION_PREFIX . $pid;
+
+		/* Admin (testiranje): countdown se resetira SVAKIM ucitavanjem
+		   stranice - uvijek vidis svjezu traku i punu mehaniku bez brisanja
+		   sesije. Kupci imaju normalan sticky deadline. */
+		if ( current_user_can( 'manage_woocommerce' ) ) {
+			WC()->session->set( $key, time() + $config['minutes'] * 60 );
+			WC()->session->set( self::DEAL_ACK_PREFIX . $pid, null );
+			return;
+		}
+
 		if ( ! WC()->session->get( $key ) ) {
 			WC()->session->set( $key, time() + $config['minutes'] * 60 );
 			RPSM_Checkout_Debug::info( 'Express deal: countdown pokrenut', [ 'product' => $pid, 'minutes' => $config['minutes'] ], 'express' );
@@ -506,6 +516,9 @@ final class RPSM_Checkout_Module_Express {
 		echo '<span class="rpsm-express-dealbar-pill">' . esc_html( $labels['label'] ) . ' &middot; ušteda ' . wp_kses_post( wc_price( $labels['savings'] ) ) . '</span>';
 		echo '<span class="rpsm-express-dealbar-title">' . esc_html( $config['title'] ) . '</span>';
 		echo '<b class="rpsm-express-deal-timer" aria-live="polite">--:--</b>';
+		if ( current_user_can( 'manage_woocommerce' ) ) {
+			echo '<span class="rpsm-express-dealbar-admin" title="Kupci imaju normalan sticky countdown - refresh im NE resetira timer.">admin: reset svakim učitavanjem</span>';
+		}
 		echo '</div>';
 
 		/* Countdown je samo PRIKAZ (server je autoritet). Isti timer pogoni
