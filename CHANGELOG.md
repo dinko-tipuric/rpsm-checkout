@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.8.1.0 (2026-07-20) - Express: bez rucnog unosa kupona
+
+- Novi toggle "Sakrij unos kupona" (default ON): na express stranicama nema
+  "Imate kupon?" polja - kupon dolazi iskljucivo kroz URL (?coupon=KOD,
+  postojeci Kuponi modul) ili ga nema. Standardni checkout netaknut.
+
+
 ## 1.8.0.0 (2026-07-20) - Ogranicena ponuda (countdown popust) + samo kartica
 
 - NOVO: Ogranicena ponuda na express stranicama (SPEC Dio 5): per-proizvod

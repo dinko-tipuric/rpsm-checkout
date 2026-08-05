@@ -41,6 +41,10 @@ final class RPSM_Checkout_Module_Express {
 		add_filter( 'woocommerce_available_payment_gateways', [ __CLASS__, 'gateway_first' ], 50 );
 		add_filter( 'woocommerce_enable_order_notes_field', [ __CLASS__, 'hide_order_notes' ], 50 );
 
+		/* Kupon polje van na expressu (URL kupon kroz Kuponi modul i dalje
+		   radi) - remove na prio 5, WC ga dodaje na before_checkout_form@10 */
+		add_action( 'woocommerce_before_checkout_form', [ __CLASS__, 'maybe_remove_coupon_form' ], 5 );
+
 		/* Ogranicena ponuda (countdown popust) - SPEC Dio 5 */
 		add_action( 'woocommerce_before_calculate_totals', [ __CLASS__, 'deal_apply_price' ], 1000 );
 		add_filter( 'woocommerce_cart_item_subtotal', [ __CLASS__, 'deal_subtotal_display' ], 15, 2 );
@@ -320,6 +324,13 @@ final class RPSM_Checkout_Module_Express {
 				'<span class="rpsm-express-sticky-total">' . wp_kses_post( WC()->cart->get_total() ) . '</span>';
 		}
 		return $fragments;
+	}
+
+	/** Rucni unos kupona ne postoji na expressu - kupon ili dolazi kroz URL ili ga nema. */
+	public static function maybe_remove_coupon_form(): void {
+		if ( self::is_express() && '1' === RPSM_Checkout_Options::get( RPSM_Checkout_Options::EXPRESS_HIDE_COUPON ) ) {
+			remove_action( 'woocommerce_before_checkout_form', 'woocommerce_checkout_coupon_form', 10 );
+		}
 	}
 
 	/* ── Ogranicena ponuda (countdown popust, SPEC Dio 5) ──────────── */

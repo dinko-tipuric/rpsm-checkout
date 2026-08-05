@@ -386,6 +386,11 @@ final class RPSM_Checkout_Admin {
 			'Gateway ID koji ide na vrh liste plaćanja SAMO na express stranicama (npr. eh_stripe_checkout). Prazno = redoslijed se ne dira. Globalni checkout nikad nije pogođen.'
 		);
 		self::row_toggle(
+			'Sakrij unos kupona',
+			$o::EXPRESS_HIDE_COUPON,
+			'Na express stranicama nema "Imate kupon?" polja - kupon se primjenjuje isključivo kroz URL (?coupon=KOD, Kuponi modul) ili ga nema. Standardni checkout netaknut.'
+		);
+		self::row_toggle(
 			'Samo kartično plaćanje',
 			$o::EXPRESS_CARD_ONLY,
 			'Na express stranicama se nudi ISKLJUČIVO gornji gateway - virman/BACS se skrivaju ("pristup odmah" ponuda nema smisla s uplatom koja sjeda za dva dana). Virman ostaje dostupan na standardnom checkoutu.'
@@ -661,6 +666,7 @@ final class RPSM_Checkout_Admin {
 				$o::EXPRESS_CLOBBER         => 'toggle',
 				$o::EXPRESS_FIRST_GATEWAY   => 'text',
 				$o::EXPRESS_CARD_ONLY       => 'toggle',
+				$o::EXPRESS_HIDE_COUPON     => 'toggle',
 				$o::EXPRESS_STICKY_CTA      => 'toggle',
 				$o::EXPRESS_STICKY_CTA_TEXT => 'text',
 				$o::EXPRESS_HIDE_NOTES      => 'toggle',
