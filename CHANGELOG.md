@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.8.3.2 (2026-07-20) - Sadrzajni blokovi: X marker + trajanje desno
+
+- "Nije za tebe ako": X (✗) marker umjesto crtice.
+- Moduli accordion: trajanje poravnato skroz desno (dvije auto margine su
+  dijelile prostor pa je visjelo u sredini); +/- tik iza trajanja.
+
+
 ## 1.8.3.1 (2026-07-20) - Deal traka +10px gore/dolje
 
 - Deal traka: padding 10->20px vertikalno (mobilno 8->16px), body offset

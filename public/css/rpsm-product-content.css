@@ -95,10 +95,11 @@ details.rpsm-pc-acc[open] summary::after { content: "\2212"; }
 	color: #8a6f63;
 	font-size: 13px;
 	font-variant-numeric: tabular-nums;
-	padding-right: 8px;
 }
-/* Kad postoji trajanje, +/- ide iza njega pa mu ne treba auto margin */
-.rpsm-pc-acc .rpsm-pc-mins ~ ::after { margin-left: 0; }
+/* Kad postoji trajanje, ONO uzima auto marginu (poravnato skroz desno),
+   a +/- dolazi tik iza njega - inace dvije auto margine dijele prostor
+   pa trajanje visi u sredini. */
+details.rpsm-pc-acc summary:has(.rpsm-pc-mins)::after { margin-left: 8px; }
 .rpsm-pc-num {
 	flex: 0 0 auto;
 	width: 22px;

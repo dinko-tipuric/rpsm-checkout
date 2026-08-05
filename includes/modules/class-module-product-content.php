@@ -203,7 +203,7 @@ final class RPSM_Checkout_Module_Product_Content {
 	}
 
 	private static function zakoga_card( string $title, array $items, string $kind ): string {
-		$mark = 'yes' === $kind ? '&#10003;' : '&ndash;';
+		$mark = 'yes' === $kind ? '&#10003;' : '&#10007;';
 		$out  = '<div class="rpsm-pc-card rpsm-pc-zakoga-' . esc_attr( $kind ) . '">';
 		$out .= '<h3>' . esc_html( $title ) . '</h3><ul>';
 		foreach ( $items as $item ) {
