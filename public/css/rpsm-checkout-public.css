@@ -411,6 +411,71 @@ body.rpsm-express-page .rpsm-review-remove {
 .rpsm-express-checkout #order_review_heading {
 	margin-top: 32px;
 }
+/* Login blok (v1.8.4.1): modul ispisuje naslov "Podaci za placanje" IZNAD
+   login bloka (login forma mora ostati izvan form.checkout - ugnijezdena
+   forma je nevaljan HTML), pa se original u billing sekciji skriva */
+.rpsm-express-checkout .woocommerce-billing-fields > h3 {
+	display: none;
+}
+.rpsm-express-checkout .rpsm-express-billing-heading {
+	margin-top: 4px;
+}
+/* Sama login forma: mekani blok u tonu toggle trake, polja jedno ispod
+   drugog (WC-ovi 50/50 float stupci se lome u uskom stupcu) */
+.rpsm-express-checkout form.woocommerce-form-login {
+	background: #f8f4ec;
+	border: 0;
+	border-radius: 5px;
+	padding: 16px;
+	margin: 0 0 20px;
+}
+.rpsm-express-checkout form.woocommerce-form-login .form-row,
+.rpsm-express-checkout form.woocommerce-form-login .form-row-first,
+.rpsm-express-checkout form.woocommerce-form-login .form-row-last {
+	width: 100%;
+	float: none;
+	margin: 0 0 12px;
+	padding: 0;
+}
+.rpsm-express-checkout form.woocommerce-form-login label {
+	display: block;
+	font-size: 14px;
+	margin-bottom: 6px;
+}
+.rpsm-express-checkout form.woocommerce-form-login input.input-text {
+	background: #ffffff;
+}
+.rpsm-express-checkout form.woocommerce-form-login .woocommerce-form-login__rememberme {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	margin-bottom: 12px;
+	font-size: 14px;
+}
+.rpsm-express-checkout form.woocommerce-form-login button.woocommerce-form-login__submit {
+	background: #d17954;
+	color: #ffffff;
+	border: 0;
+	border-radius: 5px;
+	padding: 12px 24px;
+	font-size: 14px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background 0.2s ease;
+}
+.rpsm-express-checkout form.woocommerce-form-login button.woocommerce-form-login__submit:hover {
+	background: #993a25;
+}
+.rpsm-express-checkout form.woocommerce-form-login .lost_password {
+	margin: 10px 0 0;
+	font-size: 13px;
+}
+.rpsm-express-checkout form.woocommerce-form-login .lost_password a {
+	color: #d17954;
+}
+.rpsm-express-checkout form.woocommerce-form-login .lost_password a:hover {
+	color: #993a25;
+}
 
 /* ── Express: countdown ponuda (v1.8.2.0 pozicioniranje) ─────────── */
 /* Fiksna traka na vrhu ekrana (SamCart/Deadline Funnel pattern) */

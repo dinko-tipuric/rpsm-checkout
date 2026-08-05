@@ -1,5 +1,23 @@
 # Changelog
 
+## 1.8.4.1 (2026-08-05) - HOTFIX: login blok van checkout forme
+
+- REGRESIJA 1.8.4.0: login forma je bila hookana UNUTAR form.checkout, a
+  ugnijezdeni <form> je nevaljan HTML - preglednik odbaci form.login tag
+  (s njim i display:none) pa se prijava prikazivala rasklopljena i
+  razlomljena bez klika na toggle. Login blok vracen izvan checkout forme.
+- Zeljeni redoslijed (naslov -> login -> email) postignut obrnuto: modul
+  ispisuje "Podaci za placanje" iznad login bloka (isti msgid kao
+  form-billing.php), original u billing sekciji skriven CSS-om.
+- Login forma stilizirana u express skinu: polja jedno ispod drugog,
+  bijeli inputi na #f8f4ec bloku, copper gumb Prijava.
+- Vi-forma poruka u login formi ("Ako ste vec kupovali... molimo...")
+  na expressu ide u ti-formu (gettext + gettext_with_context).
+- Prijava s express stranice vraca NA express stranicu (WC default salje
+  na /placanje/ pa bi se izgubio express kontekst i deal cijena);
+  override samo kad je referer express URL iz sesije.
+
+
 ## 1.8.4.0 (2026-07-20) - Login notice unutar forme
 
 - "Kupac povratnik / prijava" notice se na expressu seli s vrha stranice

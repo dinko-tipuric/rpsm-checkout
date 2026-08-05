@@ -45,10 +45,16 @@ final class RPSM_Checkout_Module_Express {
 		   radi) - remove na prio 5, WC ga dodaje na before_checkout_form@10 */
 		add_action( 'woocommerce_before_checkout_form', [ __CLASS__, 'maybe_remove_coupon_form' ], 5 );
 
-		/* Login notice se seli s vrha stranice IZMEDJU naslova "Podaci za
-		   placanje" i email polja (before_checkout_billing_form okida odmah
-		   iza h3 naslova u form-billing.php) */
-		add_action( 'woocommerce_before_checkout_form', [ __CLASS__, 'maybe_move_login_form' ], 5 );
+		/* Login blok OSTAJE izvan form.checkout (v1.8.4.0 ga je selio unutra
+		   - ugnijezdeni <form> je nevaljan HTML pa preglednik odbaci
+		   form.login tag zajedno s display:none i sve se prikaze rasklopljeno).
+		   Zeljeni redoslijed naslov -> login -> email se postize obrnuto:
+		   naslov "Podaci za placanje" se ispise PRIJE login bloka (@9, WC login
+		   je @10), a original u form-billing.php skriva express skin CSS. */
+		add_action( 'woocommerce_before_checkout_form', [ __CLASS__, 'render_billing_heading' ], 9 );
+		add_filter( 'gettext', [ __CLASS__, 'login_message_ti' ], 20, 3 );
+		add_filter( 'gettext_with_context', [ __CLASS__, 'login_message_ti_ctx' ], 20, 4 );
+		add_filter( 'woocommerce_login_redirect', [ __CLASS__, 'login_back_to_express' ] );
 
 		/* Ogranicena ponuda (countdown popust) - SPEC Dio 5. Pozicioniranje
 		   po industrijskom standardu (SamCart/Deadline Funnel/ThriveCart):
@@ -71,6 +77,7 @@ final class RPSM_Checkout_Module_Express {
 	/* ── Kontekst ──────────────────────────────────────────────────── */
 
 	private const SESSION_FLAG = 'rpsm_express_pid';
+	private const SESSION_URL  = 'rpsm_express_url';
 
 	/**
 	 * Je li trenutni request express kontekst.
@@ -151,8 +158,10 @@ final class RPSM_Checkout_Module_Express {
 		if ( function_exists( 'WC' ) && WC()->session ) {
 			if ( self::$detected && null !== self::$product_id ) {
 				WC()->session->set( self::SESSION_FLAG, self::$product_id );
+				WC()->session->set( self::SESSION_URL, (string) get_permalink( $post ) );
 			} elseif ( self::session_pid() > 0 && is_checkout() ) {
 				WC()->session->set( self::SESSION_FLAG, null );
+				WC()->session->set( self::SESSION_URL, null );
 			}
 		}
 	}
@@ -337,13 +346,56 @@ final class RPSM_Checkout_Module_Express {
 		return $fragments;
 	}
 
-	/** Login notice ide u formu, ne iznad nje (izmedju naslova i email polja). */
-	public static function maybe_move_login_form(): void {
+	/**
+	 * Naslov "Podaci za placanje" iznad login bloka (v1.8.4.1).
+	 *
+	 * Isti msgid/domain kao form-billing.php pa prolazi kroz isti prijevodni
+	 * lanac - ispis je identican originalu koji CSS skriva.
+	 */
+	public static function render_billing_heading(): void {
 		if ( ! self::is_express() ) {
 			return;
 		}
-		remove_action( 'woocommerce_before_checkout_form', 'woocommerce_checkout_login_form', 10 );
-		add_action( 'woocommerce_before_checkout_billing_form', 'woocommerce_checkout_login_form', 5 );
+		echo '<h3 class="rpsm-express-billing-heading">' . esc_html__( 'Billing details', 'woocommerce' ) . '</h3>';
+	}
+
+	/** WC-ova vi-forma poruka u login formi ide u ti-formu (samo express). */
+	public static function login_message_ti( $translation, $text, $domain ) {
+		if ( 'woocommerce' === $domain
+			&& is_string( $text )
+			&& 0 === strpos( $text, 'If you have shopped with us before' )
+			&& self::is_express() ) {
+			return 'Prijavi se i tvoji će se podaci popuniti sami. Ako nemaš račun, samo nastavi s unosom ispod.';
+		}
+		return $translation;
+	}
+
+	/** Isto pravilo i za gettext_with_context varijantu. */
+	public static function login_message_ti_ctx( $translation, $text, $context, $domain ) {
+		return self::login_message_ti( $translation, $text, $domain );
+	}
+
+	/**
+	 * Prijava s express stranice vraca NA express stranicu.
+	 *
+	 * WC-ov default redirect je wc_get_checkout_url() (/placanje/) pa bi se
+	 * prijavom izgubio express kontekst i deal cijena. Overrida se samo kad
+	 * je login form POSTan s express stranice (referer = spremljeni URL).
+	 */
+	public static function login_back_to_express( $redirect ) {
+		if ( ! function_exists( 'WC' ) || ! WC()->session ) {
+			return $redirect;
+		}
+		$express_url = (string) WC()->session->get( self::SESSION_URL );
+		if ( '' === $express_url ) {
+			return $redirect;
+		}
+		$referer = (string) wp_get_referer();
+		if ( '' !== $referer
+			&& untrailingslashit( (string) strtok( $referer, '?' ) ) === untrailingslashit( (string) strtok( $express_url, '?' ) ) ) {
+			return $express_url;
+		}
+		return $redirect;
 	}
 
 	/** Rucni unos kupona ne postoji na expressu - kupon ili dolazi kroz URL ili ga nema. */
