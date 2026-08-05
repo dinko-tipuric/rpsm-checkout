@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.8.4.2 (2026-08-05) - Razmak ikona kartica bez countdowna
+
+- Ikone kartica ispod CTA gumba: margin-top 20->32px pa razmak ne ovisi o
+  deal timeru. Kad timer linija POSTOJI (aktivna ponuda), ikone se sibling
+  selektorom primaknu njoj (12px) da ukupni razmak ostane isti kao dosad.
+
 ## 1.8.4.1 (2026-08-05) - HOTFIX: login blok van checkout forme
 
 - REGRESIJA 1.8.4.0: login forma je bila hookana UNUTAR form.checkout, a
