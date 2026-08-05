@@ -515,7 +515,6 @@ final class RPSM_Checkout_Module_Express {
 			if (!bar) return;
 			document.body.classList.add("rpsm-express-dealbar-on");
 			var left = parseInt(bar.dataset.seconds, 10) || 0;
-			var timers = document.querySelectorAll(".rpsm-express-deal-timer");
 			function fmt(s){
 				var h = Math.floor(s/3600), m = Math.floor((s%3600)/60), sec = s%60;
 				var mm = (m<10?"0":"")+m, ss = (sec<10?"0":"")+sec;
@@ -532,7 +531,10 @@ final class RPSM_Checkout_Module_Express {
 					if (window.jQuery) { jQuery(document.body).trigger("update_checkout"); }
 					return;
 				}
-				timers.forEach(function(t){ t.textContent = fmt(left); });
+				/* Svjezi query SVAKI otkucaj: linija ispod CTA zivi u payment
+				   fragmentu koji WC zamijeni na svaki update_order_review, pa
+				   kesirana NodeList drzi mrtve elemente (--:-- zauvijek). */
+				document.querySelectorAll(".rpsm-express-deal-timer").forEach(function(t){ t.textContent = fmt(left); });
 				left--;
 				setTimeout(tick, 1000);
 			}

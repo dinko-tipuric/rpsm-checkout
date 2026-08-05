@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.8.2.1 (2026-07-20) - HOTFIX: timer ispod CTA ostajao --:--
+
+- Linija "Popust istjece za" zivi u payment fragmentu koji WC zamijeni na
+  svaki update_order_review - kesirana NodeList je drzala mrtve elemente.
+  Timer elemente sada trazimo svjeze u svakom otkucaju.
+
+
 ## 1.8.2.0 (2026-07-20) - Countdown pozicioniranje po industrijskom standardu
 
 - Countdown premjesten po patternu SamCart/Deadline Funnel/ThriveCart:
