@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.10.1.5 (2026-08-06) - Zivi debug overlay
+
+- ?rpsm-debug=1 overlay se sad osvjezava svake sekunde i na scroll
+  (praznina na iOS-u nastaje tek nakon interakcije - pri loadu je visak
+  tocno 88px); dodani scrollY, visualViewport visina i aktivni fokus.
+
 ## 1.10.1.4 (2026-08-06) - Debug overlay za iOS prazninu
 
 - ?rpsm-debug=1 na express stranici ispisuje overlay s visinom dokumenta,

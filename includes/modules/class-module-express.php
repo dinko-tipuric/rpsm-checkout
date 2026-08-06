@@ -520,17 +520,25 @@ final class RPSM_Checkout_Module_Express {
 		if ( ! isset( $_GET['rpsm-debug'] ) ) { // phpcs:ignore
 			return;
 		}
-		echo '<script>window.addEventListener("load",function(){setTimeout(function(){
-			var d=document.documentElement,f=document.querySelector("[data-elementor-type=\'footer\'],footer");
-			var fb=f?Math.round(f.getBoundingClientRect().bottom+window.scrollY):0;
-			var lines=["docH "+d.scrollHeight+" | winH "+window.innerHeight,"footerDno "+fb+" | visak "+(d.scrollHeight-fb),"body pad-b "+getComputedStyle(document.body).paddingBottom+" | html min-h "+getComputedStyle(d).minHeight];
-			document.querySelectorAll("body *").forEach(function(el){
-				var cs=getComputedStyle(el);if(cs.display==="none")return;
-				var r=el.getBoundingClientRect(),b=r.bottom+window.scrollY;
-				if(fb&&b>fb+40&&r.height>60){lines.push((el.tagName)+"#"+(el.id||"-")+" ."+String(el.className).slice(0,40)+" h"+Math.round(r.height)+" dno"+Math.round(b)+" "+cs.position);}
-			});
-			var o=document.createElement("div");o.style.cssText="position:fixed;top:70px;left:8px;right:8px;z-index:999999;background:#000;color:#0f0;font:10px/1.5 monospace;padding:8px;border-radius:6px;max-height:50vh;overflow:auto;white-space:pre-wrap;word-break:break-all";o.textContent=lines.join("\n");document.body.appendChild(o);
-		},1500);});</script>';
+		/* Zivi mjerac: praznina se na iOS-u pojavi tek NAKON interakcije
+		   (pri loadu je visak tocno 88px = rezerva za sticky), pa se
+		   brojke osvjezavaju svake sekunde + na scroll. */
+		echo '<script>window.addEventListener("load",function(){
+			var o=document.createElement("div");o.style.cssText="position:fixed;top:70px;left:8px;right:8px;z-index:999999;background:#000;color:#0f0;font:10px/1.5 monospace;padding:8px;border-radius:6px;max-height:45vh;overflow:auto;white-space:pre-wrap;word-break:break-all";document.body.appendChild(o);
+			function mjeri(){
+				var d=document.documentElement,f=document.querySelector("[data-elementor-type=\'footer\'],footer");
+				var fb=f?Math.round(f.getBoundingClientRect().bottom+window.scrollY):0;
+				var vv=window.visualViewport;
+				var lines=["docH "+d.scrollHeight+" | bodyH "+Math.round(document.body.getBoundingClientRect().height),"winH "+window.innerHeight+" | vvH "+(vv?Math.round(vv.height):"-")+" | scrollY "+Math.round(window.scrollY),"footerDno "+fb+" | visak "+(d.scrollHeight-fb),"body pad-b "+getComputedStyle(document.body).paddingBottom+" | fokus "+(document.activeElement?document.activeElement.tagName:"-")];
+				document.querySelectorAll("body *").forEach(function(el){
+					var cs=getComputedStyle(el);if(cs.display==="none")return;
+					var r=el.getBoundingClientRect(),b=r.bottom+window.scrollY;
+					if(fb&&b>fb+100&&r.height>60){lines.push(el.tagName+"#"+(el.id||"-")+" ."+String(el.className).slice(0,40)+" h"+Math.round(r.height)+" dno"+Math.round(b)+" "+cs.position);}
+				});
+				o.textContent=lines.join("\n");
+			}
+			mjeri();setInterval(mjeri,1000);window.addEventListener("scroll",mjeri,{passive:true});
+		});</script>';
 	}
 
 	/** Total u sticky traci prati promjene (bump, kupon) kroz WC fragmente. */
