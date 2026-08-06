@@ -233,8 +233,15 @@ body.rpsm-express-page .rpsm-review-remove {
 		padding-left: 32px;
 		padding-right: 32px;
 	}
-	body.rpsm-express-page {
-		padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+	/* v1.10.1.6: bez rezerve na dnu bodyja - sticky se ionako sakrije cim
+	   je footer u viewportu (IO), pa je 88px praznina ispod footera bila
+	   visak. iOS auto-zoom na fokus polja okida font < 16px - na mobilnom
+	   se polja dizu s 14 na 16px umjesto viewport hackova (pinch zoom
+	   ostaje dostupan). */
+	.rpsm-express-checkout .form-row input.input-text,
+	.rpsm-express-checkout .form-row select,
+	.rpsm-express-checkout .form-row textarea {
+		font-size: 16px;
 	}
 }
 

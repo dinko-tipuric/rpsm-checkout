@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.10.1.6 (2026-08-06) - Mobilni: bez 88px praznine + bez auto-zooma
+
+- Uklonjena body rezerva od 88px ispod footera (sticky se ionako sakrije
+  cim je footer u viewportu, pa je rezerva bila cista praznina).
+- Polja forme na mobilnom 16px umjesto 14px - iOS vise ne zumira
+  stranicu na fokus polja (zoom okida font < 16px).
+
 ## 1.10.1.5 (2026-08-06) - Zivi debug overlay
 
 - ?rpsm-debug=1 overlay se sad osvjezava svake sekunde i na scroll
