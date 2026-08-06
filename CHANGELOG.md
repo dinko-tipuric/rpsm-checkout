@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.10.1.2 (2026-08-06) - Mobilna sticky traka: safe-area + centriranje
+
+- Sticky CTA traka na mobilnom: dvostruko visa (padding 16px), iOS safe-area
+  inset (home indicator je rezao cijenu u zaobljenom kutu ekrana), cijena i
+  Naruci gumb centrirani zajedno (gap 28px) umjesto rastegnuti do rubova.
+  Body padding-bottom uskladjen.
+
 ## 1.10.1.1 (2026-08-06) - HOTFIX: express login redirect
 
 - Prijava s express stranice opet vraca NA express: wp_get_referer() vraca
