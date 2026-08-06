@@ -30,6 +30,9 @@ final class RPSM_Checkout_Module_Express {
 
 	public static function init(): void {
 		add_shortcode( self::SHORTCODE, [ __CLASS__, 'render_shortcode' ] );
+		add_shortcode( 'rpsm_express_ponude', [ __CLASS__, 'render_list_shortcode' ] );
+		/* Popis express stranica se kesira - invalidacija na spremanju stranice. */
+		add_action( 'save_post_page', [ __CLASS__, 'flush_list_cache' ] );
 
 		if ( is_admin() ) {
 			return;
@@ -293,6 +296,175 @@ final class RPSM_Checkout_Module_Express {
 		$checkout = do_shortcode( '[woocommerce_checkout]' );
 
 		return '<div class="rpsm-express-checkout" id="rpsm-express-checkout">' . $checkout . '</div>';
+	}
+
+	/* ── [rpsm_express_ponude] - auto popis express ponuda ─────────── */
+
+	private const LIST_TRANSIENT = 'rpsm_express_pages_list';
+
+	public static function flush_list_cache(): void {
+		delete_transient( self::LIST_TRANSIENT );
+	}
+
+	/**
+	 * Objavljene express stranice: [ page_id => product_id ]. Kesirano 10 min
+	 * (invalidacija na save_post_page) - LIKE upit nad postmeta nije za
+	 * svaki pageview.
+	 */
+	private static function published_express_pages(): array {
+		$cached = get_transient( self::LIST_TRANSIENT );
+		if ( is_array( $cached ) ) {
+			return $cached;
+		}
+
+		global $wpdb;
+		$like = '%' . $wpdb->esc_like( '[' . self::SHORTCODE ) . '%';
+		$rows = $wpdb->get_results( $wpdb->prepare(
+			"SELECT DISTINCT p.ID, p.post_content, m.meta_value AS elementor
+			 FROM {$wpdb->posts} p
+			 LEFT JOIN {$wpdb->postmeta} m ON m.post_id = p.ID AND m.meta_key = '_elementor_data'
+			 WHERE p.post_type = 'page' AND p.post_status = 'publish'
+			   AND (p.post_content LIKE %s OR m.meta_value LIKE %s)
+			 LIMIT 50",
+			$like,
+			$like
+		) );
+
+		$map = [];
+		foreach ( (array) $rows as $row ) {
+			foreach ( [ (string) $row->post_content, (string) $row->elementor ] as $haystack ) {
+				if ( preg_match( '/\[' . self::SHORTCODE . '[^\]]*?product_id[^\d\]]{0,4}(\d+)/', $haystack, $m ) ) {
+					$map[ (int) $row->ID ] = (int) $m[1];
+					break;
+				}
+			}
+		}
+
+		set_transient( self::LIST_TRANSIENT, $map, 10 * MINUTE_IN_SECONDS );
+		return $map;
+	}
+
+	/**
+	 * Kartice svih objavljenih express ponuda - za roditeljsku /express/
+	 * (ili /kupi/) stranicu. Nova express stranica se pojavi sama, draft
+	 * nestane; cijene su zive iz WC-a.
+	 *
+	 * Atributi: columns (default 2), exclude (page ID-evi, zarezom),
+	 * order (title|date|menu_order).
+	 */
+	public static function render_list_shortcode( $atts ): string {
+		$atts = shortcode_atts( [
+			'columns' => 2,
+			'exclude' => '',
+			'order'   => 'title',
+		], $atts, 'rpsm_express_ponude' );
+
+		$exclude = array_filter( array_map( 'intval', explode( ',', (string) $atts['exclude'] ) ) );
+		$pages   = self::published_express_pages();
+
+		$cards = [];
+		foreach ( $pages as $page_id => $product_id ) {
+			if ( in_array( $page_id, $exclude, true ) || $page_id === get_the_ID() ) {
+				continue;
+			}
+			$product = wc_get_product( $product_id );
+			if ( ! $product || 'publish' !== $product->get_status() ) {
+				continue;
+			}
+			$cards[] = [ 'page_id' => $page_id, 'product' => $product ];
+		}
+
+		if ( empty( $cards ) ) {
+			return current_user_can( 'manage_woocommerce' )
+				? '<div class="woocommerce-info">[rpsm_express_ponude] Nema objavljenih express stranica. (Poruka vidljiva samo adminima.)</div>'
+				: '';
+		}
+
+		switch ( $atts['order'] ) {
+			case 'date':
+				usort( $cards, static fn( $a, $b ) => strcmp( get_post_field( 'post_date', $b['page_id'] ), get_post_field( 'post_date', $a['page_id'] ) ) );
+				break;
+			case 'menu_order':
+				usort( $cards, static fn( $a, $b ) => (int) get_post_field( 'menu_order', $a['page_id'] ) <=> (int) get_post_field( 'menu_order', $b['page_id'] ) );
+				break;
+			default:
+				usort( $cards, static fn( $a, $b ) => strcasecmp( get_the_title( $a['page_id'] ), get_the_title( $b['page_id'] ) ) );
+		}
+
+		/* Stil dijeli file sa Sadrzajem proizvoda (registriran na enqueue hooku). */
+		if ( wp_style_is( 'rpsm-product-content', 'registered' ) ) {
+			wp_enqueue_style( 'rpsm-product-content' );
+		}
+
+		$cols = max( 1, min( 3, (int) $atts['columns'] ) );
+		$out  = '<div class="rpsm-xp-list" style="--rpsm-xp-cols:' . $cols . '">';
+
+		foreach ( $cards as $card ) {
+			$out .= self::render_list_card( $card['page_id'], $card['product'] );
+		}
+
+		return $out . '</div>';
+	}
+
+	private static function render_list_card( int $page_id, WC_Product $product ): string {
+		$url   = get_permalink( $page_id );
+		$title = get_the_title( $page_id );
+		$owned = ! $product->is_purchasable();
+
+		/* Kratki opis: WC short description, ociscen i skracen. */
+		$desc = trim( wp_strip_all_tags( (string) $product->get_short_description() ) );
+		if ( mb_strlen( $desc ) > 180 ) {
+			$desc = mb_substr( $desc, 0, 177 ) . '...';
+		}
+
+		/* Stats chipovi iz Sadrzaja proizvoda (ako postoje). */
+		$chips = [];
+		if ( class_exists( 'RPSM_Checkout_Module_Product_Content' ) ) {
+			$chips = array_slice( array_filter( array_map( 'trim',
+				explode( ',', (string) ( RPSM_Checkout_Module_Product_Content::get_data( $product->get_id() )['stats'] ?? '' ) )
+			) ), 0, 4 );
+		}
+
+		/* Deal badge: Ogranicena ponuda konfigurirana na proizvodu (bez
+		   countdowna - deadline je per-posjetitelj, na listi samo signal). */
+		$badge = '';
+		if ( ! $owned && class_exists( 'RPSM_Checkout_Module_Product_Content' ) ) {
+			$deal = RPSM_Checkout_Module_Product_Content::get_data( $product->get_id() )['deal'] ?? null;
+			if ( is_array( $deal ) && '1' === ( $deal['on'] ?? '0' ) ) {
+				$amount = (float) str_replace( ',', '.', (string) ( $deal['amount'] ?? '' ) );
+				if ( $amount > 0 ) {
+					$badge = 'fixed' === ( $deal['type'] ?? 'percent' )
+						? '-' . wp_strip_all_tags( wc_price( $amount ) )
+						: '-' . rtrim( rtrim( number_format( $amount, 1, ',', '.' ), '0' ), ',' ) . '%';
+					$badge = '<span class="rpsm-xp-card__badge">' . esc_html( $badge ) . ' · ograničena ponuda</span>';
+				}
+			}
+		}
+
+		$out  = '<article class="rpsm-xp-card' . ( $owned ? ' rpsm-xp-card--owned' : '' ) . '">';
+		$out .= '<h3 class="rpsm-xp-card__title"><a href="' . esc_url( $url ) . '">' . esc_html( $title ) . '</a></h3>';
+		if ( '' !== $desc ) {
+			$out .= '<p class="rpsm-xp-card__desc">' . esc_html( $desc ) . '</p>';
+		}
+		if ( ! empty( $chips ) ) {
+			$out .= '<div class="rpsm-xp-card__chips">';
+			foreach ( $chips as $chip ) {
+				$out .= '<span class="rpsm-xp-card__chip">' . esc_html( $chip ) . '</span>';
+			}
+			$out .= '</div>';
+		}
+
+		$out .= '<div class="rpsm-xp-card__foot">';
+		if ( $owned ) {
+			$out .= '<span class="rpsm-xp-card__owned">Već imaš ✓</span>';
+			$out .= '<a class="rpsm-xp-card__cta rpsm-xp-card__cta--ghost" href="' . esc_url( wc_get_page_permalink( 'myaccount' ) ) . '">Otvori sadržaj →</a>';
+		} else {
+			$out .= '<span class="rpsm-xp-card__price">' . $badge . wp_kses_post( $product->get_price_html() ) . '</span>';
+			$out .= '<a class="rpsm-xp-card__cta" href="' . esc_url( $url ) . '">Saznaj više →</a>';
+		}
+		$out .= '</div></article>';
+
+		return $out;
 	}
 
 	private static function render_owned_card( WC_Product $product ): string {

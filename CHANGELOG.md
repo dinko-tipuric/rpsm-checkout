@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.10.0.0 (2026-08-06) - [rpsm_express_ponude] auto popis ponuda
+
+- NOVI SHORTCODE [rpsm_express_ponude] za roditeljsku /express/ (ili /kupi/)
+  stranicu: automatski pronalazi SVE objavljene express stranice i renderira
+  kartice - naslov, kratki opis (WC short description), stats chipovi iz
+  Sadrzaja proizvoda, ziva cijena (get_price_html), badge "-X% ogranicena
+  ponuda" kad je deal konfiguriran, copper CTA. Vlasnik proizvoda vidi
+  "Vec imas" + link na Moj racun. Atributi: columns (1-3, default 2),
+  exclude (page ID-evi), order (title|date|menu_order).
+- Popis kesiran 10 min (transient), invalidacija na spremanju bilo koje
+  stranice. Nova express stranica se pojavi sama; draft nestane.
+- Stil u rpsm-product-content.css (portal skin), ucitava se samo gdje se
+  shortcode koristi.
+
 ## 1.9.0.0 (2026-08-06) - Prijevodi preseljeni u rpsm-alati Lokalizacija
 
 - UKLONJEN modul Prijevodi (gettext parovi) + admin tab - prijevodi sada
