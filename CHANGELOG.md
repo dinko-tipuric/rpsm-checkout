@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.10.1.1 (2026-08-06) - HOTFIX: express login redirect
+
+- Prijava s express stranice opet vraca NA express: wp_get_referer() vraca
+  false kad je referer jednak trenutnom URL-u (login forma POSTa na samu
+  express stranicu) pa gate nikad nije okidao -> wp_get_raw_referer() +
+  usporedba putanja kroz wp_parse_url.
+
 ## 1.10.1.0 (2026-08-06) - Ukupna usteda ukljucuje order bump
 
 - "Usteda" red u express sazetku sada zbraja express deal + ustede prihvacenih

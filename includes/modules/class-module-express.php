@@ -546,9 +546,13 @@ final class RPSM_Checkout_Module_Express {
 		if ( '' === $express_url ) {
 			return $redirect;
 		}
-		$referer = (string) wp_get_referer();
+		/* ⚠️ wp_get_referer() vraca FALSE kad je referer JEDNAK trenutnom URL-u -
+		   a login forma POSTa upravo na samu express stranicu, pa gate nikad
+		   nije okidao (nadjeno u dev testu 06-08). Raw varijanta nema taj guard. */
+		$referer = (string) wp_get_raw_referer();
 		if ( '' !== $referer
-			&& untrailingslashit( (string) strtok( $referer, '?' ) ) === untrailingslashit( (string) strtok( $express_url, '?' ) ) ) {
+			&& untrailingslashit( (string) wp_parse_url( $referer, PHP_URL_PATH ) )
+				=== untrailingslashit( (string) wp_parse_url( $express_url, PHP_URL_PATH ) ) ) {
 			return $express_url;
 		}
 		return $redirect;
