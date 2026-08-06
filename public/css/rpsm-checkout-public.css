@@ -233,16 +233,6 @@ body.rpsm-express-page .rpsm-review-remove {
 		padding-left: 32px;
 		padding-right: 32px;
 	}
-	/* v1.10.1.6: bez rezerve na dnu bodyja - sticky se ionako sakrije cim
-	   je footer u viewportu (IO), pa je 88px praznina ispod footera bila
-	   visak. iOS auto-zoom na fokus polja okida font < 16px - na mobilnom
-	   se polja dizu s 14 na 16px umjesto viewport hackova (pinch zoom
-	   ostaje dostupan). */
-	.rpsm-express-checkout .form-row input.input-text,
-	.rpsm-express-checkout .form-row select,
-	.rpsm-express-checkout .form-row textarea {
-		font-size: 16px;
-	}
 }
 
 /* ── Express: skin forme po portalskom checkoutu (v1.7.2.0) ──────── */
@@ -284,6 +274,17 @@ body.rpsm-express-page .rpsm-review-remove {
 .rpsm-express-checkout .form-row textarea:focus {
 	outline: 2px solid #d17954;
 	outline-offset: 0;
+}
+/* iOS auto-zoom na fokus okida font < 16px, pa se na mobilnom polja dizu
+   s 14 na 16px (pinch zoom ostaje dostupan). MORA stajati IZA osnovnog
+   pravila od 14px - ista specificnost, kasnije pobjeduje (1.10.1.6 je
+   ovo drzao u ranijem media bloku pa nije djelovalo). */
+@media (max-width: 920px) {
+	.rpsm-express-checkout .form-row input.input-text,
+	.rpsm-express-checkout .form-row select,
+	.rpsm-express-checkout .form-row textarea {
+		font-size: 16px;
+	}
 }
 .rpsm-express-checkout .woocommerce-info {
 	background: #f8f4ec;

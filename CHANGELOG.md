@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.10.1.7 (2026-08-06) - Fix: 16px pravilo nije djelovalo
+
+- Mobilni override polja na 16px preseljen IZA osnovnog pravila od 14px
+  (ista specificnost, kasnije pobjeduje) - u 1.10.1.6 je stajao u ranijem
+  media bloku pa je iOS i dalje zumirao na fokus.
+
 ## 1.10.1.6 (2026-08-06) - Mobilni: bez 88px praznine + bez auto-zooma
 
 - Uklonjena body rezerva od 88px ispod footera (sticky se ionako sakrije
