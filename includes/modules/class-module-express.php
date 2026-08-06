@@ -803,17 +803,45 @@ final class RPSM_Checkout_Module_Express {
 		if ( null === $pid ) {
 			return;
 		}
-		$seconds = self::deal_seconds_left( $pid );
-		if ( null === $seconds || $seconds <= 0 ) {
+
+		/* Deal usteda (aktivan countdown). */
+		$deal_savings = 0.0;
+		$deal_label   = '';
+		$seconds      = self::deal_seconds_left( $pid );
+		if ( null !== $seconds && $seconds > 0 ) {
+			$config = self::deal_config( $pid );
+			$labels = null !== $config ? self::deal_labels( $pid, $config ) : null;
+			if ( null !== $labels && $labels['savings'] > 0 ) {
+				$deal_savings = (float) $labels['savings'];
+				$deal_label   = (string) $labels['label'];
+			}
+		}
+
+		/* + usteda prihvacenih order bumpova (rpsm-upsell cart meta nosi
+		   regular/offered gross) - da red pokazuje UKUPNU ustedu narudzbe,
+		   ne samo express deal (Dinkov nalaz 06-08: bump usteda "nestane"). */
+		$bump_savings = 0.0;
+		if ( function_exists( 'WC' ) && WC()->cart ) {
+			foreach ( WC()->cart->get_cart() as $cart_item ) {
+				$meta = $cart_item['rpsm_upsell'] ?? null;
+				if ( is_array( $meta ) ) {
+					$bump_savings += max( 0.0, (float) ( $meta['regular_gross'] ?? 0 ) - (float) ( $meta['offered_gross'] ?? 0 ) );
+				}
+			}
+		}
+
+		$total = $deal_savings + $bump_savings;
+		if ( $total <= 0 ) {
 			return;
 		}
-		$config = self::deal_config( $pid );
-		$labels = null !== $config ? self::deal_labels( $pid, $config ) : null;
-		if ( null === $labels || $labels['savings'] <= 0 ) {
-			return;
-		}
-		echo '<tr class="rpsm-express-deal-savings"><th>Ušteda (' . esc_html( $labels['label'] ) . ')</th>';
-		echo '<td>-' . wp_kses_post( wc_price( $labels['savings'] ) ) . '</td></tr>';
+
+		/* Samo deal -> stari label s postotkom; cim je bump u igri -> "Ukupna usteda". */
+		$label = ( $bump_savings > 0 )
+			? 'Ukupna ušteda'
+			: 'Ušteda (' . $deal_label . ')';
+
+		echo '<tr class="rpsm-express-deal-savings"><th>' . esc_html( $label ) . '</th>';
+		echo '<td>-' . wp_kses_post( wc_price( $total ) ) . '</td></tr>';
 	}
 
 	/** Mala linija ispod CTA gumba - timer ponovljen uz tocku odluke. */

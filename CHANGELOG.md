@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.10.1.0 (2026-08-06) - Ukupna usteda ukljucuje order bump
+
+- "Usteda" red u express sazetku sada zbraja express deal + ustede prihvacenih
+  order bumpova (iz rpsm_upsell cart mete). Kad je bump u igri, label postaje
+  "Ukupna usteda" (bez postotka jer se odnosi na vise stavki); samo deal
+  zadrzava stari "Usteda (-20%)". Red se prikazuje i kad SAMO bump nosi
+  ustedu (bez aktivnog deala).
+
 ## 1.10.0.1 (2026-08-06) - HOTFIX: WP slashevi u tekst opcijama
 
 - Spremanje tekst/textarea opcija nije radilo wp_unslash pa su navodnici u
