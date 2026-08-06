@@ -73,6 +73,7 @@ final class RPSM_Checkout_Module_Express {
 		add_action( 'wp_footer', [ __CLASS__, 'render_sticky_cta' ] );
 		add_filter( 'woocommerce_update_order_review_fragments', [ __CLASS__, 'sticky_total_fragment' ] );
 		add_action( 'wp_head', [ __CLASS__, 'seo_tags' ], 1 );
+		add_action( 'wp_footer', [ __CLASS__, 'render_debug_overlay' ], 999 );
 	}
 
 	/* ── Kontekst ──────────────────────────────────────────────────── */
@@ -508,6 +509,28 @@ final class RPSM_Checkout_Module_Express {
 		   precica DO forme; preko footera nema smisla - Dinko 06-08). Fallback
 		   bez IO: traka uvijek vidljiva. */
 		echo '<script>(function(){var b=document.getElementById("rpsm-express-sticky");if(!b||!("IntersectionObserver"in window))return;var t=[document.getElementById("rpsm-express-checkout"),document.querySelector("[data-elementor-type=\'footer\'],footer")].filter(Boolean);if(!t.length)return;var vis={};var io=new IntersectionObserver(function(es){es.forEach(function(e){vis[t.indexOf(e.target)]=e.isIntersecting;});b.style.display=Object.values(vis).some(Boolean)?"none":"";});t.forEach(function(el){io.observe(el);});})();</script>';
+	}
+
+	/**
+	 * Dijagnosticki overlay (?rpsm-debug=1): visina dokumenta, footer dno i
+	 * elementi koji strse ispod footera - za iOS-only layout misterije koje
+	 * se ne daju reproducirati u emulaciji (praznina nakon footera, 06-08).
+	 */
+	public static function render_debug_overlay(): void {
+		if ( ! isset( $_GET['rpsm-debug'] ) ) { // phpcs:ignore
+			return;
+		}
+		echo '<script>window.addEventListener("load",function(){setTimeout(function(){
+			var d=document.documentElement,f=document.querySelector("[data-elementor-type=\'footer\'],footer");
+			var fb=f?Math.round(f.getBoundingClientRect().bottom+window.scrollY):0;
+			var lines=["docH "+d.scrollHeight+" | winH "+window.innerHeight,"footerDno "+fb+" | visak "+(d.scrollHeight-fb),"body pad-b "+getComputedStyle(document.body).paddingBottom+" | html min-h "+getComputedStyle(d).minHeight];
+			document.querySelectorAll("body *").forEach(function(el){
+				var cs=getComputedStyle(el);if(cs.display==="none")return;
+				var r=el.getBoundingClientRect(),b=r.bottom+window.scrollY;
+				if(fb&&b>fb+40&&r.height>60){lines.push((el.tagName)+"#"+(el.id||"-")+" ."+String(el.className).slice(0,40)+" h"+Math.round(r.height)+" dno"+Math.round(b)+" "+cs.position);}
+			});
+			var o=document.createElement("div");o.style.cssText="position:fixed;top:70px;left:8px;right:8px;z-index:999999;background:#000;color:#0f0;font:10px/1.5 monospace;padding:8px;border-radius:6px;max-height:50vh;overflow:auto;white-space:pre-wrap;word-break:break-all";o.textContent=lines.join("\n");document.body.appendChild(o);
+		},1500);});</script>';
 	}
 
 	/** Total u sticky traci prati promjene (bump, kupon) kroz WC fragmente. */
