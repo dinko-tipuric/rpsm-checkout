@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.10.0.1 (2026-08-06) - HOTFIX: WP slashevi u tekst opcijama
+
+- Spremanje tekst/textarea opcija nije radilo wp_unslash pa su navodnici u
+  bazu ulazili kao \\" (vidljivo na owned kartici: Program \\"X\\" vec imas).
+  Save sada unslasha; owned poruka dodatno stripslashes na ispisu za stare
+  spremljene vrijednosti. Nakon updatea jedan Spremi u Express tabu cisti
+  opciju trajno.
+
 ## 1.10.0.0 (2026-08-06) - [rpsm_express_ponude] auto popis ponuda
 
 - NOVI SHORTCODE [rpsm_express_ponude] za roditeljsku /express/ (ili /kupi/)

@@ -489,12 +489,12 @@ final class RPSM_Checkout_Admin {
 			if ( $type === 'toggle' ) {
 				$val = isset( $_POST[ $key ] ) ? '1' : '0';
 			} elseif ( $type === 'textarea' ) {
-				$val = sanitize_textarea_field( $_POST[ $key ] ?? '' );
+				$val = sanitize_textarea_field( wp_unslash( $_POST[ $key ] ?? '' ) );
 			} elseif ( $type === 'product_ids' ) {
 				$raw = isset( $_POST[ $key ] ) ? (array) wp_unslash( $_POST[ $key ] ) : [];
 				$val = implode( ',', array_filter( array_map( 'absint', $raw ) ) );
 			} else {
-				$val = sanitize_text_field( $_POST[ $key ] ?? '' );
+				$val = sanitize_text_field( wp_unslash( $_POST[ $key ] ?? '' ) );
 			}
 			RPSM_Checkout_Options::set( $key, $val );
 		}

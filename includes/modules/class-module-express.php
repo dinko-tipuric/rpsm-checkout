@@ -469,6 +469,8 @@ final class RPSM_Checkout_Module_Express {
 
 	private static function render_owned_card( WC_Product $product ): string {
 		$msg = (string) RPSM_Checkout_Options::get( RPSM_Checkout_Options::EXPRESS_OWNED_MESSAGE );
+		/* Opcije spremljene prije v1.10.0.1 nose WP slasheve (\") - pocisti. */
+		$msg = stripslashes( $msg );
 		$msg = str_replace( '{proizvod}', $product->get_name(), $msg );
 
 		$link_text = (string) RPSM_Checkout_Options::get( RPSM_Checkout_Options::EXPRESS_OWNED_LINK_TEXT );
