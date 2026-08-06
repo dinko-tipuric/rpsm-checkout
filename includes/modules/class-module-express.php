@@ -504,9 +504,10 @@ final class RPSM_Checkout_Module_Express {
 		echo '<a href="#rpsm-express-checkout" class="button alt rpsm-express-sticky-btn">' . esc_html( $text ) . '</a>';
 		echo '</div>';
 
-		/* Sakrij traku dok je checkout forma u viewportu (traka je precica DO
-		   forme, ne duplikat CTA uz nju). Fallback bez IO: traka uvijek vidljiva. */
-		echo '<script>(function(){var b=document.getElementById("rpsm-express-sticky"),f=document.getElementById("rpsm-express-checkout");if(!b||!f||!("IntersectionObserver"in window))return;new IntersectionObserver(function(e){b.style.display=e[0].isIntersecting?"none":"";}).observe(f);})();</script>';
+		/* Sakrij traku dok su checkout forma ILI footer u viewportu (traka je
+		   precica DO forme; preko footera nema smisla - Dinko 06-08). Fallback
+		   bez IO: traka uvijek vidljiva. */
+		echo '<script>(function(){var b=document.getElementById("rpsm-express-sticky");if(!b||!("IntersectionObserver"in window))return;var t=[document.getElementById("rpsm-express-checkout"),document.querySelector("[data-elementor-type=\'footer\'],footer")].filter(Boolean);if(!t.length)return;var vis={};var io=new IntersectionObserver(function(es){es.forEach(function(e){vis[t.indexOf(e.target)]=e.isIntersecting;});b.style.display=Object.values(vis).some(Boolean)?"none":"";});t.forEach(function(el){io.observe(el);});})();</script>';
 	}
 
 	/** Total u sticky traci prati promjene (bump, kupon) kroz WC fragmente. */

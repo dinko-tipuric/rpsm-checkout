@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.10.1.3 (2026-08-06) - Sticky traka staje prije footera
+
+- Mobilna sticky CTA traka se skriva i kad footer udje u viewport (ne samo
+  kad je checkout forma vidljiva) - preko footera nema smisla.
+
 ## 1.10.1.2 (2026-08-06) - Mobilna sticky traka: safe-area + centriranje
 
 - Sticky CTA traka na mobilnom: dvostruko visa (padding 16px), iOS safe-area
