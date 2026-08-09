@@ -64,6 +64,38 @@ class RPSM_PC_Count_Dynamic_Tag extends \Elementor\Core\DynamicTags\Tag {
 		];
 	}
 
+	/**
+	 * Display Conditions lista SAMO tagove koji u editor configu imaju
+	 * 'display_conditions' unose (Pro 4.2.1: provider preskace sve ostale) -
+	 * po jedan unos po polju, s unaprijed zapecenim settings (postavke taga
+	 * se u conditions UI-ju NE mogu otvarati). 'group' MORA biti jedna od
+	 * hardkodiranih grupa providera (archive/featured_image/author) - inace
+	 * unos ispada iz liste; 'archive' odabran da budu pri vrhu.
+	 */
+	public function get_editor_config() {
+		$config = parent::get_editor_config();
+
+		$polja = [
+			'moduli'    => 'Moduli',
+			'faq'       => 'FAQ',
+			'za_koga'   => 'Za koga je / nije',
+			'stats'     => 'Stats chipovi',
+			'recenzije' => 'Recenzije',
+			'video'     => 'Video',
+		];
+		$conditions = [];
+		foreach ( $polja as $key => $label ) {
+			$conditions[ 'rpsm_pc_' . $key ] = [
+				'label'    => 'RPSM Sadržaj: ' . $label,
+				'settings' => [ 'polje' => $key ],
+				'group'    => 'archive',
+			];
+		}
+		$config['display_conditions'] = $conditions;
+
+		return $config;
+	}
+
 	protected function register_controls(): void {
 		$this->add_control(
 			'polje',

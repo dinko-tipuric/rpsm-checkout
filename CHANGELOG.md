@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.10.2.2 (2026-08-09) - Tag konacno vidljiv u Display Conditions
+
+- Otkriveno u Pro 4.2.1 sourceu: Display Conditions lista SAMO tagove s
+  'display_conditions' unosima u editor configu (custom tagovi bez toga
+  se preskacu) - dodano 6 unosa "RPSM Sadrzaj: ..." (po jedan po polju,
+  preset settings, grupa 'archive' jer su grupe hardkodirane).
+- Potvrdeno u kodu: "is empty" komparator je pokvaren (prazan tag ->
+  false -> uvjet uvijek false); koristiti "is not empty" + Show smjer.
+
 ## 1.10.2.1 (2026-08-09) - Dynamic tag u grupu "Post"
 
 - Tag "RPSM: Broj stavki sadrzaja" preseljen iz custom grupe "rpsm" u
