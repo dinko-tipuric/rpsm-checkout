@@ -113,9 +113,6 @@ final class RPSM_Checkout_Module_Product_Content {
 		if ( ! class_exists( '\Elementor\Core\DynamicTags\Tag' ) || ! class_exists( '\Elementor\Modules\DynamicTags\Module' ) ) {
 			return;
 		}
-		if ( method_exists( $manager, 'register_group' ) ) {
-			$manager->register_group( 'rpsm', [ 'title' => 'RPSM' ] );
-		}
 		if ( ! class_exists( 'RPSM_PC_Count_Dynamic_Tag' ) ) {
 			require_once RPSM_CHECKOUT_PLUGIN_DIR . 'includes/class-rpsm-pc-count-tag.php';
 		}

@@ -45,8 +45,13 @@ class RPSM_PC_Count_Dynamic_Tag extends \Elementor\Core\DynamicTags\Tag {
 		return 'RPSM: Broj stavki sadržaja';
 	}
 
+	/**
+	 * Ugrađena grupa "Post" - NE custom grupa: mv-portal-core pattern koji
+	 * je dokazano vidljiv u pickerima; custom grupe znaju ispasti iz
+	 * Display Conditions dropdowna (Elementor #25418 truncation).
+	 */
 	public function get_group(): string {
-		return 'rpsm';
+		return 'post';
 	}
 
 	/**

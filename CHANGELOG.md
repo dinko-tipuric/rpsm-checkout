@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.10.2.1 (2026-08-09) - Dynamic tag u grupu "Post"
+
+- Tag "RPSM: Broj stavki sadrzaja" preseljen iz custom grupe "rpsm" u
+  ugradjenu grupu "Post" (mv-portal-core pattern) - custom grupa se nije
+  pojavljivala u Display Conditions dropdownu.
+
 ## 1.10.2.0 (2026-08-09) - Elementor dynamic tag za prazna polja sadrzaja
 
 - Novi dynamic tag "RPSM: Broj stavki sadrzaja" (grupa RPSM): vraca broj
