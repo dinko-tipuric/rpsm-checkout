@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.10.2.0 (2026-08-09) - Elementor dynamic tag za prazna polja sadrzaja
+
+- Novi dynamic tag "RPSM: Broj stavki sadrzaja" (grupa RPSM): vraca broj
+  stavki odabranog polja (moduli/faq/za_koga/stats/recenzije/video) za
+  proizvod iz konteksta ili eksplicitni product_id; prazno polje = prazan
+  output. Namjena: Elementor Pro Display Conditions "is empty / is not
+  empty" za skrivanje naslova/sekcija (npr. "Moduli" bez modula).
+- Product_Content: javni count_items() + resolve_for_display(); tag klasa
+  lazy-load bez vlastitog konstruktora (mv-portal-core ctor lekcija).
+
 ## 1.10.1.7 (2026-08-06) - Fix: 16px pravilo nije djelovalo
 
 - Mobilni override polja na 16px preseljen IZA osnovnog pravila od 14px

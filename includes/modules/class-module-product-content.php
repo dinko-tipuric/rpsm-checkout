@@ -42,6 +42,10 @@ final class RPSM_Checkout_Module_Product_Content {
 
 		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'register_style' ] );
 
+		/* Elementor dynamic tag "RPSM: Broj stavki sadržaja" - za Display
+		   Conditions (sakrij naslov/sekciju kad je polje prazno). */
+		add_action( 'elementor/dynamic_tags/register', [ __CLASS__, 'register_dynamic_tag' ] );
+
 		if ( is_admin() ) {
 			add_action( 'add_meta_boxes', [ __CLASS__, 'register_metabox' ] );
 			add_action( 'save_post_product', [ __CLASS__, 'save_metabox' ], 10, 2 );
@@ -98,6 +102,84 @@ final class RPSM_Checkout_Module_Product_Content {
 	/**
 	 * Proizvod za shortcode: atribut > express kontekst > queried proizvod.
 	 */
+	/**
+	 * Registrira Elementor grupu "RPSM" + dynamic tag za broj stavki.
+	 * Tag klasa se učitava lazily (parser bi pao bez Elementora).
+	 * ⚠️ Tag NE dobiva ništa kroz konstruktor (mv-portal-core ctor lekcija).
+	 *
+	 * @param \Elementor\Core\DynamicTags\Manager $manager
+	 */
+	public static function register_dynamic_tag( $manager ): void {
+		if ( ! class_exists( '\Elementor\Core\DynamicTags\Tag' ) || ! class_exists( '\Elementor\Modules\DynamicTags\Module' ) ) {
+			return;
+		}
+		if ( method_exists( $manager, 'register_group' ) ) {
+			$manager->register_group( 'rpsm', [ 'title' => 'RPSM' ] );
+		}
+		if ( ! class_exists( 'RPSM_PC_Count_Dynamic_Tag' ) ) {
+			require_once RPSM_CHECKOUT_PLUGIN_DIR . 'includes/class-rpsm-pc-count-tag.php';
+		}
+		if ( class_exists( 'RPSM_PC_Count_Dynamic_Tag' ) ) {
+			$manager->register( new RPSM_PC_Count_Dynamic_Tag() );
+		}
+	}
+
+	/**
+	 * Javni resolver za dynamic tag: eksplicitni ID ili kontekst
+	 * (express stranica / product stranica) - ista logika kao shortcodovi.
+	 */
+	public static function resolve_for_display( int $product_id ): int {
+		return self::resolve_product_id( [ 'product_id' => $product_id ] );
+	}
+
+	/**
+	 * Broj stavki polja - zrcali "prazno" logiku shortcodova, pa je tag
+	 * prazan TOČNO kad i shortcode ne renderira ništa.
+	 */
+	public static function count_items( int $product_id, string $polje ): int {
+		if ( $product_id <= 0 ) {
+			return 0;
+		}
+		$data = self::get_data( $product_id );
+		switch ( $polje ) {
+			case 'stats':
+				return count( array_filter( array_map( 'trim', explode( ',', $data['stats'] ) ) ) );
+			case 'za_koga':
+				return count( self::lines( $data['za'] ) ) + count( self::lines( $data['nije'] ) );
+			case 'moduli':
+				$n = 0;
+				foreach ( $data['moduli'] as $mod ) {
+					if ( '' !== trim( (string) ( $mod['naziv'] ?? '' ) ) ) {
+						$n++;
+					}
+				}
+				return $n;
+			case 'faq':
+				$rows = $data['faq'];
+				if ( '1' !== $data['faq_hide_global'] ) {
+					$rows = array_merge( $rows, self::global_faq() );
+				}
+				$n = 0;
+				foreach ( $rows as $row ) {
+					if ( '' !== trim( (string) ( $row['q'] ?? '' ) ) && '' !== trim( (string) ( $row['a'] ?? '' ) ) ) {
+						$n++;
+					}
+				}
+				return $n;
+			case 'recenzije':
+				$n = 0;
+				foreach ( $data['recenzije'] as $rec ) {
+					if ( '' !== trim( (string) ( $rec['tekst'] ?? '' ) ) ) {
+						$n++;
+					}
+				}
+				return $n;
+			case 'video':
+				return '' !== trim( $data['video'] ) ? 1 : 0;
+		}
+		return 0;
+	}
+
 	private static function resolve_product_id( array $atts ): int {
 		$pid = (int) ( $atts['product_id'] ?? 0 );
 		if ( $pid > 0 ) {
