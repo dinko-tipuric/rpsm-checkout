@@ -771,7 +771,14 @@ final class RPSM_Checkout_Module_Express {
 		}
 
 		echo '<div class="rpsm-express-dealbar" id="rpsm-express-dealbar" data-seconds="' . (int) $seconds . '">';
-		echo '<span class="rpsm-express-dealbar-pill">' . esc_html( $labels['label'] ) . ' &middot; ušteda ' . wp_kses_post( wc_price( $labels['savings'] ) ) . '</span>';
+		/* Fiksni popust: oznaka VEC JE iznos ustede ("-120,00 EUR"), pa bi
+		   "· ušteda 120,00 EUR" bio redundantan (Dinkov nalaz 24-08). Kod
+		   postotka usteda ostaje - "-20%" sam ne govori koliko je to u EUR. */
+		$pill = esc_html( $labels['label'] );
+		if ( 'fixed' !== $config['type'] ) {
+			$pill .= ' &middot; ušteda ' . wp_kses_post( wc_price( $labels['savings'] ) );
+		}
+		echo '<span class="rpsm-express-dealbar-pill">' . $pill . '</span>';
 		echo '<span class="rpsm-express-dealbar-title">' . esc_html( $config['title'] ) . '</span>';
 		echo '<b class="rpsm-express-deal-timer" aria-live="polite">--:--</b>';
 		if ( current_user_can( 'manage_woocommerce' ) ) {

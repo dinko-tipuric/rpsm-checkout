@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.10.2.3 (2026-08-24) - Deal traka bez redundantne ustede
+
+- Pill u deal traci kod FIKSNOG popusta prikazuje samo oznaku
+  ("-120,00 EUR") - "· ušteda 120,00 EUR" je bio isti iznos dvaput.
+  Kod postotnog popusta usteda ostaje ("-20% · ušteda X EUR").
+
 ## 1.10.2.2 (2026-08-09) - Tag konacno vidljiv u Display Conditions
 
 - Otkriveno u Pro 4.2.1 sourceu: Display Conditions lista SAMO tagove s
