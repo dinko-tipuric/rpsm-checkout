@@ -68,6 +68,7 @@ final class RPSM_Checkout_Module_Express {
 		add_action( 'woocommerce_review_order_before_order_total', [ __CLASS__, 'render_deal_savings_row' ] );
 		add_action( 'woocommerce_review_order_after_submit', [ __CLASS__, 'render_deal_cta_note' ], 5 );
 		add_action( 'woocommerce_after_checkout_validation', [ __CLASS__, 'deal_expiry_guard' ], 10, 2 );
+		add_action( 'woocommerce_checkout_create_order', [ __CLASS__, 'type_order_meta' ] );
 		add_action( 'woocommerce_checkout_create_order', [ __CLASS__, 'deal_order_meta' ] );
 		add_filter( 'body_class', [ __CLASS__, 'body_class' ] );
 		add_action( 'wp_footer', [ __CLASS__, 'render_sticky_cta' ] );
@@ -940,6 +941,17 @@ final class RPSM_Checkout_Module_Express {
 			'Vremenska ponuda je u međuvremenu istekla pa je cijena vraćena na redovnu. Provjeri iznos i ponovno potvrdi narudžbu.'
 		);
 		RPSM_Checkout_Debug::info( 'Express deal: istek na submitu, kupac obavijesten', [ 'product' => $pid ], 'express' );
+	}
+
+	/**
+	 * SVAKA express narudzba dobiva _rpsm_checkout_type = 'express' (bez obzira na
+	 * ponudu) - HQ po tome razlikuje express od standardnog checkouta u analitici
+	 * (A/B express vs regular). Odsutnost mete = standardni checkout.
+	 */
+	public static function type_order_meta( $order ): void {
+		if ( self::is_express() && $order instanceof WC_Order ) {
+			$order->update_meta_data( '_rpsm_checkout_type', 'express' );
+		}
 	}
 
 	/** Trag na narudzbi kad je kupljeno s aktivnom ponudom. */

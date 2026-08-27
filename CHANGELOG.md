@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.11.0.0 (2026-08-27) - Express marker na narudzbi
+
+- Svaka narudzba kroz express checkout dobiva meta `_rpsm_checkout_type` =
+  'express' (do sada je trag postojao samo uz aktivnu vremensku ponudu kroz
+  `_rpsm_express_deal`). HQ analitika po tome razlikuje express od standardnog
+  checkouta - podloga za A/B usporedbe express vs regular.
+
 ## 1.10.2.3 (2026-08-24) - Deal traka bez redundantne ustede
 
 - Pill u deal traci kod FIKSNOG popusta prikazuje samo oznaku
