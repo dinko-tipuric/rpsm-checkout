@@ -205,8 +205,9 @@ final class RPSM_Checkout_Module_Express {
 			return;
 		}
 
-		/* Countdown ponuda: deadline krece od PRVOG posjeta (refresh ga ne
-		   resetira). Postavlja se prije manipulacije kosaricom. */
+		/* Countdown ponuda: deadline krece od PRVOG posjeta; refresh usred
+		   aktivnog countdowna ga ne resetira, ali istekli se ponovno pokrece
+		   (retargeting). Postavlja se prije manipulacije kosaricom. */
 		self::deal_start( $product );
 
 		/* Stanje kosarice: express proizvod moze vec biti unutra (raniji
@@ -650,10 +651,23 @@ final class RPSM_Checkout_Module_Express {
 			return;
 		}
 
-		if ( ! WC()->session->get( $key ) ) {
-			WC()->session->set( $key, time() + $config['minutes'] * 60 );
-			RPSM_Checkout_Debug::info( 'Express deal: countdown pokrenut', [ 'product' => $pid, 'minutes' => $config['minutes'] ], 'express' );
+		/* Deadline se postavlja pri prvom posjetu; refresh USRED aktivnog
+		   countdowna ga NE resetira. Ali ISTEKLI deadline se na svjezem page
+		   loadu ponovno pokrece (retargeting: kupac se vrati kroz drugi oglas
+		   nakon isteka i mora opet vidjeti ponudu). Ovaj hook ne vrti wc-ajax
+		   ni checkout submit (WC_AJAX die-a na template_redirect@0), pa istek
+		   unutar iste posjete i dalje enforcea punu cijenu. */
+		$deadline = (int) WC()->session->get( $key );
+		if ( $deadline > time() ) {
+			return;
 		}
+		WC()->session->set( $key, time() + $config['minutes'] * 60 );
+		WC()->session->set( self::DEAL_ACK_PREFIX . $pid, null );
+		RPSM_Checkout_Debug::info(
+			$deadline > 0 ? 'Express deal: countdown RESTARTAN nakon isteka (novi page load)' : 'Express deal: countdown pokrenut',
+			[ 'product' => $pid, 'minutes' => $config['minutes'] ],
+			'express'
+		);
 	}
 
 	/** Preostale sekunde ponude; null = ponuda ne postoji, 0 = istekla. */

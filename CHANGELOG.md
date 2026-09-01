@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.11.1.0 (2026-09-01) - Istekli countdown se ponovno pokrece na novom posjetu
+
+- Retargeting fix: kupac koji se vrati na express stranicu NAKON isteka
+  countdowna (drugi oglas, WC sesija traje ~48h) opet dobiva ponudu -
+  istekli deadline se na svjezem page loadu resetira na puni countdown.
+- Refresh USRED aktivnog countdowna i dalje NE resetira timer; istek
+  unutar iste posjete i dalje enforcea punu cijenu (wc-ajax i submit ne
+  prolaze kroz restart hook - server ostaje autoritet).
+
 ## 1.11.0.0 (2026-08-27) - Express marker na narudzbi
 
 - Svaka narudzba kroz express checkout dobiva meta `_rpsm_checkout_type` =
